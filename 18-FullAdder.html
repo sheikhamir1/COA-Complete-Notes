@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Full Adder: Digital Logic Circuit</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: #333;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      header {
+        text-align: center;
+        padding: 40px 0;
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: white;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        animation: fadeInDown 1s ease;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+
+      .section {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        animation: fadeInUp 1s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(to bottom, #e74c3c, #c0392b);
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        color: #c0392b;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      .section-title i {
+        margin-right: 10px;
+      }
+
+      .step {
+        margin: 20px 0;
+        padding-left: 20px;
+        border-left: 2px solid #e0e0e0;
+        animation: slideInLeft 0.8s ease;
+      }
+
+      .step-title {
+        font-weight: 600;
+        color: #c0392b;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .step-title i {
+        margin-right: 8px;
+      }
+
+      .math {
+        font-family: "Courier New", monospace;
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        overflow-x: auto;
+        border-left: 4px solid #e74c3c;
+      }
+
+      .highlight {
+        background: linear-gradient(
+          120deg,
+          rgba(231, 76, 60, 0.1) 0%,
+          rgba(192, 57, 43, 0.1) 100%
+        );
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .final-result {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        text-align: center;
+        font-size: 1.2rem;
+        box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        animation: pulse 2s infinite;
+      }
+
+      .truth-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+      }
+
+      .truth-table th,
+      .truth-table td {
+        padding: 12px 15px;
+        text-align: center;
+      }
+
+      .truth-table th {
+        background-color: #e74c3c;
+        color: white;
+        font-weight: 600;
+      }
+
+      .truth-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      .truth-table tr:hover {
+        background-color: #e2e2e2;
+      }
+
+      .summary-box {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+        border-left: 4px solid #c0392b;
+      }
+
+      .emoji {
+        font-size: 1.2rem;
+        margin-right: 5px;
+        vertical-align: middle;
+      }
+
+      .scroll-indicator {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        animation: bounce 2s infinite;
+        z-index: 100;
+      }
+
+      .nav-dots {
+        position: fixed;
+        top: 50%;
+        right: 30px;
+        transform: translateY(-50%);
+        z-index: 100;
+      }
+
+      .nav-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(231, 76, 60, 0.3);
+        margin: 10px 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .nav-dot.active {
+        background: #e74c3c;
+        transform: scale(1.2);
+      }
+
+      .logic-diagram {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+
+      .gate {
+        background: #f8f9fa;
+        border: 2px solid #e74c3c;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px;
+        text-align: center;
+        min-width: 120px;
+      }
+
+      .gate-title {
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #c0392b;
+      }
+
+      .gate-symbol {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      .gate-description {
+        font-size: 0.9rem;
+      }
+
+      .application-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        border-left: 4px solid #e74c3c;
+        transition: transform 0.3s ease;
+      }
+
+      .application-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .application-title {
+        font-weight: 600;
+        color: #c0392b;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .application-title i {
+        margin-right: 8px;
+      }
+
+      .block-diagram {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+
+      .block {
+        background: #f8f9fa;
+        border: 2px solid #e74c3c;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px;
+        text-align: center;
+        min-width: 100px;
+      }
+
+      .arrow {
+        font-size: 2rem;
+        margin: 0 10px;
+        color: #e74c3c;
+      }
+
+      .advantage-box {
+        background: #e8f5e9;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        border-left: 4px solid #4caf50;
+      }
+
+      .disadvantage-box {
+        background: #ffebee;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        border-left: 4px solid #f44336;
+      }
+
+      .implementation-image {
+        max-width: 100%;
+        border-radius: 8px;
+        margin: 20px 0;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideInLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+        }
+      }
+
+      @keyframes bounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-10px);
+        }
+        60% {
+          transform: translateY(-5px);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 10px;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        .section {
+          padding: 20px;
+        }
+
+        .truth-table {
+          font-size: 0.9rem;
+        }
+
+        .nav-dots {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1><span class="emoji">🔹</span> What is a Full Adder?</h1>
+        <p class="subtitle">Digital Circuit for Adding Three Binary Inputs</p>
+      </header>
+
+      <div class="section" id="definition">
+        <h2 class="section-title">
+          <i class="fas fa-info-circle"></i> Definition
+        </h2>
+        <p>
+          A Full Adder is a digital circuit that adds 3 one-bit inputs together:
+        </p>
+
+        <div class="summary-box">
+          <p><span class="emoji">📥</span> <strong>Inputs:</strong></p>
+          <ul>
+            <li>A → first bit</li>
+            <li>B → second bit</li>
+            <li>Cin → carry-in (from the previous addition)</li>
+          </ul>
+
+          <p><span class="emoji">📤</span> <strong>Outputs:</strong></p>
+          <ul>
+            <li>Sum (the result of the addition)</li>
+            <li>Cout (the carry-out that goes to the next adder)</li>
+          </ul>
+        </div>
+
+        <div class="final-result">
+          <span class="emoji">🔹</span> So basically, a Full Adder = Half Adder
+          + Carry input.
+        </div>
+
+        <p>
+          Only two numbers can be added using the half adder. In order to solve
+          this issue, the full adder was created. The three 1-bit binary values
+          A, B, and carry C are added using the whole adder. There are two
+          output stages—sum and carry—and three input states in the entire
+          adder.
+        </p>
+      </div>
+
+      <div class="section" id="truth-table">
+        <h2 class="section-title">
+          <i class="fas fa-table"></i> Truth Table for Full Adder
+        </h2>
+
+        <table class="truth-table">
+          <thead>
+            <tr>
+              <th>A</th>
+              <th>B</th>
+              <th>Cin</th>
+              <th>Sum</th>
+              <th>Cout</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>0</td>
+              <td>1</td>
+              <td>1</td>
+              <td>0</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-lightbulb"></i> Key Observations
+          </div>
+          <ul>
+            <li>
+              These are the input variables: "A" and "B." These variables stand
+              for the two important bits that will be added.
+            </li>
+            <li>
+              The third input, "Cin," stands for the carry. The carry bit is
+              obtained from the preceding lower significant place.
+            </li>
+            <li>
+              The output variables that define the output values are 'Sum' and
+              'Carry'.
+            </li>
+            <li>
+              All conceivable combinations of 0 and 1 that can occur in these
+              variables are indicated by the eight rows under the input
+              variable.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section" id="equations">
+        <h2 class="section-title">
+          <i class="fas fa-calculator"></i> Deriving the Equations
+        </h2>
+
+        <p>From the truth table:</p>
+
+        <div class="step">
+          <div class="step-title"><i class="fas fa-plus"></i> Sum (S)</div>
+          <p>
+            Sum is 1 when an odd number of inputs are 1. That's exactly what XOR
+            does:
+          </p>
+          <div class="math">Sum = A ⊕ B ⊕ Cin</div>
+
+          <div class="summary-box">
+            <p><strong>Derivation:</strong></p>
+            <p>
+              From the truth table, the logical expression for the sum (S) in a
+              full adder is:
+            </p>
+            <div class="math">S = A'B'Cin + A'BCin' + AB'Cin' + ABCin</div>
+            <p>Since A'B + AB' = A ⊕ B. This simplifies to:</p>
+            <div class="math">S = Cin(A ⊕ B)' + Cin'(A ⊕ B)</div>
+            <p>The final simplified expression is:</p>
+            <div class="math">S = A ⊕ B ⊕ Cin</div>
+            <p>Thus, the sum output is the XOR of A, B, and Cin.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-share"></i> Carry Out (Cout)
+          </div>
+          <p>
+            Carry Out (Cout) is 1 when at least two or more inputs are 1. So the
+            equation is:
+          </p>
+          <div class="math">Cout = (A·B) + (B·Cin) + (A·Cin)</div>
+
+          <div class="summary-box">
+            <p><strong>Derivation:</strong></p>
+            <p>
+              From the truth table, the logical expression for Cout (carry-out)
+              in a full adder is:
+            </p>
+            <div class="math">Cout = A'BCin + AB'Cin + ABCin' + ABCin</div>
+            <p>This simplifies to:</p>
+            <div class="math">Cout = AB(Cin'+Cin) + Cin(A'B+AB')</div>
+            <p>
+              Since Cin' + Cin = 1 and A'B + AB' = A ⊕ B. Thus, the final
+              simplified expression is:
+            </p>
+            <div class="math">Cout = AB + Cin(A ⊕ B)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="visualization">
+        <h2 class="section-title">
+          <i class="fas fa-eye"></i> Easy Way to Visualize
+        </h2>
+
+        <div class="summary-box">
+          <p>
+            <span class="emoji">🔹</span> A Half Adder handles 2 inputs → (Sum,
+            Carry).
+          </p>
+          <p>
+            <span class="emoji">🔹</span> A Full Adder handles 3 inputs (A, B,
+            Cin) → (Sum, Cout).
+          </p>
+          <p>
+            <span class="emoji">🔹</span> In practice: You can build a Full
+            Adder using 2 Half Adders + 1 OR gate.
+          </p>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-calculator"></i> Example: Add 1 + 1 + 1
+          </div>
+          <p>Inputs: A=1, B=1, Cin=1</p>
+          <div class="math">Sum = 1 ⊕ 1 ⊕ 1 = 1</div>
+          <div class="math">Cout = (1·1) + (1·1) + (1·1) = 1</div>
+          <p>Final result = 11 (binary for 3).</p>
+        </div>
+      </div>
+
+      <div class="section" id="block-diagram">
+        <h2 class="section-title">
+          <i class="fas fa-sitemap"></i> Block Diagram
+        </h2>
+
+        <div class="block-diagram">
+          <div class="block">A</div>
+          <div class="arrow">→</div>
+          <div class="block">Full<br />Adder</div>
+          <div class="arrow">→</div>
+          <div class="block">Sum</div>
+        </div>
+
+        <div class="block-diagram">
+          <div class="block">B</div>
+          <div class="arrow">→</div>
+          <div class="block"></div>
+          <div class="arrow">→</div>
+          <div class="block">Cout</div>
+        </div>
+
+        <div class="block-diagram">
+          <div class="block">Cin</div>
+          <div class="arrow">→</div>
+          <div class="block"></div>
+          <div class="arrow"></div>
+          <div class="block"></div>
+        </div>
+
+        <div class="summary-box">
+          <p>
+            The building of the whole adder circuit is shown in the block
+            diagram above. The OR gate is used to merge the two half-adder
+            circuits in the circuit above.
+          </p>
+        </div>
+      </div>
+
+      <div class="section" id="design">
+        <h2 class="section-title">
+          <i class="fas fa-drafting-compass"></i> Design of Full Adder
+        </h2>
+
+        <p>
+          A and B are the two single-bit binary inputs of the first half adder.
+          As is well known, the half adder generates the outputs sum and carry.
+          In the second half adder, the 'Carry' output of the first adder will
+          be the second input, and the 'Sum' output of the first adder will be
+          the first input. 'Sum' and 'Carry' will once more be provided by the
+          second half adder.
+        </p>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-cogs"></i> Implementation Process
+          </div>
+          <ul>
+            <li>The 'Sum' bit is the result of the complete adder circuit.</li>
+            <li>
+              We feed the "Carry" outputs from the first and second adders into
+              the OR gate in order to determine the final output of the "Carry."
+            </li>
+            <li>
+              The final execution of the entire adder circuit will result from
+              the OR gate.
+            </li>
+            <li>The last 'Carry' bit is to represent the MSB.</li>
+            <li>
+              The 'AND' and 'XOR' gates combined with an OR gate can be used to
+              build the entire adder logic circuit.
+            </li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-code"></i> Boolean Expressions
+          </div>
+          <p><strong>Sum:</strong></p>
+          <ul>
+            <li>Perform the XOR operation of input A and B.</li>
+            <li>
+              Perform the XOR operation of the outcome with carry. So, the sum
+              is (A XOR B) XOR Cin which is also represented as: (A ⊕ B) ⊕ Cin
+            </li>
+          </ul>
+
+          <p><strong>Carry:</strong></p>
+          <ul>
+            <li>Perform the 'AND' operation of input A and B.</li>
+            <li>Perform the 'XOR' operation of input A and B.</li>
+            <li>
+              Perform the 'OR' operations of both the outputs that come from the
+              previous two steps. So the 'Carry' can be represented as: A.B + (A
+              ⊕ B)
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section" id="logic-circuit">
+        <h2 class="section-title">
+          <i class="fas fa-project-diagram"></i> Logic Circuit of Full Adder
+        </h2>
+
+        <p>To implement a Full Adder using basic logic gates:</p>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-plus"></i> Sum (S) Implementation
+          </div>
+          <p>Sum (S) is implemented using XOR gates:</p>
+          <ul>
+            <li>Use two XOR gates:</li>
+            <li>First XOR gate: A ⊕ B</li>
+            <li>Second XOR gate: (A ⊕ B) ⊕ Cin to get the final sum S.</li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-share"></i> Carry (C-Out) Implementation
+          </div>
+          <p>Carry (C-Out) is implemented using XOR, AND and OR gates:</p>
+          <ul>
+            <li>First AND gate: This gate calculates A AND B.</li>
+            <li>
+              Second AND gate: This gate calculates Cin AND (A ⊕ B). To do this,
+              you need the result of the first XOR gate (A ⊕ B) as an input to
+              the second AND gate.
+            </li>
+            <li>
+              Finally, the two outputs from the AND gates are combined using an
+              OR gate to generate the final C-OUT output.
+            </li>
+          </ul>
+        </div>
+
+        <div class="logic-diagram">
+          <div class="gate">
+            <div class="gate-title">XOR Gate 1</div>
+            <div class="gate-symbol">⊕</div>
+            <div class="gate-description">A ⊕ B</div>
+          </div>
+
+          <div class="gate">
+            <div class="gate-title">XOR Gate 2</div>
+            <div class="gate-symbol">⊕</div>
+            <div class="gate-description">(A ⊕ B) ⊕ Cin = Sum</div>
+          </div>
+
+          <div class="gate">
+            <div class="gate-title">AND Gate 1</div>
+            <div class="gate-symbol">∧</div>
+            <div class="gate-description">A AND B</div>
+          </div>
+
+          <div class="gate">
+            <div class="gate-title">AND Gate 2</div>
+            <div class="gate-symbol">∧</div>
+            <div class="gate-description">(A ⊕ B) AND Cin</div>
+          </div>
+
+          <div class="gate">
+            <div class="gate-title">OR Gate</div>
+            <div class="gate-symbol">∨</div>
+            <div class="gate-description">
+              (A AND B) OR ((A ⊕ B) AND Cin) = Cout
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="implementation-half-adders">
+        <h2 class="section-title">
+          <i class="fas fa-layer-group"></i> Implementation using Half Adders
+        </h2>
+
+        <p>
+          2 Half Adders and an OR gate is required to implement a Full Adder.
+        </p>
+
+        <div class="summary-box">
+          <p>
+            With this logic circuit, two bits can be added together, taking a
+            carry from the next lower order of magnitude, and sending a carry to
+            the next higher order of magnitude.
+          </p>
+        </div>
+
+        <div class="block-diagram">
+          <div class="block">A</div>
+          <div class="arrow">→</div>
+          <div class="block">Half<br />Adder 1</div>
+          <div class="arrow">→</div>
+          <div class="block">Half<br />Adder 2</div>
+          <div class="arrow">→</div>
+          <div class="block">Sum</div>
+        </div>
+
+        <div class="block-diagram">
+          <div class="block">B</div>
+          <div class="arrow">→</div>
+          <div class="block"></div>
+          <div class="arrow">→</div>
+          <div class="block"></div>
+          <div class="arrow"></div>
+          <div class="block"></div>
+        </div>
+
+        <div class="block-diagram">
+          <div class="block">Cin</div>
+          <div class="arrow">→</div>
+          <div class="block"></div>
+          <div class="arrow">→</div>
+          <div class="block"></div>
+          <div class="arrow">→</div>
+          <div class="block">OR</div>
+          <div class="arrow">→</div>
+          <div class="block">Cout</div>
+        </div>
+
+        <div class="block-diagram">
+          <div class="block"></div>
+          <div class="arrow"></div>
+          <div class="block"></div>
+          <div class="arrow">→</div>
+          <div class="block"></div>
+          <div class="arrow">→</div>
+          <div class="block"></div>
+          <div class="arrow"></div>
+          <div class="block"></div>
+        </div>
+      </div>
+
+      <div class="section" id="implementation-nand-nor">
+        <h2 class="section-title">
+          <i class="fas fa-microchip"></i> Implementation using NAND and NOR
+          Gates
+        </h2>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-microchip"></i> NAND Gate Implementation
+          </div>
+          <p>Total 9 NAND gates are required to implement a Full Adder.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-microchip"></i> NOR Gate Implementation
+          </div>
+          <p>Total 9 NOR gates are required to implement a Full Adder.</p>
+        </div>
+      </div>
+
+      <div class="section" id="advantages-disadvantages">
+        <h2 class="section-title">
+          <i class="fas fa-balance-scale"></i> Advantages and Disadvantages
+        </h2>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-thumbs-up"></i> Advantages
+          </div>
+
+          <div class="advantage-box">
+            <p>
+              <span class="emoji">🔧</span> <strong>Flexibility:</strong> A full
+              adder can add three information bits, making it more flexible than
+              a half adder. It can likewise be utilized to add multi-bit numbers
+              by binding different full adders together.
+            </p>
+          </div>
+
+          <div class="advantage-box">
+            <p>
+              <span class="emoji">🔄</span> <strong>Carry Info:</strong> The
+              full adder has a convey input, which permits it to perform
+              expansion of multi-bit numbers and to chain different adders
+              together.
+            </p>
+          </div>
+
+          <div class="advantage-box">
+            <p>
+              <span class="emoji">⚡</span> <strong>Speed:</strong> The full
+              adder works at an extremely fast, making it reasonable for use in
+              rapid computerized circuits.
+            </p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-thumbs-down"></i> Disadvantages
+          </div>
+
+          <div class="disadvantage-box">
+            <p>
+              <span class="emoji">🧩</span> <strong>Complexity:</strong> The
+              full adder is more mind boggling than a half adder and requires
+              more parts like XOR, AND, or potentially entryways. It is likewise
+              more challenging to execute and plan.
+            </p>
+          </div>
+
+          <div class="disadvantage-box">
+            <p>
+              <span class="emoji">⏱️</span>
+              <strong>Propagation Deferral:</strong> The full adder circuit has
+              a propagation delay, which is the time it takes for the result to
+              change in light of an adjustment in the info. This can cause
+              timing issues in computerized circuits, particularly in fast
+              frameworks.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="applications">
+        <h2 class="section-title"><i class="fas fa-cogs"></i> Applications</h2>
+
+        <p>
+          Full adders are crucial components in various digital systems and
+          arithmetic circuits. Here are some key applications:
+        </p>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-calculator"></i> Multi-bit Binary Addition
+          </div>
+          <p>
+            Full adders can be connected in series to add multi-bit binary
+            numbers.
+          </p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-microchip"></i> Arithmetic Logic Units (ALUs)
+          </div>
+          <p>
+            ALUs in processors use full adders to perform arithmetic operations.
+          </p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-sort-numeric-up"></i> Digital Counters
+          </div>
+          <p>
+            Full adders are used in the design of digital counters and
+            registers.
+          </p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-times"></i> Binary Multipliers
+          </div>
+          <p>
+            Full adders are used in binary multipliers for performing addition
+            of partial products.
+          </p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-minus"></i> Subtraction Circuits
+          </div>
+          <p>Full adders can be modified to perform binary subtraction.</p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-database"></i> Data Processing
+          </div>
+          <p>
+            Full adders are used in information handling applications like
+            advanced signal handling, information encryption, and mistake
+            rectification.
+          </p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-exchange-alt"></i> Multiplexers and Demultiplexers
+          </div>
+          <p>
+            Full adders are used in multiplexers and demultiplexers to choose
+            and course information.
+          </p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-memory"></i> Memory Addressing
+          </div>
+          <p>
+            Full adders are used in memory addressing circuits to produce the
+            location of a particular memory area.
+          </p>
+        </div>
+      </div>
+
+      <div class="section" id="summary">
+        <h2 class="section-title">
+          <i class="fas fa-check-circle"></i> Summary
+        </h2>
+
+        <div class="summary-box">
+          <p>
+            <span class="emoji">🔹</span> <strong>Full Adder</strong> is a
+            combinational circuit that adds three inputs and produces two
+            outputs.
+          </p>
+          <p>
+            <span class="emoji">🔹</span> The first two inputs are A and B and
+            the third input is an input carry as C-IN.
+          </p>
+          <p>
+            <span class="emoji">🔹</span> The output carry is designated as
+            C-OUT and the normal output is designated as S which is SUM.
+          </p>
+          <p>
+            <span class="emoji">🔹</span> The C-OUT is also known as the
+            majority 1's detector, whose output goes high when more than one
+            input is high.
+          </p>
+          <p>
+            <span class="emoji">🔹</span> A full adder logic is designed in such
+            a manner that can take eight inputs together to create a byte-wide
+            adder and cascade the carry bit from one adder to another.
+          </p>
+          <p>
+            <span class="emoji">🔹</span> We use a full adder because when a
+            carry-in bit is available, another 1-bit adder must be used since a
+            1-bit half-adder does not take a carry-in bit.
+          </p>
+          <p>
+            <span class="emoji">🔹</span> A 1-bit full adder adds three operands
+            and generates 2-bit results.
+          </p>
+        </div>
+
+        <div class="final-result">
+          <p>
+            Full adders are essential building blocks in digital logic circuits,
+            forming the foundation for more complex arithmetic operations in
+            computer systems.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-dots">
+      <div class="nav-dot active" onclick="scrollToSection('definition')"></div>
+      <div class="nav-dot" onclick="scrollToSection('truth-table')"></div>
+      <div class="nav-dot" onclick="scrollToSection('equations')"></div>
+      <div class="nav-dot" onclick="scrollToSection('visualization')"></div>
+      <div class="nav-dot" onclick="scrollToSection('block-diagram')"></div>
+      <div class="nav-dot" onclick="scrollToSection('design')"></div>
+      <div class="nav-dot" onclick="scrollToSection('logic-circuit')"></div>
+      <div
+        class="nav-dot"
+        onclick="scrollToSection('implementation-half-adders')"
+      ></div>
+      <div
+        class="nav-dot"
+        onclick="scrollToSection('implementation-nand-nor')"
+      ></div>
+      <div
+        class="nav-dot"
+        onclick="scrollToSection('advantages-disadvantages')"
+      ></div>
+      <div class="nav-dot" onclick="scrollToSection('applications')"></div>
+      <div class="nav-dot" onclick="scrollToSection('summary')"></div>
+    </div>
+
+    <div class="scroll-indicator" onclick="scrollToTop()">
+      <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+      // Function to scroll to top
+      function scrollToTop() {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      }
+
+      // Function to scroll to a specific section
+      function scrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+          section.scrollIntoView({
+            behavior: "smooth",
+          });
+        }
+      }
+
+      // Update active nav dot based on scroll position
+      window.addEventListener("scroll", () => {
+        const sections = [
+          "definition",
+          "truth-table",
+          "equations",
+          "visualization",
+          "block-diagram",
+          "design",
+          "logic-circuit",
+          "implementation-half-adders",
+          "implementation-nand-nor",
+          "advantages-disadvantages",
+          "applications",
+          "summary",
+        ];
+        const navDots = document.querySelectorAll(".nav-dot");
+
+        let current = "";
+        sections.forEach((sectionId) => {
+          const section = document.getElementById(sectionId);
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.clientHeight;
+          if (pageYOffset >= sectionTop - 200) {
+            current = sectionId;
+          }
+        });
+
+        sections.forEach((sectionId, index) => {
+          if (current === sectionId) {
+            navDots[index].classList.add("active");
+          } else {
+            navDots[index].classList.remove("active");
+          }
+        });
+      });
+
+      // Add animation to elements when they come into view
+      const observerOptions = {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.1,
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = 1;
+            entry.target.style.transform = "translateY(0)";
+          }
+        });
+      }, observerOptions);
+
+      // Observe all sections
+      document.querySelectorAll(".section").forEach((section) => {
+        section.style.opacity = 0;
+        section.style.transform = "translateY(20px)";
+        section.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+        observer.observe(section);
+      });
+    </script>
+  </body>
+</html>

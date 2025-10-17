@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multiplication Algorithms – Full Context</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --success-color: #2ecc71;
+        --warning-color: #f39c12;
+        --info-color: #9b59b6;
+        --text-color: #333;
+        --light-bg: #f8f9fa;
+        --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        color: var(--text-color);
+        background-color: var(--light-bg);
+        overflow-x: hidden;
+      }
+
+      .slide-container {
+        width: 100%;
+        height: 100vh;
+        overflow-y: scroll;
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+      }
+
+      .slide {
+        min-height: 100vh;
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        scroll-snap-align: start;
+        position: relative;
+        background-color: white;
+      }
+
+      .slide:nth-child(even) {
+        background-color: var(--light-bg);
+      }
+
+      .slide-content {
+        max-width: 900px;
+        width: 100%;
+        text-align: center;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      h1 {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+        position: relative;
+        display: inline-block;
+      }
+
+      h1::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(
+          90deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        border-radius: 2px;
+      }
+
+      h2 {
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+        color: var(--primary-color);
+      }
+
+      h3 {
+        font-size: 1.8rem;
+        margin: 25px 0 15px;
+        color: var(--secondary-color);
+        position: relative;
+        display: inline-block;
+      }
+
+      p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .emoji {
+        font-size: 1.5rem;
+        vertical-align: middle;
+        margin: 0 5px;
+      }
+
+      .card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: left;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+
+      .algorithm-card {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 8px;
+        background-color: var(--light-bg);
+        transition: all 0.3s ease;
+      }
+
+      .algorithm-card:hover {
+        background-color: #e9ecef;
+        transform: translateX(10px);
+      }
+
+      .algorithm-icon {
+        font-size: 2rem;
+        margin-right: 20px;
+        color: var(--secondary-color);
+      }
+
+      .algorithm-details {
+        flex: 1;
+      }
+
+      .algorithm-name {
+        font-weight: 600;
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+      }
+
+      .navigation {
+        position: fixed;
+        right: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+      }
+
+      .nav-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #ccc;
+        margin: 15px 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .nav-dot.active {
+        background-color: var(--primary-color);
+        transform: scale(1.3);
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .feature-card {
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        text-align: center;
+      }
+
+      .feature-card:hover {
+        transform: scale(1.05);
+      }
+
+      .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+      }
+
+      .step-box {
+        background-color: var(--light-bg);
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px 0;
+        text-align: left;
+        position: relative;
+      }
+
+      .step-number {
+        position: absolute;
+        left: -15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: var(--secondary-color);
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+      }
+
+      .summary-box {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        margin-top: 30px;
+        box-shadow: var(--card-shadow);
+      }
+
+      .highlight {
+        background-color: rgba(52, 152, 219, 0.2);
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      .floating {
+        animation: floating 3s ease-in-out infinite;
+      }
+
+      @keyframes floating {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+
+      .pulse {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .slide-number {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        font-size: 1rem;
+        color: #888;
+      }
+
+      .binary-display {
+        font-family: "Courier New", monospace;
+        background-color: #f1f3f5;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        text-align: left;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .binary-display::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.6),
+          transparent
+        );
+        animation: shine 3s infinite;
+      }
+
+      @keyframes shine {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+
+      .multiplication-visual {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+      }
+
+      .multiplication-step {
+        margin: 0 10px;
+        text-align: center;
+      }
+
+      .multiplication-arrow {
+        font-size: 2rem;
+        margin: 0 10px;
+        color: var(--secondary-color);
+        align-self: center;
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background-color: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ecf0f1;
+      }
+
+      .comparison-table th {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .comparison-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .comparison-table tr:hover {
+        background-color: #f8f9fa;
+      }
+
+      .hardware-component {
+        display: flex;
+        align-items: center;
+        margin: 15px 0;
+        padding: 15px;
+        background-color: var(--light-bg);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .hardware-component:hover {
+        background-color: #e9ecef;
+        transform: translateX(10px);
+      }
+
+      .hardware-icon {
+        font-size: 2rem;
+        margin-right: 20px;
+        color: var(--info-color);
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2.5rem;
+        }
+        h2 {
+          font-size: 2rem;
+        }
+        h3 {
+          font-size: 1.5rem;
+        }
+        .slide {
+          padding: 40px 20px;
+        }
+        .navigation {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <!-- Slide 1: Title -->
+      <div class="slide" id="slide1">
+        <div class="slide-content">
+          <h1 class="floating">Multiplication Algorithms</h1>
+          <p class="emoji" style="font-size: 3rem">✖️ ⚙️ 💻</p>
+          <p style="font-size: 1.3rem; margin-top: 30px">Full Context</p>
+          <div class="binary-display">
+            1011 × 1101 = 10001111<br />
+            (11) × (13) = (143)
+          </div>
+        </div>
+        <div class="slide-number">1/10</div>
+      </div>
+
+      <!-- Slide 2: What are Multiplication Algorithms? -->
+      <div class="slide" id="slide2">
+        <div class="slide-content">
+          <h2>What are Multiplication Algorithms?</h2>
+          <div class="card pulse">
+            <p>
+              Multiplication algorithms are systematic methods used to multiply
+              two numbers, especially in digital electronics and computer
+              arithmetic.
+            </p>
+          </div>
+
+          <div class="grid-container">
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--info-color)">
+                💻
+              </div>
+              <h3>Software</h3>
+              <p>
+                Ensure efficiency when dealing with large datasets (e.g.,
+                cryptography, simulations).
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--warning-color)">
+                ⚙️
+              </div>
+              <h3>Hardware</h3>
+              <p>
+                Implemented as circuit designs in CPUs, GPUs, and DSPs to make
+                multiplication fast and power-efficient.
+              </p>
+            </div>
+          </div>
+
+          <div class="card">
+            <p>
+              <span class="emoji">🔍</span> Different algorithms are optimized
+              for different use cases, balancing speed, power consumption, and
+              hardware complexity.
+            </p>
+          </div>
+        </div>
+        <div class="slide-number">2/10</div>
+      </div>
+
+      <!-- Slide 3: Binary Multiplication Basics -->
+      <div class="slide" id="slide3">
+        <div class="slide-content">
+          <h2>Binary Multiplication Basics</h2>
+          <p>
+            Binary multiplication follows the same principles as decimal
+            multiplication, except it only uses 0 and 1.
+          </p>
+
+          <div class="step-box">
+            <div class="step-number">1</div>
+            <h4>Partial Products</h4>
+            <p>Each bit of the multiplier is ANDed with the multiplicand.</p>
+          </div>
+
+          <div class="step-box">
+            <div class="step-number">2</div>
+            <h4>Shifting</h4>
+            <p>
+              Each new partial product is shifted left according to its bit
+              position.
+            </p>
+          </div>
+
+          <div class="step-box">
+            <div class="step-number">3</div>
+            <h4>Summation</h4>
+            <p>Add up all the shifted partial products.</p>
+          </div>
+
+          <div class="card">
+            <p>
+              <span class="emoji">📌</span> <strong>Example:</strong> Multiply
+              1011 (11 in decimal) × 1101 (13 in decimal):
+            </p>
+            <div class="binary-display">
+              1011<br />
+              ×1101<br />
+              -------<br />
+              1011<br />
+              0000<br />
+              1011<br />
+              1011<br />
+              -------<br />
+              10001111 (143 in decimal)
+            </div>
+            <p>This is the foundation of all advanced algorithms.</p>
+          </div>
+        </div>
+        <div class="slide-number">3/10</div>
+      </div>
+
+      <!-- Slide 4: Booth's Algorithm -->
+      <div class="slide" id="slide4">
+        <div class="slide-content">
+          <h2>Booth's Algorithm</h2>
+          <p>
+            Designed to handle signed binary multiplication more efficiently
+            than naive methods.
+          </p>
+
+          <div class="card">
+            <h3><span class="emoji">💡</span> Key Idea</h3>
+            <p>
+              Instead of multiplying bit-by-bit, it looks at two adjacent bits
+              of the multiplier to decide whether to add, subtract, or skip the
+              multiplicand.
+            </p>
+          </div>
+
+          <div class="step-box">
+            <div class="step-number">1</div>
+            <h4>Initialize</h4>
+            <p>Store multiplicand (M), multiplier (Q), accumulator (A = 0).</p>
+          </div>
+
+          <div class="step-box">
+            <div class="step-number">2</div>
+            <h4>Examine</h4>
+            <p>
+              Look at two bits: (current bit of Q and the bit to its right).
+            </p>
+            <ul style="text-align: left; margin-left: 20px">
+              <li>00 → No operation</li>
+              <li>01 → Add M to A</li>
+              <li>10 → Subtract M from A</li>
+              <li>11 → No operation</li>
+            </ul>
+          </div>
+
+          <div class="step-box">
+            <div class="step-number">3</div>
+            <h4>Shift</h4>
+            <p>Right-shift the register pair (A, Q).</p>
+          </div>
+
+          <div class="step-box">
+            <div class="step-number">4</div>
+            <h4>Repeat</h4>
+            <p>Repeat for all bits.</p>
+          </div>
+
+          <div class="grid-container">
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--success-color)">
+                ✅
+              </div>
+              <h3>Advantage</h3>
+              <p>Reduces the number of addition/subtraction operations.</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--info-color)">
+                💻
+              </div>
+              <h3>Use Case</h3>
+              <p>Multiplying signed integers in CPUs.</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">4/10</div>
+      </div>
+
+      <!-- Slide 5: Modified Booth's Algorithm -->
+      <div class="slide" id="slide5">
+        <div class="slide-content">
+          <h2>Modified Booth's Algorithm</h2>
+          <p>
+            Improves Booth's by looking at three bits at a time (instead of
+            two).
+          </p>
+
+          <div class="multiplication-visual">
+            <div class="multiplication-step">
+              <div class="feature-icon" style="color: var(--secondary-color)">
+                🔍
+              </div>
+              <p>3-bit Groups</p>
+            </div>
+            <div class="multiplication-arrow">→</div>
+            <div class="multiplication-step">
+              <div class="feature-icon" style="color: var(--warning-color)">
+                🔄
+              </div>
+              <p>Recoding</p>
+            </div>
+            <div class="multiplication-arrow">→</div>
+            <div class="multiplication-step">
+              <div class="feature-icon" style="color: var(--success-color)">
+                ✖️
+              </div>
+              <p>Multiply</p>
+            </div>
+          </div>
+
+          <div class="step-box">
+            <div class="step-number">1</div>
+            <h4>Group</h4>
+            <p>Group the multiplier into overlapping 3-bit groups.</p>
+          </div>
+
+          <div class="step-box">
+            <div class="step-number">2</div>
+            <h4>Recoding</h4>
+            <p>Translate these into values like -2, -1, 0, +1, +2.</p>
+          </div>
+
+          <div class="step-box">
+            <div class="step-number">3</div>
+            <h4>Multiply & Accumulate</h4>
+            <p>
+              Multiply and accumulate partial products based on these recoded
+              digits.
+            </p>
+          </div>
+
+          <div class="grid-container">
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--success-color)">
+                ✅
+              </div>
+              <h3>Advantage</h3>
+              <p>
+                Reduces the number of steps by halving the number of partial
+                products.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--info-color)">
+                💻
+              </div>
+              <h3>Use Case</h3>
+              <p>High-speed processors, floating-point units.</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">5/10</div>
+      </div>
+
+      <!-- Slide 6: Array Multiplier -->
+      <div class="slide" id="slide6">
+        <div class="slide-content">
+          <h2>Array Multiplier</h2>
+          <p>
+            A combinational circuit that directly implements binary
+            multiplication using AND gates and adders.
+          </p>
+
+          <div class="multiplication-visual">
+            <div class="multiplication-step">
+              <div class="feature-icon" style="color: var(--secondary-color)">
+                ∧
+              </div>
+              <p>AND Gates</p>
+            </div>
+            <div class="multiplication-arrow">→</div>
+            <div class="multiplication-step">
+              <div class="feature-icon" style="color: var(--warning-color)">
+                ⇄
+              </div>
+              <p>Shifting</p>
+            </div>
+            <div class="multiplication-arrow">→</div>
+            <div class="multiplication-step">
+              <div class="feature-icon" style="color: var(--success-color)">
+                +
+              </div>
+              <p>Adders</p>
+            </div>
+          </div>
+
+          <div class="step-box">
+            <div class="step-number">1</div>
+            <h4>Generate Partial Products</h4>
+            <p>Using AND gates.</p>
+          </div>
+
+          <div class="step-box">
+            <div class="step-number">2</div>
+            <h4>Align</h4>
+            <p>Align them by shifting (based on bit position).</p>
+          </div>
+
+          <div class="step-box">
+            <div class="step-number">3</div>
+            <h4>Add</h4>
+            <p>Add them using a grid of adders.</p>
+          </div>
+
+          <div class="card">
+            <p>
+              <span class="emoji">📌</span> <strong>Example:</strong> For 4-bit
+              numbers, it creates a 4×4 AND gate array, with adders handling
+              partial sums.
+            </p>
+          </div>
+
+          <div class="grid-container">
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--success-color)">
+                ✅
+              </div>
+              <h3>Advantage</h3>
+              <p>Simple design, parallel generation of partial products.</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--accent-color)">
+                ❌
+              </div>
+              <h3>Disadvantage</h3>
+              <p>Slower for large numbers, consumes more hardware resources.</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--info-color)">
+                💻
+              </div>
+              <h3>Use Case</h3>
+              <p>Small multipliers in microcontrollers.</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">6/10</div>
+      </div>
+
+      <!-- Slide 7: Wallace Tree Multiplier -->
+      <div class="slide" id="slide7">
+        <div class="slide-content">
+          <h2>Wallace Tree Multiplier</h2>
+          <p>
+            An optimized parallel approach to speed up the summation of partial
+            products.
+          </p>
+
+          <div class="multiplication-visual">
+            <div class="multiplication-step">
+              <div class="feature-icon" style="color: var(--secondary-color)">
+                ✖️
+              </div>
+              <p>Partial Products</p>
+            </div>
+            <div class="multiplication-arrow">→</div>
+            <div class="multiplication-step">
+              <div class="feature-icon" style="color: var(--warning-color)">
+                🌳
+              </div>
+              <p>Tree Reduction</p>
+            </div>
+            <div class="multiplication-arrow">→</div>
+            <div class="multiplication-step">
+              <div class="feature-icon" style="color: var(--success-color)">
+                +
+              </div>
+              <p>Final Addition</p>
+            </div>
+          </div>
+
+          <div class="step-box">
+            <div class="step-number">1</div>
+            <h4>Generate</h4>
+            <p>Generate all partial products.</p>
+          </div>
+
+          <div class="step-box">
+            <div class="step-number">2</div>
+            <h4>Reduce</h4>
+            <p>
+              Use compressor circuits (half and full adders) in a tree-like
+              structure to reduce them to just two rows.
+            </p>
+          </div>
+
+          <div class="step-box">
+            <div class="step-number">3</div>
+            <h4>Add</h4>
+            <p>
+              Perform a final addition using a fast adder (like a
+              carry-lookahead adder).
+            </p>
+          </div>
+
+          <div class="grid-container">
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--success-color)">
+                ✅
+              </div>
+              <h3>Advantage</h3>
+              <p>
+                Much faster than an Array Multiplier because it reduces addition
+                levels (logarithmic depth).
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--accent-color)">
+                ❌
+              </div>
+              <h3>Disadvantage</h3>
+              <p>More complex circuit design.</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--info-color)">
+                💻
+              </div>
+              <h3>Use Case</h3>
+              <p>High-speed CPUs, GPUs, and DSP chips.</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">7/10</div>
+      </div>
+
+      <!-- Slide 8: Implementation in Hardware -->
+      <div class="slide" id="slide8">
+        <div class="slide-content">
+          <h2>Implementation in Hardware</h2>
+          <p>Each algorithm has its own hardware design style:</p>
+
+          <div class="card">
+            <h3>
+              <span class="emoji">🔧</span> Booth's / Modified Booth's
+              Multipliers
+            </h3>
+
+            <div class="hardware-component">
+              <div class="hardware-icon">🎛️</div>
+              <div class="algorithm-details">
+                <div class="algorithm-name">Control Logic</div>
+                <p>Decides when to add, subtract, or skip.</p>
+              </div>
+            </div>
+
+            <div class="hardware-component">
+              <div class="hardware-icon">➕</div>
+              <div class="algorithm-details">
+                <div class="algorithm-name">Add/Subtract Units</div>
+                <p>Arithmetic circuits.</p>
+              </div>
+            </div>
+
+            <div class="hardware-component">
+              <div class="hardware-icon">⇄</div>
+              <div class="algorithm-details">
+                <div class="algorithm-name">Shift Registers</div>
+                <p>For right-shift operations.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3><span class="emoji">🔧</span> Array Multiplier</h3>
+
+            <div class="hardware-component">
+              <div class="hardware-icon">∧</div>
+              <div class="algorithm-details">
+                <div class="algorithm-name">AND Gates</div>
+                <p>Generate partial products.</p>
+              </div>
+            </div>
+
+            <div class="hardware-component">
+              <div class="hardware-icon">+</div>
+              <div class="algorithm-details">
+                <div class="algorithm-name">Full Adders</div>
+                <p>Sum them in parallel.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3><span class="emoji">🔧</span> Wallace Tree Multiplier</h3>
+
+            <div class="hardware-component">
+              <div class="hardware-icon">🌳</div>
+              <div class="algorithm-details">
+                <div class="algorithm-name">Compressor Circuits</div>
+                <p>(3:2, 4:2 adders) → Reduce partial products quickly.</p>
+              </div>
+            </div>
+
+            <div class="hardware-component">
+              <div class="hardware-icon">⚡</div>
+              <div class="algorithm-details">
+                <div class="algorithm-name">Final Adder</div>
+                <p>Produces the final product.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">8/10</div>
+      </div>
+
+      <!-- Slide 9: Applications -->
+      <div class="slide" id="slide9">
+        <div class="slide-content">
+          <h2>Applications of Multiplication Algorithms</h2>
+
+          <div class="grid-container">
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--warning-color)">
+                🔐
+              </div>
+              <h3>Cryptography</h3>
+              <p>
+                RSA/ECC use very large multiplications (FFT-based or Booth
+                variants).
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--info-color)">
+                📡
+              </div>
+              <h3>Signal Processing</h3>
+              <p>
+                Filters, FFT, convolution → Wallace tree & Booth multipliers.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--success-color)">
+                🔬
+              </div>
+              <h3>Scientific Simulations</h3>
+              <p>Floating-point multipliers (Modified Booth).</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--accent-color)">
+                🔌
+              </div>
+              <h3>Embedded Systems</h3>
+              <p>Simple array multipliers.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <p>
+              <span class="emoji">💡</span> The choice of multiplication
+              algorithm depends on the specific requirements of the application,
+              balancing speed, power consumption, and hardware complexity.
+            </p>
+          </div>
+        </div>
+        <div class="slide-number">9/10</div>
+      </div>
+
+      <!-- Slide 10: Summary -->
+      <div class="slide" id="slide10">
+        <div class="slide-content">
+          <h2><span class="emoji">✅</span> Summary</h2>
+
+          <div class="summary-box">
+            <ul style="text-align: left; font-size: 1.1rem; line-height: 1.8">
+              <li>
+                <span class="highlight">Binary multiplication</span> =
+                foundation (partial products + shift + sum)
+              </li>
+              <li>
+                <span class="highlight">Booth's Algorithm</span> = signed
+                integers, fewer additions
+              </li>
+              <li>
+                <span class="highlight">Modified Booth's</span> = faster for
+                large operands
+              </li>
+              <li>
+                <span class="highlight">Array Multiplier</span> = simple, but
+                hardware-heavy
+              </li>
+              <li>
+                <span class="highlight">Wallace Tree Multiplier</span> = fastest
+                for large parallel operations
+              </li>
+            </ul>
+          </div>
+
+          <div class="card" style="margin-top: 30px">
+            <p>
+              <span class="emoji">🚀</span> Each algorithm has its strengths and
+              is chosen based on the specific requirements of speed, power, and
+              hardware complexity in different computing applications.
+            </p>
+          </div>
+
+          <div class="binary-display" style="margin-top: 30px">
+            1011 × 1101 = 10001111<br />
+            (11) × (13) = (143)
+          </div>
+        </div>
+        <div class="slide-number">10/10</div>
+      </div>
+    </div>
+
+    <div class="navigation">
+      <div class="nav-dot active" onclick="scrollToSlide('slide1')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide2')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide3')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide4')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide5')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide6')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide7')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide8')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide9')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide10')"></div>
+    </div>
+
+    <script>
+      // Function to scroll to a specific slide
+      function scrollToSlide(slideId) {
+        document.getElementById(slideId).scrollIntoView({ behavior: "smooth" });
+      }
+
+      // Update active navigation dot based on scroll position
+      window.addEventListener("scroll", () => {
+        const slides = document.querySelectorAll(".slide");
+        const navDots = document.querySelectorAll(".nav-dot");
+        const scrollPosition = window.scrollY + window.innerHeight / 2;
+
+        slides.forEach((slide, index) => {
+          const slideTop = slide.offsetTop;
+          const slideBottom = slideTop + slide.offsetHeight;
+
+          if (scrollPosition >= slideTop && scrollPosition < slideBottom) {
+            navDots.forEach((dot) => dot.classList.remove("active"));
+            navDots[index].classList.add("active");
+          }
+        });
+      });
+
+      // Add keyboard navigation
+      document.addEventListener("keydown", (e) => {
+        const slides = document.querySelectorAll(".slide");
+        const currentSlide = document.querySelector(".nav-dot.active");
+        const currentIndex = Array.from(
+          document.querySelectorAll(".nav-dot")
+        ).indexOf(currentSlide);
+
+        if (e.key === "ArrowDown" && currentIndex < slides.length - 1) {
+          scrollToSlide(`slide${currentIndex + 2}`);
+        } else if (e.key === "ArrowUp" && currentIndex > 0) {
+          scrollToSlide(`slide${currentIndex}`);
+        }
+      });
+
+      // Add touch/swipe support for mobile
+      let touchStartY = 0;
+      let touchEndY = 0;
+
+      document.addEventListener("touchstart", (e) => {
+        touchStartY = e.changedTouches[0].screenY;
+      });
+
+      document.addEventListener("touchend", (e) => {
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+      });
+
+      function handleSwipe() {
+        const slides = document.querySelectorAll(".slide");
+        const currentSlide = document.querySelector(".nav-dot.active");
+        const currentIndex = Array.from(
+          document.querySelectorAll(".nav-dot")
+        ).indexOf(currentSlide);
+
+        if (touchEndY < touchStartY - 50 && currentIndex < slides.length - 1) {
+          // Swipe up - go to next slide
+          scrollToSlide(`slide${currentIndex + 2}`);
+        } else if (touchEndY > touchStartY + 50 && currentIndex > 0) {
+          // Swipe down - go to previous slide
+          scrollToSlide(`slide${currentIndex}`);
+        }
+      }
+    </script>
+  </body>
+</html>

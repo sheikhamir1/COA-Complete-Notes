@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registers in Digital Systems - Professional Guide</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f8fafc;
+        color: #1e293b;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      header {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        padding: 60px 0;
+        text-align: center;
+        /* position: sticky; */
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        font-size: 1.125rem;
+        opacity: 0.9;
+        font-weight: 400;
+      }
+
+      section {
+        background: white;
+        border-radius: 12px;
+        padding: 60px;
+        margin: 40px 0;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.2s ease;
+      }
+
+      section:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      h2 {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #1e40af;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #3730a3;
+        margin: 30px 0 20px;
+      }
+
+      h4 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #4338ca;
+        margin: 20px 0 12px;
+      }
+
+      .content-block {
+        background: #f8fafc;
+        border-left: 4px solid #3b82f6;
+        padding: 24px;
+        margin: 24px 0;
+        border-radius: 0 8px 8px 0;
+      }
+
+      .register-type {
+        display: flex;
+        align-items: flex-start;
+        margin: 20px 0;
+        padding: 20px;
+        background: #f1f5f9;
+        border-radius: 8px;
+        transition: background-color 0.2s ease;
+      }
+
+      .register-type:hover {
+        background: #e2e8f0;
+      }
+
+      .register-icon {
+        width: 48px;
+        height: 48px;
+        background: #3b82f6;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        margin-right: 20px;
+        flex-shrink: 0;
+      }
+
+      .register-content {
+        flex: 1;
+      }
+
+      .register-content h4 {
+        margin: 0 0 8px;
+        color: #1e40af;
+      }
+
+      .register-content p {
+        margin: 0;
+        color: #475569;
+        font-size: 0.95rem;
+      }
+
+      .register-diagram {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 30px;
+        margin: 30px 0;
+        text-align: center;
+      }
+
+      .register-row {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 15px 0;
+        flex-wrap: wrap;
+      }
+
+      .flip-flop {
+        width: 50px;
+        height: 50px;
+        background: #3b82f6;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.875rem;
+      }
+
+      .data-bit {
+        width: 36px;
+        height: 36px;
+        background: #10b981;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-weight: 600;
+        font-size: 0.875rem;
+      }
+
+      .cpu-block {
+        width: 100px;
+        height: 60px;
+        background: #3b82f6;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        margin: 0 8px;
+        font-weight: 500;
+        font-size: 0.875rem;
+        text-align: center;
+      }
+
+      .table-container {
+        overflow-x: auto;
+        margin: 30px 0;
+      }
+
+      .truth-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      .truth-table th {
+        background: #3b82f6;
+        color: white;
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.875rem;
+      }
+
+      .truth-table td {
+        padding: 12px;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 0.875rem;
+      }
+
+      .truth-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .truth-table tr:nth-child(even) {
+        background: #f8fafc;
+      }
+
+      .highlight {
+        background: #dbeafe;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      .nav-dots {
+        position: fixed;
+        right: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+      }
+
+      .nav-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #cbd5e1;
+        margin: 12px 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .nav-dot:hover {
+        background: #94a3b8;
+      }
+
+      .nav-dot.active {
+        background: #3b82f6;
+        transform: scale(1.2);
+      }
+
+      .cpu-diagram-container {
+        display: flex;
+        justify-content: center;
+        margin: 30px 0;
+      }
+
+      .cpu-layout {
+        position: relative;
+        width: 400px;
+        height: 300px;
+        background: #f1f5f9;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+      }
+
+      .cpu-register {
+        position: absolute;
+        width: 80px;
+        height: 40px;
+        background: #3b82f6;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.75rem;
+      }
+
+      ul {
+        margin: 16px 0;
+        padding-left: 24px;
+      }
+
+      li {
+        margin: 8px 0;
+        color: #475569;
+      }
+
+      p {
+        margin: 16px 0;
+        color: #475569;
+      }
+
+      .key-point {
+        background: #eff6ff;
+        border-left: 4px solid #3b82f6;
+        padding: 16px 20px;
+        margin: 24px 0;
+        border-radius: 0 8px 8px 0;
+      }
+
+      .key-point h4 {
+        color: #1e40af;
+        margin: 0 0 8px;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2rem;
+        }
+        h2 {
+          font-size: 1.5rem;
+        }
+        section {
+          padding: 30px 20px;
+        }
+        .nav-dots {
+          display: none;
+        }
+        .register-row {
+          flex-wrap: wrap;
+        }
+        .cpu-layout {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="nav-dots">
+      <div class="nav-dot active" onclick="scrollToSection('context')"></div>
+      <div class="nav-dot" onclick="scrollToSection('definition')"></div>
+      <div class="nav-dot" onclick="scrollToSection('types')"></div>
+      <div class="nav-dot" onclick="scrollToSection('cpu-registers')"></div>
+      <div class="nav-dot" onclick="scrollToSection('applications')"></div>
+      <div class="nav-dot" onclick="scrollToSection('example')"></div>
+      <div class="nav-dot" onclick="scrollToSection('takeaways')"></div>
+      <div class="nav-dot" onclick="scrollToSection('detailed')"></div>
+    </div>
+
+    <header>
+      <div class="container">
+        <h1>Registers in Digital Systems</h1>
+        <p class="subtitle">
+          A Comprehensive Guide to Computer Architecture Fundamentals
+        </p>
+      </div>
+    </header>
+
+    <div class="container">
+      <!-- Context Section -->
+      <section id="context">
+        <h2>
+          <i class="fas fa-question-circle"></i> 1. Context: Why Registers?
+        </h2>
+
+        <div class="content-block">
+          <p>
+            In a digital system, especially a CPU, we need a way to store data
+            temporarily while it is being processed.
+          </p>
+          <ul>
+            <li>
+              Main memory (RAM) is too slow to interact directly with the
+              processor every time.
+            </li>
+            <li>
+              Flip-flops store 1 bit each, but we need to handle multiple bits
+              together (like 8-bit, 16-bit, 32-bit values).
+            </li>
+          </ul>
+          <p>
+            <strong>That's why we group flip-flops into Registers</strong>,
+            which can store multi-bit binary numbers inside the CPU.
+          </p>
+        </div>
+
+        <div class="register-diagram">
+          <h3>CPU Memory Hierarchy</h3>
+          <div class="register-row">
+            <div class="cpu-block">
+              CPU<br />Registers<br /><small>Fastest</small>
+            </div>
+            <div class="cpu-block">
+              Cache<br />Memory<br /><small>Fast</small>
+            </div>
+            <div class="cpu-block">RAM<br /><small>Slower</small></div>
+            <div class="cpu-block">Storage<br /><small>Slowest</small></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Definition Section -->
+      <section id="definition">
+        <h2><i class="fas fa-book"></i> 2. Definition of Registers</h2>
+
+        <div class="content-block">
+          <p>
+            A Register is a group of flip-flops connected together, designed to
+            store and transfer binary data.
+          </p>
+          <ul>
+            <li>Each flip-flop stores 1 bit.</li>
+            <li>
+              An n-bit register has n flip-flops, so it can store an n-bit
+              binary number.
+            </li>
+            <li>Controlled by a clock signal.</li>
+          </ul>
+          <p>
+            <strong>Registers are the fastest storage elements</strong> in a
+            digital system, even faster than cache or RAM, because they are
+            built directly inside the CPU.
+          </p>
+        </div>
+
+        <div class="register-diagram">
+          <h3>4-Bit Register Structure</h3>
+          <div class="register-row">
+            <div class="data-bit">1</div>
+            <div class="data-bit">0</div>
+            <div class="data-bit">1</div>
+            <div class="data-bit">1</div>
+          </div>
+          <div class="register-row">
+            <div class="flip-flop">FF1</div>
+            <div class="flip-flop">FF2</div>
+            <div class="flip-flop">FF3</div>
+            <div class="flip-flop">FF4</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Types Section -->
+      <section id="types">
+        <h2><i class="fas fa-list"></i> 3. Types of Registers</h2>
+
+        <p>Registers can be classified by how data is loaded and read:</p>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-arrows-alt-h"></i>
+          </div>
+          <div class="register-content">
+            <h4>1. Parallel-In Parallel-Out (PIPO)</h4>
+            <p>
+              Data is loaded all at once (parallel) into the register. Data is
+              also read out in parallel.
+            </p>
+            <p>
+              <strong>Example:</strong> Temporary storage of operands in ALU.
+            </p>
+          </div>
+        </div>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-exchange-alt"></i>
+          </div>
+          <div class="register-content">
+            <h4>2. Serial-In Serial-Out (SISO)</h4>
+            <p>
+              Data enters 1 bit at a time serially (with each clock). Data is
+              also shifted out 1 bit at a time.
+            </p>
+            <p>
+              <strong>Example:</strong> Used in communication systems for
+              bit-by-bit transfer.
+            </p>
+          </div>
+        </div>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-sign-in-alt"></i>
+          </div>
+          <div class="register-content">
+            <h4>3. Serial-In Parallel-Out (SIPO)</h4>
+            <p>
+              Data enters serially (bit by bit). After all bits are loaded, the
+              register outputs the data in parallel.
+            </p>
+            <p>
+              <strong>Example:</strong> Receiving serial data (like UART) and
+              converting it for CPU.
+            </p>
+          </div>
+        </div>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-sign-out-alt"></i>
+          </div>
+          <div class="register-content">
+            <h4>4. Parallel-In Serial-Out (PISO)</h4>
+            <p>
+              Data is loaded in parallel. Then shifted out serially one bit at a
+              time.
+            </p>
+            <p>
+              <strong>Example:</strong> Sending data serially over a
+              communication line.
+            </p>
+          </div>
+        </div>
+
+        <div class="register-diagram">
+          <h3>Register Types Visualization</h3>
+          <div
+            style="
+              display: flex;
+              justify-content: space-around;
+              flex-wrap: wrap;
+            "
+          >
+            <div style="text-align: center; margin: 20px">
+              <h4>PIPO</h4>
+              <div class="register-row">
+                <div class="data-bit">D0</div>
+                <div class="data-bit">D1</div>
+                <div class="data-bit">D2</div>
+                <div class="data-bit">D3</div>
+              </div>
+              <div class="register-row">
+                <div class="flip-flop">FF</div>
+                <div class="flip-flop">FF</div>
+                <div class="flip-flop">FF</div>
+                <div class="flip-flop">FF</div>
+              </div>
+              <div class="register-row">
+                <div class="data-bit">Q0</div>
+                <div class="data-bit">Q1</div>
+                <div class="data-bit">Q2</div>
+                <div class="data-bit">Q3</div>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin: 20px">
+              <h4>SISO</h4>
+              <div class="register-row">
+                <div class="data-bit">In</div>
+              </div>
+              <div class="register-row">
+                <div class="flip-flop">FF</div>
+                <div class="flip-flop">FF</div>
+                <div class="flip-flop">FF</div>
+                <div class="flip-flop">FF</div>
+              </div>
+              <div class="register-row">
+                <div class="data-bit">Out</div>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin: 20px">
+              <h4>SIPO</h4>
+              <div class="register-row">
+                <div class="data-bit">In</div>
+              </div>
+              <div class="register-row">
+                <div class="flip-flop">FF</div>
+                <div class="flip-flop">FF</div>
+                <div class="flip-flop">FF</div>
+                <div class="flip-flop">FF</div>
+              </div>
+              <div class="register-row">
+                <div class="data-bit">Q0</div>
+                <div class="data-bit">Q1</div>
+                <div class="data-bit">Q2</div>
+                <div class="data-bit">Q3</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CPU Registers Section -->
+      <section id="cpu-registers">
+        <h2><i class="fas fa-server"></i> 4. Special CPU Registers</h2>
+
+        <p>
+          Inside the processor, registers are not only storage elements but also
+          control execution.
+        </p>
+        <p>Some key registers in a CPU include:</p>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-calculator"></i>
+          </div>
+          <div class="register-content">
+            <h4>Accumulator (ACC)</h4>
+            <p>Stores results of arithmetic/logic operations.</p>
+          </div>
+        </div>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-map-marker-alt"></i>
+          </div>
+          <div class="register-content">
+            <h4>Program Counter (PC)</h4>
+            <p>Holds the memory address of the next instruction.</p>
+          </div>
+        </div>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-tasks"></i>
+          </div>
+          <div class="register-content">
+            <h4>Instruction Register (IR)</h4>
+            <p>Stores the current instruction being executed.</p>
+          </div>
+        </div>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-home"></i>
+          </div>
+          <div class="register-content">
+            <h4>Memory Address Register (MAR)</h4>
+            <p>Holds the address to access in memory.</p>
+          </div>
+        </div>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-database"></i>
+          </div>
+          <div class="register-content">
+            <h4>Memory Data Register (MDR)</h4>
+            <p>Stores data being read from or written to memory.</p>
+          </div>
+        </div>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-clipboard-list"></i>
+          </div>
+          <div class="register-content">
+            <h4>General Purpose Registers (GPRs)</h4>
+            <p>Temporary data storage for programs.</p>
+          </div>
+        </div>
+
+        <div class="cpu-diagram-container">
+          <div class="cpu-layout">
+            <div
+              class="cpu-register"
+              style="top: 20px; left: 50%; transform: translateX(-50%)"
+            >
+              ACC
+            </div>
+            <div class="cpu-register" style="top: 80px; left: 20px">PC</div>
+            <div class="cpu-register" style="top: 80px; right: 20px">IR</div>
+            <div
+              class="cpu-register"
+              style="top: 140px; left: 50%; transform: translateX(-50%)"
+            >
+              MAR
+            </div>
+            <div class="cpu-register" style="top: 200px; left: 20px">MDR</div>
+            <div class="cpu-register" style="top: 200px; right: 20px">GPRs</div>
+            <div
+              style="
+                position: absolute;
+                bottom: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-weight: 600;
+                color: #1e40af;
+              "
+            >
+              CPU Core
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Applications Section -->
+      <section id="applications">
+        <h2><i class="fas fa-cogs"></i> 5. Applications of Registers</h2>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-memory"></i>
+          </div>
+          <div class="register-content">
+            <h4>Temporary Data Storage</h4>
+            <p>
+              Used in arithmetic and logical operations to hold intermediate
+              results.
+            </p>
+          </div>
+        </div>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-play"></i>
+          </div>
+          <div class="register-content">
+            <h4>Instruction Execution</h4>
+            <p>Control flow depends on PC, IR, etc.</p>
+          </div>
+        </div>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-exchange-alt"></i>
+          </div>
+          <div class="register-content">
+            <h4>Data Transfer</h4>
+            <p>Registers act as buffers between CPU and memory.</p>
+          </div>
+        </div>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-sort-numeric-up"></i>
+          </div>
+          <div class="register-content">
+            <h4>Counters</h4>
+            <p>
+              Registers are used to implement program counters and loop
+              counters.
+            </p>
+          </div>
+        </div>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-sync-alt"></i>
+          </div>
+          <div class="register-content">
+            <h4>Shift Registers</h4>
+            <p>
+              Used for serial-to-parallel and parallel-to-serial conversion.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Example Section -->
+      <section id="example">
+        <h2><i class="fas fa-eye"></i> 6. Example</h2>
+
+        <div class="content-block">
+          <p>Imagine an 8-bit register built from 8 flip-flops:</p>
+          <ul>
+            <li>Input: 10101100 (binary).</li>
+            <li>Clock pulse → register stores this 8-bit value.</li>
+            <li>Output: The register holds it until the next update.</li>
+          </ul>
+          <p>
+            <strong>This is like a temporary notepad inside the CPU</strong>:
+            instructions and data are written, read, and cleared at very high
+            speed.
+          </p>
+        </div>
+
+        <div class="register-diagram">
+          <h3>8-Bit Register Example</h3>
+          <div class="register-row">
+            <div class="data-bit">1</div>
+            <div class="data-bit">0</div>
+            <div class="data-bit">1</div>
+            <div class="data-bit">0</div>
+            <div class="data-bit">1</div>
+            <div class="data-bit">1</div>
+            <div class="data-bit">0</div>
+            <div class="data-bit">0</div>
+          </div>
+          <div class="register-row">
+            <div class="flip-flop">FF1</div>
+            <div class="flip-flop">FF2</div>
+            <div class="flip-flop">FF3</div>
+            <div class="flip-flop">FF4</div>
+            <div class="flip-flop">FF5</div>
+            <div class="flip-flop">FF6</div>
+            <div class="flip-flop">FF7</div>
+            <div class="flip-flop">FF8</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Key Takeaways Section -->
+      <section id="takeaways">
+        <h2><i class="fas fa-key"></i> 7. Key Takeaways</h2>
+
+        <div class="key-point">
+          <h4>Core Concepts</h4>
+          <ul>
+            <li>
+              A register = a group of flip-flops used for fast temporary
+              storage.
+            </li>
+            <li>
+              They are fundamental in CPUs and act as the bridge between memory
+              and processing.
+            </li>
+            <li>Types include PIPO, SIPO, PISO, SISO.</li>
+            <li>
+              Special-purpose registers (PC, IR, ACC, etc.) are essential for
+              instruction execution.
+            </li>
+          </ul>
+        </div>
+
+        <div class="key-point">
+          <h4>Simple Analogy</h4>
+          <p>A flip-flop is like a single notebook page (1 bit).</p>
+          <p>A register is like a small notebook (many bits) inside the CPU.</p>
+          <p>
+            It stores data temporarily so the CPU can work at lightning speed.
+          </p>
+        </div>
+      </section>
+
+      <!-- Detailed Information Section -->
+      <section id="detailed">
+        <h2><i class="fas fa-info-circle"></i> Detailed Information</h2>
+
+        <h3>What are Registers?</h3>
+        <div class="content-block">
+          <p>
+            Registers are small, high-speed storage units in digital
+            electronics.
+          </p>
+          <ul>
+            <li>
+              They are built from flip-flops (each flip-flop stores 1 bit).
+            </li>
+            <li>
+              Used for temporary storage, buffering, and data manipulation
+              inside CPUs, microcontrollers, and digital circuits.
+            </li>
+          </ul>
+          <p>
+            <strong>Example:</strong> A 4-bit register made of 4 flip-flops can
+            hold any 4-bit binary number (e.g., 1011).
+          </p>
+        </div>
+
+        <h3>Types of Registers</h3>
+
+        <h4>1. Shift Registers</h4>
+        <div class="content-block">
+          <p>
+            Registers that can shift data bit-by-bit either left or right,
+            controlled by clock pulses.
+          </p>
+          <p>Useful in serial-to-parallel or parallel-to-serial conversion.</p>
+
+          <h5>Types of Shift Registers:</h5>
+
+          <div class="register-type">
+            <div class="register-icon">
+              <i class="fas fa-arrows-alt-h"></i>
+            </div>
+            <div class="register-content">
+              <h6>Serial-in, Serial-out (SISO)</h6>
+              <p>Data enters bit by bit (serially) and exits bit by bit.</p>
+              <p>
+                <strong>Example:</strong> Storing 1111 requires 4 clock cycles
+                (one per bit).
+              </p>
+            </div>
+          </div>
+
+          <div class="register-type">
+            <div class="register-icon">
+              <i class="fas fa-sign-in-alt"></i>
+            </div>
+            <div class="register-content">
+              <h6>Serial-in, Parallel-out (SIPO)</h6>
+              <p>
+                Data enters serially, but after loading, all outputs appear in
+                parallel.
+              </p>
+              <p>
+                <strong>Example:</strong> Input 1011 serially → after 4 cycles,
+                outputs show 1011 together.
+              </p>
+            </div>
+          </div>
+
+          <div class="register-type">
+            <div class="register-icon">
+              <i class="fas fa-sign-out-alt"></i>
+            </div>
+            <div class="register-content">
+              <h6>Parallel-in, Serial-out (PISO)</h6>
+              <p>
+                Data is loaded in parallel (all at once) and then shifted out
+                serially.
+              </p>
+              <p><strong>Has two modes:</strong></p>
+              <ul>
+                <li>Load mode: Loads data into flip-flops at once.</li>
+                <li>Shift mode: Data shifts out bit-by-bit.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="register-type">
+            <div class="register-icon">
+              <i class="fas fa-arrows-alt-h"></i>
+            </div>
+            <div class="register-content">
+              <h6>Parallel-in, Parallel-out (PIPO)</h6>
+              <p>Data is loaded in parallel and also output in parallel.</p>
+              <p>
+                <strong>Example:</strong> Input 1011 → one clock pulse → output
+                1011.
+              </p>
+              <p>Very fast because it works all at once.</p>
+            </div>
+          </div>
+        </div>
+
+        <h4>2. Parallel Registers</h4>
+        <div class="content-block">
+          <p>Store and output data in parallel form.</p>
+          <p><strong>Found in:</strong></p>
+          <ul>
+            <li>
+              General-purpose registers in CPUs (e.g., accumulator, instruction
+              register).
+            </li>
+            <li>Special-purpose registers (status, control, etc.).</li>
+          </ul>
+          <p>
+            Suitable for high-speed processing since input and output occur
+            simultaneously.
+          </p>
+        </div>
+
+        <h3>Design & Operation of Shift Registers</h3>
+        <div class="content-block">
+          <p>
+            <strong>Design:</strong> Built using flip-flops (D flip-flops are
+            common) + control logic for shifting/loading.
+          </p>
+          <p><strong>Operation:</strong></p>
+          <ul>
+            <li>SISO → serial in & out</li>
+            <li>SIPO → serial in, parallel out</li>
+            <li>PISO → parallel in, serial out</li>
+            <li>PIPO → parallel in & out</li>
+          </ul>
+          <p>
+            <strong>Example:</strong> In a 4-bit SIPO register, serial input
+            1011 is entered bit-by-bit → after 4 clock cycles, all bits appear
+            at once as output.
+          </p>
+        </div>
+
+        <h3>Applications of Registers</h3>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-database"></i>
+          </div>
+          <div class="register-content">
+            <h4>Data Storage</h4>
+            <p>Hold temporary values in CPUs and ALUs.</p>
+            <p>
+              <strong>Example:</strong> Accumulator register stores intermediate
+              results.
+            </p>
+          </div>
+        </div>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-sync"></i>
+          </div>
+          <div class="register-content">
+            <h4>Data Manipulation</h4>
+            <p>Used for shifting, rotating, and buffering data.</p>
+            <p>
+              <strong>Example:</strong> Serial-to-parallel conversion in
+              communication systems.
+            </p>
+          </div>
+        </div>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-exchange-alt"></i>
+          </div>
+          <div class="register-content">
+            <h4>Data Transfer</h4>
+            <p>Between CPU and memory or CPU and I/O devices.</p>
+          </div>
+        </div>
+
+        <div class="register-type">
+          <div class="register-icon">
+            <i class="fas fa-stopwatch"></i>
+          </div>
+          <div class="register-content">
+            <h4>Counters & Timers</h4>
+            <p>
+              Registers are often used in counters, timers, and control logic.
+            </p>
+          </div>
+        </div>
+
+        <h3>Register Transfer Level (RTL)</h3>
+        <div class="content-block">
+          <p>
+            RTL is a design representation that shows how data moves between
+            registers under control of the clock and logic.
+          </p>
+          <p>
+            Used in hardware description languages (HDL) like Verilog or VHDL.
+          </p>
+          <p>
+            <strong>Example:</strong> R1 ← R2 + R3 means the sum of R2 and R3 is
+            transferred into R1.
+          </p>
+        </div>
+
+        <h3>Example: Shift Register in Action</h3>
+        <div class="content-block">
+          <p>4-bit SIPO Shift Register converting serial to parallel:</p>
+          <div class="table-container">
+            <table class="truth-table">
+              <thead>
+                <tr>
+                  <th>Clock</th>
+                  <th>Serial In</th>
+                  <th>Register Content (Q3Q2Q1Q0)</th>
+                  <th>Output</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>0001</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>0</td>
+                  <td>0010</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>1</td>
+                  <td>0101</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>1</td>
+                  <td>1011</td>
+                  <td class="highlight">1011</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>After 4 pulses → output is available in parallel (1011).</p>
+        </div>
+
+        <div class="key-point">
+          <h4>Summary</h4>
+          <ul>
+            <li>Registers = groups of flip-flops for temporary storage.</li>
+            <li>Shift Registers = move data bit by bit.</li>
+            <li>Parallel Registers = fast simultaneous input/output.</li>
+            <li>
+              Applications = CPUs, memory, communication, counters, buffering.
+            </li>
+            <li>
+              RTL = describes data movement between registers for system design.
+            </li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // Function to scroll to a specific section
+      function scrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        section.scrollIntoView({ behavior: "smooth" });
+
+        // Update active nav dot
+        const navDots = document.querySelectorAll(".nav-dot");
+        navDots.forEach((dot, index) => {
+          if (index === 0 && sectionId === "context")
+            dot.classList.add("active");
+          else if (index === 1 && sectionId === "definition")
+            dot.classList.add("active");
+          else if (index === 2 && sectionId === "types")
+            dot.classList.add("active");
+          else if (index === 3 && sectionId === "cpu-registers")
+            dot.classList.add("active");
+          else if (index === 4 && sectionId === "applications")
+            dot.classList.add("active");
+          else if (index === 5 && sectionId === "example")
+            dot.classList.add("active");
+          else if (index === 6 && sectionId === "takeaways")
+            dot.classList.add("active");
+          else if (index === 7 && sectionId === "detailed")
+            dot.classList.add("active");
+          else dot.classList.remove("active");
+        });
+      }
+
+      // Update active nav dot on scroll
+      window.addEventListener("scroll", () => {
+        const sections = [
+          "context",
+          "definition",
+          "types",
+          "cpu-registers",
+          "applications",
+          "example",
+          "takeaways",
+          "detailed",
+        ];
+        const navDots = document.querySelectorAll(".nav-dot");
+
+        let current = "";
+        sections.forEach((section) => {
+          const element = document.getElementById(section);
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= 100 && rect.bottom >= 100) {
+            current = section;
+          }
+        });
+
+        navDots.forEach((dot, index) => {
+          if (index === 0 && current === "context") dot.classList.add("active");
+          else if (index === 1 && current === "definition")
+            dot.classList.add("active");
+          else if (index === 2 && current === "types")
+            dot.classList.add("active");
+          else if (index === 3 && current === "cpu-registers")
+            dot.classList.add("active");
+          else if (index === 4 && current === "applications")
+            dot.classList.add("active");
+          else if (index === 5 && current === "example")
+            dot.classList.add("active");
+          else if (index === 6 && current === "takeaways")
+            dot.classList.add("active");
+          else if (index === 7 && current === "detailed")
+            dot.classList.add("active");
+          else dot.classList.remove("active");
+        });
+      });
+    </script>
+  </body>
+</html>

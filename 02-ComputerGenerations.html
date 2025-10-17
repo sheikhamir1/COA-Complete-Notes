@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Computer Generations Presentation</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: #333;
+        overflow-y: auto;
+        min-height: 100vh;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header {
+        background: linear-gradient(90deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        padding: 25px 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+      }
+
+      .header-icon {
+        font-size: 3rem;
+        margin-right: 20px;
+        color: #3498db;
+        background: white;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+      }
+
+      .header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-top: 5px;
+      }
+
+      .slide {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        margin-bottom: 30px;
+      }
+
+      .section {
+        margin-bottom: 40px;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      .section-title i {
+        margin-right: 15px;
+        color: #3498db;
+        font-size: 1.6rem;
+      }
+
+      .definition-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+      }
+
+      .definition-title {
+        font-size: 1.4rem;
+        font-weight: 500;
+        margin-bottom: 15px;
+      }
+
+      .definition-content {
+        font-size: 1.1rem;
+        line-height: 1.6;
+      }
+
+      .generations-container {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+
+      .generation {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        transition: transform 0.3s ease;
+      }
+
+      .generation:hover {
+        transform: translateY(-5px);
+      }
+
+      .generation-header {
+        display: flex;
+        align-items: center;
+        padding: 20px;
+        background: linear-gradient(90deg, #3498db, #2980b9);
+        color: white;
+      }
+
+      .generation-number {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-right: 15px;
+        background: rgba(255, 255, 255, 0.2);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .generation-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      .generation-period {
+        margin-left: auto;
+        font-size: 1rem;
+        opacity: 0.9;
+      }
+
+      .generation-content {
+        padding: 25px;
+      }
+
+      .tech-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .tech-item {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 3px solid #3498db;
+      }
+
+      .tech-item-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 5px;
+        font-size: 0.95rem;
+      }
+
+      .tech-item-content {
+        font-size: 0.9rem;
+        color: #555;
+      }
+
+      .examples {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+      }
+
+      .examples-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .examples-title i {
+        margin-right: 10px;
+        color: #3498db;
+      }
+
+      .example-item {
+        display: inline-block;
+        background: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      }
+
+      .example-note {
+        margin-top: 15px;
+        font-style: italic;
+        color: #666;
+        font-size: 0.9rem;
+        padding-left: 20px;
+        border-left: 3px solid #3498db;
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 30px 0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      .comparison-table th {
+        background: linear-gradient(90deg, #3498db, #2980b9);
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 500;
+      }
+
+      .comparison-table td {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .comparison-table tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+
+      .comparison-table tr:hover {
+        background-color: #e9f7fe;
+      }
+
+      .summary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-top: 30px;
+      }
+
+      .summary-title {
+        font-size: 1.6rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .summary-content {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .evolution {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .evolution-step {
+        flex: 1;
+        min-width: 150px;
+        text-align: center;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+      }
+
+      .evolution-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      .evolution-text {
+        font-size: 0.95rem;
+      }
+
+      .arrow {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.5rem;
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          flex-direction: column;
+          text-align: center;
+          padding: 20px;
+        }
+
+        .header-icon {
+          margin-right: 0;
+          margin-bottom: 15px;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .tech-info {
+          grid-template-columns: 1fr;
+        }
+
+        .evolution {
+          flex-direction: column;
+        }
+
+        .arrow {
+          transform: rotate(90deg);
+          margin: 10px 0;
+        }
+
+        .comparison-table {
+          font-size: 0.9rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+          padding: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="header-icon">
+          <i class="fas fa-history"></i>
+        </div>
+        <div>
+          <h1>Computer Generations</h1>
+          <p>The Evolution of Computing Technology</p>
+        </div>
+      </div>
+
+      <div class="slide">
+        <!-- Section: What is meant by Computer Generations? -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-question-circle"></i>
+            What is meant by Computer Generations?
+          </div>
+
+          <div class="definition-box">
+            <div class="definition-title">Definition</div>
+            <div class="definition-content">
+              The term "computer generation" is used to describe the major
+              changes in technology that computers went through over different
+              periods.
+              <br /><br />
+              Each generation is marked by a new innovation in hardware
+              technology (like vacuum tubes, transistors, ICs, microprocessors)
+              which made computers smaller, faster, cheaper, and more reliable.
+              <br /><br />
+              There are five generations of computers (till now).
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Computer Generations -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-layer-group"></i>
+            The Five Generations of Computers
+          </div>
+
+          <div class="generations-container">
+            <!-- First Generation -->
+            <div class="generation">
+              <div class="generation-header">
+                <div class="generation-number">1</div>
+                <div class="generation-title">First Generation</div>
+                <div class="generation-period">1940 – 1956</div>
+              </div>
+              <div class="generation-content">
+                <div class="tech-info">
+                  <div class="tech-item">
+                    <div class="tech-item-title">Technology</div>
+                    <div class="tech-item-content">Vacuum tubes</div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Size</div>
+                    <div class="tech-item-content">
+                      Very large (room-sized), consumed huge electricity
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Speed</div>
+                    <div class="tech-item-content">
+                      Very slow (milliseconds per operation)
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Programming Language</div>
+                    <div class="tech-item-content">
+                      Machine language (0s and 1s)
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Input/Output</div>
+                    <div class="tech-item-content">
+                      Punch cards, paper tape, printouts
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Storage</div>
+                    <div class="tech-item-content">Magnetic drums</div>
+                  </div>
+                </div>
+
+                <div class="examples">
+                  <div class="examples-title">
+                    <i class="fas fa-desktop"></i>
+                    Examples
+                  </div>
+                  <div class="example-item">ENIAC</div>
+                  <div class="example-item">UNIVAC</div>
+                  <div class="example-note">
+                    <i class="fas fa-info-circle"></i>
+                    ENIAC had 18,000 vacuum tubes, occupied a big hall, and
+                    generated so much heat that cooling was a problem.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Second Generation -->
+            <div class="generation">
+              <div class="generation-header">
+                <div class="generation-number">2</div>
+                <div class="generation-title">Second Generation</div>
+                <div class="generation-period">1956 – 1963</div>
+              </div>
+              <div class="generation-content">
+                <div class="tech-info">
+                  <div class="tech-item">
+                    <div class="tech-item-title">Technology</div>
+                    <div class="tech-item-content">
+                      Transistors replaced vacuum tubes
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Size</div>
+                    <div class="tech-item-content">
+                      Smaller, more reliable, less heat
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Speed</div>
+                    <div class="tech-item-content">
+                      Microseconds per operation
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Programming Language</div>
+                    <div class="tech-item-content">
+                      Assembly language + early high-level languages (COBOL,
+                      FORTRAN)
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Input/Output</div>
+                    <div class="tech-item-content">
+                      Punched cards, printouts, magnetic tape
+                    </div>
+                  </div>
+                </div>
+
+                <div class="examples">
+                  <div class="examples-title">
+                    <i class="fas fa-desktop"></i>
+                    Examples
+                  </div>
+                  <div class="example-item">IBM 7094</div>
+                  <div class="example-item">UNIVAC 1108</div>
+                  <div class="example-note">
+                    <i class="fas fa-info-circle"></i>
+                    A second-generation computer could fit in a room, unlike
+                    ENIAC which needed a whole building.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Third Generation -->
+            <div class="generation">
+              <div class="generation-header">
+                <div class="generation-number">3</div>
+                <div class="generation-title">Third Generation</div>
+                <div class="generation-period">1964 – 1971</div>
+              </div>
+              <div class="generation-content">
+                <div class="tech-info">
+                  <div class="tech-item">
+                    <div class="tech-item-title">Technology</div>
+                    <div class="tech-item-content">
+                      Integrated Circuits (ICs = many transistors on a single
+                      chip)
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Size</div>
+                    <div class="tech-item-content">
+                      Much smaller, more reliable
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Speed</div>
+                    <div class="tech-item-content">
+                      Nanoseconds per operation
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Programming Language</div>
+                    <div class="tech-item-content">
+                      High-level languages became common (BASIC, PASCAL)
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Input/Output</div>
+                    <div class="tech-item-content">
+                      Keyboards, monitors started replacing punch cards
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Storage</div>
+                    <div class="tech-item-content">
+                      Magnetic disks (faster than tapes)
+                    </div>
+                  </div>
+                </div>
+
+                <div class="examples">
+                  <div class="examples-title">
+                    <i class="fas fa-desktop"></i>
+                    Examples
+                  </div>
+                  <div class="example-item">IBM 360 Series</div>
+                  <div class="example-item">Honeywell 6000 Series</div>
+                  <div class="example-note">
+                    <i class="fas fa-info-circle"></i>
+                    Students could now interact with the computer using a
+                    keyboard and monitor instead of punch cards.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fourth Generation -->
+            <div class="generation">
+              <div class="generation-header">
+                <div class="generation-number">4</div>
+                <div class="generation-title">Fourth Generation</div>
+                <div class="generation-period">1971 – 1980s</div>
+              </div>
+              <div class="generation-content">
+                <div class="tech-info">
+                  <div class="tech-item">
+                    <div class="tech-item-title">Technology</div>
+                    <div class="tech-item-content">
+                      Microprocessor (entire CPU on a single chip)
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Size</div>
+                    <div class="tech-item-content">
+                      Very small, could fit on a desk (personal computers were
+                      born)
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Speed</div>
+                    <div class="tech-item-content">
+                      Picoseconds per operation
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Programming Language</div>
+                    <div class="tech-item-content">
+                      High-level languages like C, C++
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Storage</div>
+                    <div class="tech-item-content">
+                      Hard disks became common
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Networking</div>
+                    <div class="tech-item-content">
+                      Started connecting computers (early LANs)
+                    </div>
+                  </div>
+                </div>
+
+                <div class="examples">
+                  <div class="examples-title">
+                    <i class="fas fa-desktop"></i>
+                    Examples
+                  </div>
+                  <div class="example-item">IBM PC (1981)</div>
+                  <div class="example-item">Apple Macintosh (1984)</div>
+                  <div class="example-note">
+                    <i class="fas fa-info-circle"></i>
+                    Intel 4004 (1971) was the first microprocessor, marking the
+                    start of PCs.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fifth Generation -->
+            <div class="generation">
+              <div class="generation-header">
+                <div class="generation-number">5</div>
+                <div class="generation-title">Fifth Generation</div>
+                <div class="generation-period">1980s – Present & Beyond</div>
+              </div>
+              <div class="generation-content">
+                <div class="tech-info">
+                  <div class="tech-item">
+                    <div class="tech-item-title">Technology</div>
+                    <div class="tech-item-content">
+                      VLSI/ULSI (Very/Large Scale Integration), AI, parallel
+                      processing
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Size</div>
+                    <div class="tech-item-content">
+                      Extremely small (laptops, mobiles, embedded devices)
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Speed</div>
+                    <div class="tech-item-content">
+                      Millions of instructions per second (MIPS), gigahertz
+                      processors
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Programming Language</div>
+                    <div class="tech-item-content">
+                      Advanced languages (Java, Python, AI-focused languages
+                      like Prolog, Lisp)
+                    </div>
+                  </div>
+                  <div class="tech-item">
+                    <div class="tech-item-title">Features</div>
+                    <div class="tech-item-content">
+                      Artificial Intelligence, Robotics, Machine Learning, NLP,
+                      Quantum Computing (emerging)
+                    </div>
+                  </div>
+                </div>
+
+                <div class="examples">
+                  <div class="examples-title">
+                    <i class="fas fa-desktop"></i>
+                    Examples
+                  </div>
+                  <div class="example-item">Smartphones (iPhone, Android)</div>
+                  <div class="example-item">
+                    Supercomputers (Fugaku, Summit)
+                  </div>
+                  <div class="example-item">AI-based systems like ChatGPT</div>
+                  <div class="example-note">
+                    <i class="fas fa-info-circle"></i>
+                    Today's smartphones are more powerful than supercomputers of
+                    the 1970s.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Comparison Table -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-table"></i>
+            Comparison Table of Generations
+          </div>
+
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Generation</th>
+                <th>Technology</th>
+                <th>Size</th>
+                <th>Speed</th>
+                <th>Languages</th>
+                <th>Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1st (1940–56)</strong></td>
+                <td>Vacuum tubes</td>
+                <td>Very large</td>
+                <td>Milliseconds</td>
+                <td>Machine language</td>
+                <td>ENIAC</td>
+              </tr>
+              <tr>
+                <td><strong>2nd (1956–63)</strong></td>
+                <td>Transistors</td>
+                <td>Smaller</td>
+                <td>Microseconds</td>
+                <td>Assembly, COBOL</td>
+                <td>IBM 7094</td>
+              </tr>
+              <tr>
+                <td><strong>3rd (1964–71)</strong></td>
+                <td>ICs</td>
+                <td>Smaller again</td>
+                <td>Nanoseconds</td>
+                <td>BASIC, PASCAL</td>
+                <td>IBM 360</td>
+              </tr>
+              <tr>
+                <td><strong>4th (1971–80s)</strong></td>
+                <td>Microprocessors</td>
+                <td>Desktop size</td>
+                <td>Picoseconds</td>
+                <td>C, C++</td>
+                <td>IBM PC</td>
+              </tr>
+              <tr>
+                <td><strong>5th (1980s–Now)</strong></td>
+                <td>VLSI/AI/Quantum</td>
+                <td>Very small (phones)</td>
+                <td>GHz, AI-based</td>
+                <td>Java, Python</td>
+                <td>iPhone, Supercomputers</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Section: Summary -->
+        <div class="summary">
+          <div class="summary-title">
+            <i class="fas fa-check-circle" style="margin-right: 10px"></i>
+            Summary
+          </div>
+          <div class="summary-content">
+            Each generation of computer = new technology breakthrough → smaller,
+            faster, cheaper, smarter.
+          </div>
+
+          <div class="evolution">
+            <div class="evolution-step">
+              <div class="evolution-icon">
+                <i class="fas fa-building"></i>
+              </div>
+              <div class="evolution-text">Room-sized ENIAC (1st gen)</div>
+            </div>
+
+            <div class="arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+
+            <div class="evolution-step">
+              <div class="evolution-icon">
+                <i class="fas fa-desktop"></i>
+              </div>
+              <div class="evolution-text">Desktop computers (4th gen)</div>
+            </div>
+
+            <div class="arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+
+            <div class="evolution-step">
+              <div class="evolution-icon">
+                <i class="fas fa-mobile-alt"></i>
+              </div>
+              <div class="evolution-text">Smartphones (5th gen)</div>
+            </div>
+
+            <div class="arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+
+            <div class="evolution-step">
+              <div class="evolution-icon">
+                <i class="fas fa-brain"></i>
+              </div>
+              <div class="evolution-text">AI & Quantum Computing</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

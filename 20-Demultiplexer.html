@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demultiplexer: Digital Logic Circuit</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: #333;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      header {
+        text-align: center;
+        padding: 40px 0;
+        background: linear-gradient(135deg, #ff7043 0%, #ff9800 100%);
+        color: white;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        animation: fadeInDown 1s ease;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+
+      .section {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        animation: fadeInUp 1s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(to bottom, #ff7043, #ff9800);
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        color: #ff7043;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      .section-title i {
+        margin-right: 10px;
+      }
+
+      .step {
+        margin: 20px 0;
+        padding-left: 20px;
+        border-left: 2px solid #e0e0e0;
+        animation: slideInLeft 0.8s ease;
+      }
+
+      .step-title {
+        font-weight: 600;
+        color: #ff7043;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .step-title i {
+        margin-right: 8px;
+      }
+
+      .math {
+        font-family: "Courier New", monospace;
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        overflow-x: auto;
+        border-left: 4px solid #ff7043;
+      }
+
+      .highlight {
+        background: linear-gradient(
+          120deg,
+          rgba(255, 112, 67, 0.1) 0%,
+          rgba(255, 152, 0, 0.1) 100%
+        );
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .final-result {
+        background: linear-gradient(135deg, #ff7043 0%, #ff9800 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        text-align: center;
+        font-size: 1.2rem;
+        box-shadow: 0 5px 15px rgba(255, 112, 67, 0.3);
+        animation: pulse 2s infinite;
+      }
+
+      .truth-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+      }
+
+      .truth-table th,
+      .truth-table td {
+        padding: 12px 15px;
+        text-align: center;
+      }
+
+      .truth-table th {
+        background-color: #ff7043;
+        color: white;
+        font-weight: 600;
+      }
+
+      .truth-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      .truth-table tr:hover {
+        background-color: #e2e2e2;
+      }
+
+      .summary-box {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+        border-left: 4px solid #ff9800;
+      }
+
+      .emoji {
+        font-size: 1.2rem;
+        margin-right: 5px;
+        vertical-align: middle;
+      }
+
+      .scroll-indicator {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #ff7043 0%, #ff9800 100%);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        animation: bounce 2s infinite;
+        z-index: 100;
+      }
+
+      .nav-dots {
+        position: fixed;
+        top: 50%;
+        right: 30px;
+        transform: translateY(-50%);
+        z-index: 100;
+      }
+
+      .nav-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255, 112, 67, 0.3);
+        margin: 10px 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .nav-dot.active {
+        background: #ff7043;
+        transform: scale(1.2);
+      }
+
+      .demux-diagram {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+
+      .demux-block {
+        background: #f8f9fa;
+        border: 2px solid #ff7043;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px;
+        text-align: center;
+        min-width: 120px;
+      }
+
+      .demux-title {
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #ff7043;
+      }
+
+      .demux-symbol {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      .demux-description {
+        font-size: 0.9rem;
+      }
+
+      .application-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        border-left: 4px solid #ff7043;
+        transition: transform 0.3s ease;
+      }
+
+      .application-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .application-title {
+        font-weight: 600;
+        color: #ff7043;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .application-title i {
+        margin-right: 8px;
+      }
+
+      .block-diagram {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+
+      .block {
+        background: #f8f9fa;
+        border: 2px solid #ff7043;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px;
+        text-align: center;
+        min-width: 100px;
+      }
+
+      .arrow {
+        font-size: 2rem;
+        margin: 0 10px;
+        color: #ff7043;
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .comparison-table th {
+        background-color: #ff7043;
+        color: white;
+        font-weight: 600;
+      }
+
+      .comparison-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .comparison-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      .comparison-table tr:hover {
+        background-color: #e2e2e2;
+      }
+
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideInLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(255, 112, 67, 0.4);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(255, 112, 67, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(255, 112, 67, 0);
+        }
+      }
+
+      @keyframes bounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-10px);
+        }
+        60% {
+          transform: translateY(-5px);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 10px;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        .section {
+          padding: 20px;
+        }
+
+        .truth-table {
+          font-size: 0.9rem;
+        }
+
+        .nav-dots {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1><span class="emoji">🔹</span> What is a Demultiplexer?</h1>
+        <p class="subtitle">Digital Circuit for Data Distribution</p>
+      </header>
+
+      <div class="section" id="definition">
+        <h2 class="section-title">
+          <i class="fas fa-info-circle"></i> Definition
+        </h2>
+        <p>A Demultiplexer (DeMUX) is the opposite of a Multiplexer (MUX).</p>
+
+        <div class="summary-box">
+          <p><span class="emoji">🔄</span> <strong>Comparison:</strong></p>
+          <ul>
+            <li><strong>MUX:</strong> Many inputs → One output</li>
+            <li><strong>DeMUX:</strong> One input → Many outputs</li>
+          </ul>
+        </div>
+
+        <p>
+          <span class="emoji">👉</span> So a Demultiplexer takes a single input
+          and sends it to one of many outputs, based on select lines.
+        </p>
+      </div>
+
+      <div class="section" id="example">
+        <h2 class="section-title">
+          <i class="fas fa-project-diagram"></i> Example: 1-to-2 Demultiplexer
+        </h2>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-sign-in-alt"></i> Inputs
+          </div>
+          <ul>
+            <li>1 data input → D</li>
+            <li>1 select line → S</li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-sign-out-alt"></i> Outputs
+          </div>
+          <ul>
+            <li>2 outputs → Y0, Y1</li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-table"></i> Truth Table for 1-to-2 DeMUX
+          </div>
+          <table class="truth-table">
+            <thead>
+              <tr>
+                <th>Select (S)</th>
+                <th>Y0</th>
+                <th>Y1</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0</td>
+                <td>D</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>D</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p><span class="emoji">👉</span> If S=0, input D goes to Y0.</p>
+          <p><span class="emoji">👉</span> If S=1, input D goes to Y1.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-calculator"></i> Logic Equations
+          </div>
+          <div class="math">Y0 = D · S'</div>
+          <div class="math">Y1 = D · S</div>
+          <p>Where ' means NOT and · means AND.</p>
+        </div>
+      </div>
+
+      <div class="section" id="block-diagram">
+        <h2 class="section-title">
+          <i class="fas fa-sitemap"></i> Block Diagram
+        </h2>
+
+        <div class="block-diagram">
+          <div class="block">D<br />(Input)</div>
+          <div class="arrow">→</div>
+          <div class="block">1:2<br />DeMUX</div>
+          <div class="arrow">→</div>
+          <div class="block">Y0</div>
+        </div>
+
+        <div class="block-diagram">
+          <div class="block"></div>
+          <div class="arrow"></div>
+          <div class="block"></div>
+          <div class="arrow">→</div>
+          <div class="block">Y1</div>
+        </div>
+
+        <div class="block-diagram">
+          <div class="block">S<br />(Select)</div>
+          <div class="arrow">→</div>
+          <div class="block"></div>
+          <div class="arrow"></div>
+          <div class="block"></div>
+        </div>
+
+        <div class="summary-box">
+          <p><strong>Explained in Words:</strong></p>
+          <ul>
+            <li>One input line → D</li>
+            <li>One control line → S</li>
+            <li>Two outputs → Y0 and Y1</li>
+            <li>Depending on S, the input goes to the correct output</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section" id="analogy">
+        <h2 class="section-title">
+          <i class="fas fa-lightbulb"></i> Real-Life Analogy
+        </h2>
+
+        <div class="summary-box">
+          <p>
+            <span class="emoji">💧</span> Think of a water tank with one pipe
+            (input) and a valve (select line) that can send water to either Tank
+            A (Y0) or Tank B (Y1).
+          </p>
+          <ul>
+            <li>If valve = 0 → water flows into Tank A</li>
+            <li>If valve = 1 → water flows into Tank B</li>
+          </ul>
+        </div>
+
+        <div class="demux-diagram">
+          <div class="demux-block">
+            <div class="demux-title">Water Tank</div>
+            <div class="demux-symbol"><i class="fas fa-water"></i></div>
+            <div class="demux-description">Input (D)</div>
+          </div>
+
+          <div class="demux-block">
+            <div class="demux-title">Valve</div>
+            <div class="demux-symbol"><i class="fas fa-faucet"></i></div>
+            <div class="demux-description">Select (S)</div>
+          </div>
+
+          <div class="demux-block">
+            <div class="demux-title">Tank A</div>
+            <div class="demux-symbol"><i class="fas fa-database"></i></div>
+            <div class="demux-description">Output (Y0)</div>
+          </div>
+
+          <div class="demux-block">
+            <div class="demux-title">Tank B</div>
+            <div class="demux-symbol"><i class="fas fa-database"></i></div>
+            <div class="demux-description">Output (Y1)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="applications">
+        <h2 class="section-title">
+          <i class="fas fa-cogs"></i> Applications of Demultiplexers
+        </h2>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-route"></i> Data Routing
+          </div>
+          <p>Send data from one source to multiple destinations.</p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-broadcast-tower"></i> Communication Systems
+          </div>
+          <p>Distribute signals (e.g., TV broadcasting).</p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-microchip"></i> CPU & Memory Systems
+          </div>
+          <p>Send instructions/data to specific memory locations.</p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-sliders-h"></i> Control Systems
+          </div>
+          <p>
+            One control signal can activate multiple devices (but only one at a
+            time).
+          </p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-network-wired"></i> Digital Systems
+          </div>
+          <p>
+            Distribute clock signals or enable signals to different parts of a
+            circuit.
+          </p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-exchange-alt"></i> Serial-to-Parallel Conversion
+          </div>
+          <p>Convert serial data into parallel form for processing.</p>
+        </div>
+      </div>
+
+      <div class="section" id="comparison">
+        <h2 class="section-title">
+          <i class="fas fa-balance-scale"></i> MUX vs DeMUX Comparison
+        </h2>
+
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Multiplexer (MUX)</th>
+              <th>Demultiplexer (DeMUX)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Function</td>
+              <td>Selects one of many inputs</td>
+              <td>Distributes one input to many outputs</td>
+            </tr>
+            <tr>
+              <td>Inputs</td>
+              <td>Multiple (2^n)</td>
+              <td>Single</td>
+            </tr>
+            <tr>
+              <td>Outputs</td>
+              <td>Single</td>
+              <td>Multiple (2^n)</td>
+            </tr>
+            <tr>
+              <td>Select Lines</td>
+              <td>n</td>
+              <td>n</td>
+            </tr>
+            <tr>
+              <td>Analogy</td>
+              <li>TV remote selecting channels</li>
+              <li>Water valve directing water flow</li>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section" id="summary">
+        <h2 class="section-title">
+          <i class="fas fa-check-circle"></i> Summary
+        </h2>
+
+        <div class="summary-box">
+          <p>
+            <span class="emoji">🔹</span>
+            <strong>Demultiplexer (DeMUX):</strong> The opposite of a
+            Multiplexer (MUX)
+          </p>
+          <p>
+            <span class="emoji">🔹</span> <strong>MUX:</strong> Many inputs →
+            One output
+          </p>
+          <p>
+            <span class="emoji">🔹</span> <strong>DeMUX:</strong> One input →
+            Many outputs
+          </p>
+          <p>
+            <span class="emoji">🔹</span> <strong>Example:</strong> 1-to-2 DeMUX
+            → Output depends on select line
+          </p>
+          <p>
+            <span class="emoji">🔹</span> <strong>Applications:</strong> Data
+            routing, communication systems, CPU & memory systems, control
+            systems
+          </p>
+        </div>
+
+        <div class="final-result">
+          <p>
+            Demultiplexers are essential components in digital systems, enabling
+            efficient data distribution from a single source to multiple
+            destinations based on control signals.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-dots">
+      <div class="nav-dot active" onclick="scrollToSection('definition')"></div>
+      <div class="nav-dot" onclick="scrollToSection('example')"></div>
+      <div class="nav-dot" onclick="scrollToSection('block-diagram')"></div>
+      <div class="nav-dot" onclick="scrollToSection('analogy')"></div>
+      <div class="nav-dot" onclick="scrollToSection('applications')"></div>
+      <div class="nav-dot" onclick="scrollToSection('comparison')"></div>
+      <div class="nav-dot" onclick="scrollToSection('summary')"></div>
+    </div>
+
+    <div class="scroll-indicator" onclick="scrollToTop()">
+      <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+      // Function to scroll to top
+      function scrollToTop() {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      }
+
+      // Function to scroll to a specific section
+      function scrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+          section.scrollIntoView({
+            behavior: "smooth",
+          });
+        }
+      }
+
+      // Update active nav dot based on scroll position
+      window.addEventListener("scroll", () => {
+        const sections = [
+          "definition",
+          "example",
+          "block-diagram",
+          "analogy",
+          "applications",
+          "comparison",
+          "summary",
+        ];
+        const navDots = document.querySelectorAll(".nav-dot");
+
+        let current = "";
+        sections.forEach((sectionId) => {
+          const section = document.getElementById(sectionId);
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.clientHeight;
+          if (pageYOffset >= sectionTop - 200) {
+            current = sectionId;
+          }
+        });
+
+        sections.forEach((sectionId, index) => {
+          if (current === sectionId) {
+            navDots[index].classList.add("active");
+          } else {
+            navDots[index].classList.remove("active");
+          }
+        });
+      });
+
+      // Add animation to elements when they come into view
+      const observerOptions = {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.1,
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = 1;
+            entry.target.style.transform = "translateY(0)";
+          }
+        });
+      }, observerOptions);
+
+      // Observe all sections
+      document.querySelectorAll(".section").forEach((section) => {
+        section.style.opacity = 0;
+        section.style.transform = "translateY(20px)";
+        section.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+        observer.observe(section);
+      });
+    </script>
+  </body>
+</html>

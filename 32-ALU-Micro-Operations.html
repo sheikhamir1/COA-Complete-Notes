@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ALU Micro-Operations</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #4a6fa5;
+        --secondary-color: #6c63ff;
+        --accent-color: #ff6584;
+        --text-color: #333;
+        --light-bg: #f8f9fa;
+        --dark-bg: #2d3748;
+        --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        color: var(--text-color);
+        background-color: var(--light-bg);
+        overflow-x: hidden;
+      }
+
+      .slide-container {
+        width: 100%;
+        height: 100vh;
+        overflow-y: scroll;
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+      }
+
+      .slide {
+        min-height: 100vh;
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        scroll-snap-align: start;
+        position: relative;
+        background-color: white;
+      }
+
+      .slide:nth-child(even) {
+        background-color: var(--light-bg);
+      }
+
+      .slide-content {
+        max-width: 900px;
+        width: 100%;
+        text-align: center;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      h1 {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+        position: relative;
+        display: inline-block;
+      }
+
+      h1::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(
+          90deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        border-radius: 2px;
+      }
+
+      h2 {
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+        color: var(--primary-color);
+      }
+
+      h3 {
+        font-size: 1.8rem;
+        margin: 25px 0 15px;
+        color: var(--secondary-color);
+        position: relative;
+        display: inline-block;
+      }
+
+      p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .emoji {
+        font-size: 1.5rem;
+        vertical-align: middle;
+        margin: 0 5px;
+      }
+
+      .card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: left;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+
+      .operation-card {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 8px;
+        background-color: var(--light-bg);
+        transition: all 0.3s ease;
+      }
+
+      .operation-card:hover {
+        background-color: #e9ecef;
+        transform: translateX(10px);
+      }
+
+      .operation-icon {
+        font-size: 2rem;
+        margin-right: 20px;
+        color: var(--secondary-color);
+      }
+
+      .operation-details {
+        flex: 1;
+      }
+
+      .operation-name {
+        font-weight: 600;
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+      }
+
+      .operation-example {
+        font-family: "Courier New", monospace;
+        background-color: #f1f3f5;
+        padding: 5px 10px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-top: 5px;
+      }
+
+      .navigation {
+        position: fixed;
+        right: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+      }
+
+      .nav-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #ccc;
+        margin: 15px 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .nav-dot.active {
+        background-color: var(--primary-color);
+        transform: scale(1.3);
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .flag-card {
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+      }
+
+      .flag-card:hover {
+        transform: scale(1.05);
+      }
+
+      .flag-icon {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+
+      .summary-box {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        margin-top: 30px;
+        box-shadow: var(--card-shadow);
+      }
+
+      .highlight {
+        background-color: rgba(108, 99, 255, 0.2);
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      .floating {
+        animation: floating 3s ease-in-out infinite;
+      }
+
+      @keyframes floating {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+
+      .pulse {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .slide-number {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        font-size: 1rem;
+        color: #888;
+      }
+
+      .binary-animation {
+        font-family: "Courier New", monospace;
+        font-size: 1.5rem;
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #f1f3f5;
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .binary-animation::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.6),
+          transparent
+        );
+        animation: shine 3s infinite;
+      }
+
+      @keyframes shine {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2.5rem;
+        }
+        h2 {
+          font-size: 2rem;
+        }
+        h3 {
+          font-size: 1.5rem;
+        }
+        .slide {
+          padding: 40px 20px;
+        }
+        .navigation {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <!-- Slide 1: Title -->
+      <div class="slide" id="slide1">
+        <div class="slide-content">
+          <h1 class="floating">ALU Micro-Operations</h1>
+          <p class="emoji" style="font-size: 3rem">🧮 ⚙️ 💻</p>
+          <p style="font-size: 1.3rem; margin-top: 30px">
+            The fundamental building blocks of CPU computation
+          </p>
+          <div class="binary-animation">
+            01001000 01100101 01101100 01101100 01101111 00100000 01000011
+            01010000 01010101
+          </div>
+        </div>
+        <div class="slide-number">1/10</div>
+      </div>
+
+      <!-- Slide 2: Introduction -->
+      <div class="slide" id="slide2">
+        <div class="slide-content">
+          <h2>Introduction to ALU Micro-Operations</h2>
+          <div class="card pulse">
+            <p>
+              <span class="emoji">🔍</span> The Arithmetic Logic Unit (ALU)
+              performs <span class="highlight">micro-operations</span>, which
+              are the smallest and most basic operations executed directly by
+              the hardware on binary data stored in CPU registers.
+            </p>
+          </div>
+          <div class="grid-container">
+            <div class="card">
+              <h3><span class="emoji">🧮</span> Arithmetic</h3>
+              <p>Mathematical operations on binary data</p>
+            </div>
+            <div class="card">
+              <h3><span class="emoji">🔌</span> Logic</h3>
+              <p>Bit-level logical operations using logic gates</p>
+            </div>
+            <div class="card">
+              <h3><span class="emoji">↔️</span> Shift</h3>
+              <p>Shifting bits left or right</p>
+            </div>
+            <div class="card">
+              <h3><span class="emoji">🔄</span> Data Transfer</h3>
+              <p>Moving data between registers</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">2/10</div>
+      </div>
+
+      <!-- Slide 3: Arithmetic Micro-Operations -->
+      <div class="slide" id="slide3">
+        <div class="slide-content">
+          <h2><span class="emoji">🧮</span> Arithmetic Micro-Operations</h2>
+          <p>These deal with mathematical operations on binary data.</p>
+
+          <div class="operation-card">
+            <div class="operation-icon">➕</div>
+            <div class="operation-details">
+              <div class="operation-name">Addition</div>
+              <p>R3 ← R1 + R2</p>
+              <div class="operation-example">
+                0101 (5) + 0011 (3) = 1000 (8)
+              </div>
+            </div>
+          </div>
+
+          <div class="operation-card">
+            <div class="operation-icon">➖</div>
+            <div class="operation-details">
+              <div class="operation-name">Subtraction</div>
+              <p>R3 ← R1 – R2 (done using 2's complement)</p>
+              <div class="operation-example">
+                0101 (5) – 0011 (3) = 0010 (2)
+              </div>
+            </div>
+          </div>
+
+          <div class="operation-card">
+            <div class="operation-icon">⬆️</div>
+            <div class="operation-details">
+              <div class="operation-name">Increment</div>
+              <p>R1 ← R1 + 1</p>
+              <div class="operation-example">0101 (5) → 0110 (6)</div>
+            </div>
+          </div>
+
+          <div class="operation-card">
+            <div class="operation-icon">⬇️</div>
+            <div class="operation-details">
+              <div class="operation-name">Decrement</div>
+              <p>R1 ← R1 – 1</p>
+              <div class="operation-example">0101 (5) → 0100 (4)</div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">3/10</div>
+      </div>
+
+      <!-- Slide 4: Logic Micro-Operations -->
+      <div class="slide" id="slide4">
+        <div class="slide-content">
+          <h2><span class="emoji">🔌</span> Logic Micro-Operations</h2>
+          <p>These perform bit-level logical operations using logic gates.</p>
+
+          <div class="operation-card">
+            <div class="operation-icon">∧</div>
+            <div class="operation-details">
+              <div class="operation-name">AND</div>
+              <p>R3 ← R1 AND R2</p>
+              <div class="operation-example">0101 AND 0011 = 0001</div>
+            </div>
+          </div>
+
+          <div class="operation-card">
+            <div class="operation-icon">∨</div>
+            <div class="operation-details">
+              <div class="operation-name">OR</div>
+              <p>R3 ← R1 OR R2</p>
+              <div class="operation-example">0101 OR 0011 = 0111</div>
+            </div>
+          </div>
+
+          <div class="operation-card">
+            <div class="operation-icon">⊕</div>
+            <div class="operation-details">
+              <div class="operation-name">XOR (Exclusive OR)</div>
+              <p>R3 ← R1 XOR R2</p>
+              <div class="operation-example">0101 XOR 0011 = 0110</div>
+            </div>
+          </div>
+
+          <div class="operation-card">
+            <div class="operation-icon">¬</div>
+            <div class="operation-details">
+              <div class="operation-name">NOT (Complement)</div>
+              <p>R1 ← NOT R1</p>
+              <div class="operation-example">0101 → 1010</div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">4/10</div>
+      </div>
+
+      <!-- Slide 5: Shift Micro-Operations -->
+      <div class="slide" id="slide5">
+        <div class="slide-content">
+          <h2><span class="emoji">↔️</span> Shift Micro-Operations</h2>
+          <p>These shift the bits of a binary number left or right.</p>
+
+          <div class="operation-card">
+            <div class="operation-icon">⬅️</div>
+            <div class="operation-details">
+              <div class="operation-name">Logical Shift Left (LSL)</div>
+              <p>Shifts all bits left, fills 0 in the rightmost bit</p>
+              <div class="operation-example">0101 (5) → 1010 (10)</div>
+            </div>
+          </div>
+
+          <div class="operation-card">
+            <div class="operation-icon">➡️</div>
+            <div class="operation-details">
+              <div class="operation-name">Logical Shift Right (LSR)</div>
+              <p>Shifts all bits right, fills 0 in the leftmost bit</p>
+              <div class="operation-example">0101 (5) → 0010 (2)</div>
+            </div>
+          </div>
+
+          <div class="operation-card">
+            <div class="operation-icon">🔄➡️</div>
+            <div class="operation-details">
+              <div class="operation-name">Arithmetic Shift Right (ASR)</div>
+              <p>Preserves the sign bit for signed numbers</p>
+            </div>
+          </div>
+
+          <div class="operation-card">
+            <div class="operation-icon">🔄</div>
+            <div class="operation-details">
+              <div class="operation-name">Rotate Left/Right</div>
+              <p>Bits rotate around instead of being lost</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">5/10</div>
+      </div>
+
+      <!-- Slide 6: Data Transfer Micro-Operations -->
+      <div class="slide" id="slide6">
+        <div class="slide-content">
+          <h2><span class="emoji">🔄</span> Data Transfer Micro-Operations</h2>
+          <p>
+            These move data from one register to another without processing.
+          </p>
+
+          <div class="operation-card">
+            <div class="operation-icon">→</div>
+            <div class="operation-details">
+              <div class="operation-name">Transfer</div>
+              <p>R2 ← R1</p>
+              <p>Move data from one register to another</p>
+            </div>
+          </div>
+
+          <div class="operation-card">
+            <div class="operation-icon">⬇️</div>
+            <div class="operation-details">
+              <div class="operation-name">Load from memory</div>
+              <p>R1 ← M[1000]</p>
+              <p>Load data from memory address 1000 into register R1</p>
+            </div>
+          </div>
+
+          <div class="operation-card">
+            <div class="operation-icon">⬆️</div>
+            <div class="operation-details">
+              <div class="operation-name">Store to memory</div>
+              <p>M[1000] ← R1</p>
+              <p>Save data from register R1 to memory address 1000</p>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 30px">
+            <p>
+              <span class="emoji">💡</span> Data transfer operations are
+              essential for moving data between different components of the CPU
+              and between the CPU and memory.
+            </p>
+          </div>
+        </div>
+        <div class="slide-number">6/10</div>
+      </div>
+
+      <!-- Slide 7: Status Flags -->
+      <div class="slide" id="slide7">
+        <div class="slide-content">
+          <h2>
+            <span class="emoji">🚩</span> Status Flags from ALU Operations
+          </h2>
+          <p>
+            After executing micro-operations, the ALU updates flags in the
+            status register:
+          </p>
+
+          <div class="grid-container">
+            <div class="flag-card">
+              <div class="flag-icon">🚩</div>
+              <h3>Zero (Z)</h3>
+              <p>Set if result = 0</p>
+            </div>
+
+            <div class="flag-card">
+              <div class="flag-icon">💼</div>
+              <h3>Carry (C)</h3>
+              <p>Set if an arithmetic operation generates a carry out</p>
+            </div>
+
+            <div class="flag-card">
+              <div class="flag-icon">➖</div>
+              <h3>Sign (S)</h3>
+              <p>Set if result is negative (MSB = 1)</p>
+            </div>
+
+            <div class="flag-card">
+              <div class="flag-icon">⚠️</div>
+              <h3>Overflow (O)</h3>
+              <p>Set if signed result exceeds range</p>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 30px">
+            <p>
+              <span class="emoji">📝</span> Status flags are crucial for
+              conditional branching and decision-making in programs.
+            </p>
+          </div>
+        </div>
+        <div class="slide-number">7/10</div>
+      </div>
+
+      <!-- Slide 8: Summary -->
+      <div class="slide" id="slide8">
+        <div class="slide-content">
+          <h2><span class="emoji">✅</span> In Summary</h2>
+
+          <div class="summary-box">
+            <p style="font-size: 1.3rem; margin-bottom: 20px">
+              Micro-operations are the building blocks of all computations in
+              the CPU.
+            </p>
+
+            <ul style="text-align: left; font-size: 1.1rem; line-height: 1.8">
+              <li>
+                The ALU executes <span class="highlight">arithmetic</span>,
+                <span class="highlight">logic</span>,
+                <span class="highlight">shift</span>, and
+                <span class="highlight">transfer</span> operations using control
+                signals from the control unit.
+              </li>
+              <li>
+                These operations update
+                <span class="highlight">status flags</span>, which guide the CPU
+                for further decisions.
+              </li>
+              <li>
+                Together, they form the foundation of instruction execution in
+                modern processors.
+              </li>
+            </ul>
+          </div>
+
+          <div class="binary-animation" style="margin-top: 30px">
+            01001101 01101001 01100011 01110010 01101111 01101111 01110000
+            01100101 01110010 01100001 01110100 01101001 01101111 01101110
+            01110011
+          </div>
+        </div>
+        <div class="slide-number">8/10</div>
+      </div>
+
+      <!-- Slide 9: Simple Explanation -->
+      <div class="slide" id="slide9">
+        <div class="slide-content">
+          <h2><span class="emoji">👉</span> ALU Micro-Operations</h2>
+
+          <div class="card">
+            <p>
+              <span class="emoji">🔍</span> A micro-operation is the
+              <span class="highlight">smallest operation</span> the CPU can
+              perform on data stored in registers.
+            </p>
+            <ul style="text-align: left; margin: 15px 0 15px 30px">
+              <li>They happen at the register transfer level (RTL)</li>
+              <li>They are atomic (cannot be broken into smaller steps)</li>
+              <li>
+                Together, micro-operations form the basis for executing
+                instructions like addition, comparison, or memory load
+              </li>
+            </ul>
+          </div>
+
+          <div class="grid-container" style="margin-top: 30px">
+            <div class="card">
+              <h3><span class="emoji">🔄</span> Register Transfer</h3>
+              <p>Move data between registers or memory</p>
+            </div>
+            <div class="card">
+              <h3><span class="emoji">🧮</span> Arithmetic</h3>
+              <p>Basic math operations</p>
+            </div>
+            <div class="card">
+              <h3><span class="emoji">🔌</span> Logical</h3>
+              <p>Bit-level operations</p>
+            </div>
+            <div class="card">
+              <h3><span class="emoji">↔️</span> Shift</h3>
+              <p>Move bits left or right</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">9/10</div>
+      </div>
+
+      <!-- Slide 10: How ALU Executes Micro-Operations -->
+      <div class="slide" id="slide10">
+        <div class="slide-content">
+          <h2>
+            <span class="emoji">⚙️</span> How ALU Executes Micro-Operations
+          </h2>
+
+          <div class="operation-card">
+            <div class="operation-icon">1️⃣</div>
+            <div class="operation-details">
+              <div class="operation-name">Fetch Data</div>
+              <p>
+                Operands come from registers into ALU input registers (A & B)
+              </p>
+            </div>
+          </div>
+
+          <div class="operation-card">
+            <div class="operation-icon">2️⃣</div>
+            <div class="operation-details">
+              <div class="operation-name">Select Operation</div>
+              <p>
+                The Control Unit tells ALU what to do (add, AND, shift, etc.)
+              </p>
+            </div>
+          </div>
+
+          <div class="operation-card">
+            <div class="operation-icon">3️⃣</div>
+            <div class="operation-details">
+              <div class="operation-name">Perform Operation</div>
+              <p>ALU uses adders, logic gates, or shifters to process data</p>
+            </div>
+          </div>
+
+          <div class="operation-card">
+            <div class="operation-icon">4️⃣</div>
+            <div class="operation-details">
+              <div class="operation-name">Store Result</div>
+              <p>Result goes into a result register or back to memory</p>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 30px">
+            <p>
+              <span class="emoji">✅</span> In short: Micro-operations are the
+              tiny steps that ALU performs — moving data, doing arithmetic,
+              applying logic, and shifting bits. The Control Unit tells ALU
+              which micro-operation to do, and results are stored back for the
+              CPU to continue execution.
+            </p>
+          </div>
+        </div>
+        <div class="slide-number">10/10</div>
+      </div>
+    </div>
+
+    <div class="navigation">
+      <div class="nav-dot active" onclick="scrollToSlide('slide1')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide2')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide3')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide4')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide5')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide6')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide7')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide8')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide9')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide10')"></div>
+    </div>
+
+    <script>
+      // Function to scroll to a specific slide
+      function scrollToSlide(slideId) {
+        document.getElementById(slideId).scrollIntoView({ behavior: "smooth" });
+      }
+
+      // Update active navigation dot based on scroll position
+      window.addEventListener("scroll", () => {
+        const slides = document.querySelectorAll(".slide");
+        const navDots = document.querySelectorAll(".nav-dot");
+        const scrollPosition = window.scrollY + window.innerHeight / 2;
+
+        slides.forEach((slide, index) => {
+          const slideTop = slide.offsetTop;
+          const slideBottom = slideTop + slide.offsetHeight;
+
+          if (scrollPosition >= slideTop && scrollPosition < slideBottom) {
+            navDots.forEach((dot) => dot.classList.remove("active"));
+            navDots[index].classList.add("active");
+          }
+        });
+      });
+
+      // Add keyboard navigation
+      document.addEventListener("keydown", (e) => {
+        const slides = document.querySelectorAll(".slide");
+        const currentSlide = document.querySelector(".nav-dot.active");
+        const currentIndex = Array.from(
+          document.querySelectorAll(".nav-dot")
+        ).indexOf(currentSlide);
+
+        if (e.key === "ArrowDown" && currentIndex < slides.length - 1) {
+          scrollToSlide(`slide${currentIndex + 2}`);
+        } else if (e.key === "ArrowUp" && currentIndex > 0) {
+          scrollToSlide(`slide${currentIndex}`);
+        }
+      });
+
+      // Add touch/swipe support for mobile
+      let touchStartY = 0;
+      let touchEndY = 0;
+
+      document.addEventListener("touchstart", (e) => {
+        touchStartY = e.changedTouches[0].screenY;
+      });
+
+      document.addEventListener("touchend", (e) => {
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+      });
+
+      function handleSwipe() {
+        const slides = document.querySelectorAll(".slide");
+        const currentSlide = document.querySelector(".nav-dot.active");
+        const currentIndex = Array.from(
+          document.querySelectorAll(".nav-dot")
+        ).indexOf(currentSlide);
+
+        if (touchEndY < touchStartY - 50 && currentIndex < slides.length - 1) {
+          // Swipe up - go to next slide
+          scrollToSlide(`slide${currentIndex + 2}`);
+        } else if (touchEndY > touchStartY + 50 && currentIndex > 0) {
+          // Swipe down - go to previous slide
+          scrollToSlide(`slide${currentIndex}`);
+        }
+      }
+    </script>
+  </body>
+</html>

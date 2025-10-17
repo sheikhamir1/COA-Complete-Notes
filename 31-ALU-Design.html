@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ALU Design - Components and Architecture</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f8fafc;
+        color: #1e293b;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      header {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        padding: 60px 0;
+        text-align: center;
+        /* position: sticky; */
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        font-size: 1.125rem;
+        opacity: 0.9;
+        font-weight: 400;
+      }
+
+      section {
+        background: white;
+        border-radius: 12px;
+        padding: 60px;
+        margin: 40px 0;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.2s ease;
+      }
+
+      section:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      h2 {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #1e40af;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #3730a3;
+        margin: 30px 0 20px;
+      }
+
+      h4 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #4338ca;
+        margin: 20px 0 12px;
+      }
+
+      .content-block {
+        background: #f8fafc;
+        border-left: 4px solid #3b82f6;
+        padding: 24px;
+        margin: 24px 0;
+        border-radius: 0 8px 8px 0;
+      }
+
+      .component-card {
+        display: flex;
+        align-items: flex-start;
+        margin: 20px 0;
+        padding: 20px;
+        background: #f1f5f9;
+        border-radius: 8px;
+        transition: background-color 0.2s ease;
+      }
+
+      .component-card:hover {
+        background: #e2e8f0;
+      }
+
+      .component-icon {
+        width: 48px;
+        height: 48px;
+        background: #3b82f6;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        margin-right: 20px;
+        flex-shrink: 0;
+      }
+
+      .component-content {
+        flex: 1;
+      }
+
+      .component-content h4 {
+        margin: 0 0 8px;
+        color: #1e40af;
+      }
+
+      .component-content p {
+        margin: 0;
+        color: #475569;
+        font-size: 0.95rem;
+      }
+
+      .alu-diagram {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 30px;
+        margin: 30px 0;
+        text-align: center;
+      }
+
+      .alu-block {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+
+      .alu-component {
+        width: 120px;
+        height: 80px;
+        background: #3b82f6;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        margin: 10px;
+        font-weight: 500;
+        text-align: center;
+        font-size: 0.9rem;
+      }
+
+      .connection {
+        width: 40px;
+        height: 2px;
+        background: #64748b;
+        margin: 0 5px;
+      }
+
+      .arrow {
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 12px solid #64748b;
+        margin: 0 5px;
+      }
+
+      .table-container {
+        overflow-x: auto;
+        margin: 30px 0;
+      }
+
+      .truth-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      .truth-table th {
+        background: #3b82f6;
+        color: white;
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.875rem;
+      }
+
+      .truth-table td {
+        padding: 12px;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 0.875rem;
+      }
+
+      .truth-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .truth-table tr:nth-child(even) {
+        background: #f8fafc;
+      }
+
+      .highlight {
+        background: #dbeafe;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      .nav-dots {
+        position: fixed;
+        right: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+      }
+
+      .nav-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #cbd5e1;
+        margin: 12px 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .nav-dot:hover {
+        background: #94a3b8;
+      }
+
+      .nav-dot.active {
+        background: #3b82f6;
+        transform: scale(1.2);
+      }
+
+      .key-point {
+        background: #eff6ff;
+        border-left: 4px solid #3b82f6;
+        padding: 16px 20px;
+        margin: 24px 0;
+        border-radius: 0 8px 8px 0;
+      }
+
+      .key-point h4 {
+        color: #1e40af;
+        margin: 0 0 8px;
+      }
+
+      ul {
+        margin: 16px 0;
+        padding-left: 24px;
+      }
+
+      li {
+        margin: 8px 0;
+        color: #475569;
+      }
+
+      p {
+        margin: 16px 0;
+        color: #475569;
+      }
+
+      .operation-example {
+        background: #f1f5f9;
+        border-radius: 8px;
+        padding: 16px;
+        margin: 16px 0;
+        border-left: 3px solid #64748b;
+      }
+
+      .operation-example h5 {
+        color: #334155;
+        margin: 0 0 8px;
+        font-weight: 600;
+      }
+
+      .binary {
+        font-family: "Courier New", monospace;
+        background: #e2e8f0;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .flag {
+        display: inline-block;
+        background: #fef3c7;
+        color: #92400e;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin: 0 2px;
+      }
+
+      .alu-flowchart {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 30px 0;
+        padding: 20px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+      }
+
+      .flowchart-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 15px 0;
+        width: 100%;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2rem;
+        }
+        h2 {
+          font-size: 1.5rem;
+        }
+        section {
+          padding: 30px 20px;
+        }
+        .nav-dots {
+          display: none;
+        }
+        .alu-block {
+          flex-direction: column;
+        }
+        .alu-component {
+          margin: 10px 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="nav-dots">
+      <div class="nav-dot active" onclick="scrollToSection('intro')"></div>
+      <div class="nav-dot" onclick="scrollToSection('components')"></div>
+      <div class="nav-dot" onclick="scrollToSection('block-diagram')"></div>
+      <div class="nav-dot" onclick="scrollToSection('example')"></div>
+      <div class="nav-dot" onclick="scrollToSection('advanced')"></div>
+    </div>
+
+    <header>
+      <div class="container">
+        <h1>ALU Design - Components and Architecture</h1>
+        <p class="subtitle">Building the Computational Heart of the CPU</p>
+      </div>
+    </header>
+
+    <div class="container">
+      <!-- Introduction Section -->
+      <section id="intro">
+        <h2>
+          <i class="fas fa-microchip"></i> ALU Design – Components of an ALU
+        </h2>
+
+        <div class="content-block">
+          <p>
+            The Arithmetic Logic Unit (ALU) is the computational heart of the
+            CPU. It performs both arithmetic operations (like addition,
+            subtraction) and logic operations (like AND, OR, NOT, XOR).
+          </p>
+          <p>
+            Designing an ALU means combining registers, adders, logic gates,
+            multiplexers, and control logic into one functional unit.
+          </p>
+        </div>
+
+        <div class="alu-diagram">
+          <h3>ALU Conceptual Overview</h3>
+          <div class="alu-block">
+            <div class="alu-component">Operand A</div>
+            <div class="arrow"></div>
+            <div
+              class="alu-component"
+              style="background: #4f46e5; width: 160px"
+            >
+              ALU<br />Arithmetic Logic Unit
+            </div>
+            <div class="arrow"></div>
+            <div class="alu-component">Result</div>
+          </div>
+          <div class="alu-block">
+            <div class="alu-component">Operand B</div>
+            <div class="arrow"></div>
+            <div
+              class="alu-component"
+              style="background: #4f46e5; width: 160px"
+            >
+              Control Signals
+            </div>
+            <div class="arrow"></div>
+            <div class="alu-component">Status Flags</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Components Section -->
+      <section id="components">
+        <h2><i class="fas fa-cogs"></i> ALU Components</h2>
+
+        <h3>1. Registers</h3>
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-memory"></i>
+          </div>
+          <div class="component-content">
+            <h4>Operand Registers (A and B)</h4>
+            <p>
+              Store the input data values on which operations are to be
+              performed.
+            </p>
+            <p>
+              <strong>Example:</strong> To compute 5 + 3, A = 0101 and B = 0011.
+            </p>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-save"></i>
+          </div>
+          <div class="component-content">
+            <h4>Result Register (R)</h4>
+            <p>Holds the output after the operation is completed.</p>
+            <p><strong>Example:</strong> If 5 + 3 = 8, then R = 1000.</p>
+          </div>
+        </div>
+
+        <div class="content-block">
+          <p>
+            <i class="fas fa-info-circle"></i> Without registers, the ALU cannot
+            fetch and store intermediate values.
+          </p>
+        </div>
+
+        <h3>2. Arithmetic Unit</h3>
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-plus"></i>
+          </div>
+          <div class="component-content">
+            <h4>Adder</h4>
+            <p>Performs binary addition.</p>
+            <p>
+              Can be a half adder, full adder, or ripple carry adder for
+              multi-bit addition.
+            </p>
+            <p><strong>Example:</strong> 0101 + 0011 = 1000.</p>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-minus"></i>
+          </div>
+          <div class="component-content">
+            <h4>Subtractor</h4>
+            <p>
+              Often implemented using an adder by taking the 2's complement of
+              the second operand.
+            </p>
+            <p><strong>Example:</strong> 5 – 3 = 0101 + (1101) = 1000 (2).</p>
+          </div>
+        </div>
+
+        <div class="content-block">
+          <p>
+            <i class="fas fa-info-circle"></i> In most ALUs, subtraction is not
+            a separate circuit but derived from the adder.
+          </p>
+        </div>
+
+        <h3>3. Logic Unit</h3>
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-project-diagram"></i>
+          </div>
+          <div class="component-content">
+            <h4>AND Gate</h4>
+            <p>Output = 1 if both inputs = 1.</p>
+            <p><strong>Example:</strong> 0101 AND 0011 = 0001.</p>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-code-branch"></i>
+          </div>
+          <div class="component-content">
+            <h4>OR Gate</h4>
+            <p>Output = 1 if at least one input = 1.</p>
+            <p><strong>Example:</strong> 0101 OR 0011 = 0111.</p>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-exchange-alt"></i>
+          </div>
+          <div class="component-content">
+            <h4>XOR Gate</h4>
+            <p>Output = 1 if inputs are different.</p>
+            <p><strong>Example:</strong> 0101 XOR 0011 = 0110.</p>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-not-equal"></i>
+          </div>
+          <div class="component-content">
+            <h4>NOT Gate</h4>
+            <p>Inverts bits.</p>
+            <p><strong>Example:</strong> NOT 0101 = 1010.</p>
+          </div>
+        </div>
+
+        <div class="content-block">
+          <p>
+            <i class="fas fa-info-circle"></i> These operations are essential
+            for comparisons, masking, and decision-making.
+          </p>
+        </div>
+
+        <h3>4. Multiplexers (MUX)</h3>
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-random"></i>
+          </div>
+          <div class="component-content">
+            <h4>Selector Function</h4>
+            <p>
+              The ALU contains multiplexers to choose which output (from
+              arithmetic unit or logic unit) should be passed to the result
+              register (R).
+            </p>
+          </div>
+        </div>
+
+        <div class="content-block">
+          <p><strong>Example:</strong></p>
+          <ul>
+            <li>If control signal = 00, choose adder result</li>
+            <li>If control signal = 01, choose subtractor result</li>
+            <li>If control signal = 10, choose AND gate result</li>
+            <li>If control signal = 11, choose OR gate result</li>
+          </ul>
+          <p>
+            <i class="fas fa-info-circle"></i> MUX is like a "traffic
+            controller" inside the ALU.
+          </p>
+        </div>
+
+        <h3>5. Control Unit</h3>
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-sliders-h"></i>
+          </div>
+          <div class="component-content">
+            <h4>Control Lines</h4>
+            <p>
+              Encoded signals (operation codes / opcodes) that specify the
+              operation.
+            </p>
+            <p><strong>Example:</strong></p>
+            <ul>
+              <li>00 → Addition</li>
+              <li>01 → Subtraction</li>
+              <li>10 → AND</li>
+              <li>11 → OR</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-flag"></i>
+          </div>
+          <div class="component-content">
+            <h4>Status Flags</h4>
+            <p>The ALU sets flags after operations:</p>
+            <ul>
+              <li>Zero Flag (Z): 1 if result = 0</li>
+              <li>Carry Flag (C): 1 if carry/borrow occurs</li>
+              <li>Overflow Flag (V): 1 if signed overflow occurs</li>
+              <li>Sign Flag (S): 1 if result is negative</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="content-block">
+          <p>
+            <i class="fas fa-info-circle"></i> These flags help the CPU make
+            decisions (e.g., in branching instructions).
+          </p>
+        </div>
+
+        <h3>6. Timing and Control Circuits</h3>
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="component-content">
+            <h4>Clock Signals</h4>
+            <p>Synchronize ALU operations with CPU cycles.</p>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-microchip"></i>
+          </div>
+          <div class="component-content">
+            <h4>Control Logic</h4>
+            <p>
+              Decodes instructions and generates signals for adders, gates, or
+              shifters.
+            </p>
+          </div>
+        </div>
+
+        <div class="content-block">
+          <p>
+            <i class="fas fa-info-circle"></i> Ensures operations happen in the
+            right order and timing.
+          </p>
+        </div>
+
+        <h3>7. Data Paths</h3>
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-network-wired"></i>
+          </div>
+          <div class="component-content">
+            <h4>Internal Data Paths</h4>
+            <p>
+              Allow binary data to flow between registers, arithmetic unit,
+              logic unit, and MUX.
+            </p>
+          </div>
+        </div>
+
+        <div class="content-block">
+          <p>
+            <i class="fas fa-info-circle"></i> Think of data paths as "roads"
+            inside the ALU connecting its parts.
+          </p>
+        </div>
+      </section>
+
+      <!-- Block Diagram Section -->
+      <section id="block-diagram">
+        <h2><i class="fas fa-sitemap"></i> Block Diagram of ALU</h2>
+
+        <div class="alu-flowchart">
+          <h3>Conceptual ALU Architecture</h3>
+
+          <div class="flowchart-row">
+            <div class="alu-component">Operand A</div>
+            <div class="arrow"></div>
+            <div class="alu-component">Operand Regs</div>
+            <div class="arrow"></div>
+            <div class="alu-component">Arithmetic Unit</div>
+            <div class="arrow"></div>
+            <div class="alu-component">MUX</div>
+            <div class="arrow"></div>
+            <div class="alu-component">Result Register</div>
+          </div>
+
+          <div class="flowchart-row">
+            <div class="alu-component">Operand B</div>
+            <div class="arrow"></div>
+            <div class="alu-component">Logic Unit</div>
+            <div class="arrow"></div>
+            <div class="alu-component">MUX</div>
+            <div class="arrow"></div>
+            <div class="alu-component">Status Flags</div>
+          </div>
+
+          <div class="flowchart-row">
+            <div class="alu-component" style="background: #4f46e5">
+              Control Signals
+            </div>
+            <div class="arrow"></div>
+            <div class="alu-component" style="background: #4f46e5">
+              Control Unit
+            </div>
+          </div>
+        </div>
+
+        <div class="key-point">
+          <h4>Summary</h4>
+          <p>
+            ALU = Registers + Arithmetic Unit + Logic Unit + MUX + Control +
+            Flags + Data Paths
+          </p>
+          <p>
+            Operands come from registers, processed by adder/logic unit,
+            selected by MUX, stored in result register
+          </p>
+          <p>Flags are set for CPU decision-making</p>
+          <p>Control signals from CPU determine which operation is performed</p>
+        </div>
+
+        <div class="key-point">
+          <h4>In short:</h4>
+          <p>
+            The ALU is the "calculator + decision-maker" inside the CPU,
+            designed from a combination of adders, logic gates, multiplexers,
+            and control circuits
+          </p>
+        </div>
+      </section>
+
+      <!-- Example Section -->
+      <section id="example">
+        <h2><i class="fas fa-eye"></i> ALU Design Example</h2>
+
+        <h3>What is ALU Design?</h3>
+        <div class="content-block">
+          <p>
+            Designing an Arithmetic Logic Unit (ALU) means creating the circuit
+            architecture that can perform multiple arithmetic and logic
+            operations, controlled by operation select signals.
+          </p>
+          <p>
+            <i class="fas fa-info-circle"></i> Think of it as designing a Swiss
+            army knife of digital circuits — one block that can do addition,
+            subtraction, AND, OR, XOR, etc., depending on what the CPU asks.
+          </p>
+        </div>
+
+        <h3>Basic Components of ALU Design</h3>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-sign-in-alt"></i>
+          </div>
+          <div class="component-content">
+            <h4>Inputs</h4>
+            <ul>
+              <li>
+                Operands (A & B): Binary inputs (from registers or memory)
+              </li>
+              <li>
+                Control/Opcode signals: From the Control Unit, tell ALU which
+                operation to perform
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-cogs"></i>
+          </div>
+          <div class="component-content">
+            <h4>Functional Units Inside ALU</h4>
+            <ul>
+              <li>
+                <strong>Arithmetic Unit:</strong> Handles addition, subtraction,
+                multiplication, division
+              </li>
+              <li>
+                <strong>Logic Unit:</strong> Handles AND, OR, NOT, XOR, etc.
+              </li>
+              <li>
+                <strong>Shifter:</strong> Handles left/right shifts or rotates
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-random"></i>
+          </div>
+          <div class="component-content">
+            <h4>Multiplexer (MUX)</h4>
+            <p>
+              Used to select one output from many functional units based on
+              control signals
+            </p>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-sign-out-alt"></i>
+          </div>
+          <div class="component-content">
+            <h4>Outputs</h4>
+            <ul>
+              <li><strong>Result:</strong> The final computed value</li>
+              <li>
+                <strong>Flags:</strong> Status signals (Zero, Carry, Sign,
+                Overflow)
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="alu-diagram">
+          <h3>ALU Design Block Diagram</h3>
+          <div class="alu-block">
+            <div class="alu-component">Operand A</div>
+            <div class="arrow"></div>
+            <div class="alu-component">Arithmetic Unit</div>
+            <div class="arrow"></div>
+            <div
+              class="alu-component"
+              style="background: #4f46e5; width: 120px"
+            >
+              MUX
+            </div>
+            <div class="arrow"></div>
+            <div class="alu-component">Result</div>
+          </div>
+          <div class="alu-block">
+            <div class="alu-component">Operand B</div>
+            <div class="arrow"></div>
+            <div class="alu-component">Logic Unit</div>
+            <div class="arrow"></div>
+            <div
+              class="alu-component"
+              style="background: #4f46e5; width: 120px"
+            >
+              MUX
+            </div>
+            <div class="arrow"></div>
+            <div class="alu-component">Flags</div>
+          </div>
+          <div class="alu-block">
+            <div class="alu-component" style="background: #4f46e5">
+              Control Signals
+            </div>
+            <div class="arrow"></div>
+            <div class="alu-component" style="background: #4f46e5">
+              Control Unit
+            </div>
+          </div>
+        </div>
+
+        <h3>ALU Operations in Design</h3>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-plus"></i>
+          </div>
+          <div class="component-content">
+            <h4>1. Arithmetic Unit</h4>
+            <p>Built mainly using binary adders (full adders)</p>
+            <p>Subtraction → done by 2's complement addition</p>
+            <p>
+              Multiplication/Division → usually handled by separate circuits or
+              microprogrammed logic
+            </p>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-project-diagram"></i>
+          </div>
+          <div class="component-content">
+            <h4>2. Logic Unit</h4>
+            <p>Built from logic gates (AND, OR, NOT, XOR)</p>
+            <p>Works bit-by-bit across input operands</p>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-exchange-alt"></i>
+          </div>
+          <div class="component-content">
+            <h4>3. Shifter Unit</h4>
+            <p>Performs shift left, shift right, rotate left, rotate right</p>
+            <p>Useful in multiplication/division by 2 and bit manipulation</p>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-sliders-h"></i>
+          </div>
+          <div class="component-content">
+            <h4>4. Control Logic</h4>
+            <p>
+              A decoder interprets the opcode (operation code) and sends signals
+              to enable the right unit
+            </p>
+            <p><strong>Example:</strong></p>
+            <ul>
+              <li>Opcode 00 → Perform Addition</li>
+              <li>Opcode 01 → Perform Subtraction</li>
+              <li>Opcode 10 → Perform AND</li>
+              <li>Opcode 11 → Perform OR</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>Status Flags in ALU Design</h3>
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-flag"></i>
+          </div>
+          <div class="component-content">
+            <h4>Flags Generated by ALU</h4>
+            <ul>
+              <li><strong>Zero Flag (Z):</strong> 1 if result = 0</li>
+              <li>
+                <strong>Carry Flag (C):</strong> 1 if carry generated in
+                addition
+              </li>
+              <li>
+                <strong>Sign Flag (S):</strong> 1 if result is negative (MSB =
+                1)
+              </li>
+              <li>
+                <strong>Overflow Flag (V):</strong> 1 if signed overflow occurs
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="content-block">
+          <p>
+            <i class="fas fa-info-circle"></i> These flags are stored in the
+            Program Status Word (PSW) or Flags Register
+          </p>
+        </div>
+
+        <h3>Example: Simple 4-Bit ALU Design</h3>
+        <div class="content-block">
+          <p>Suppose we want an ALU that can do:</p>
+          <ul>
+            <li>Addition, Subtraction, AND, OR</li>
+          </ul>
+          <p><strong>Steps:</strong></p>
+          <ul>
+            <li>Arithmetic Circuit → 4-bit Adder/Subtractor</li>
+            <li>
+              Subtraction handled by feeding 2's complement of B into adder
+            </li>
+            <li>Logic Circuit → 4-bit AND & OR gates</li>
+            <li>MUX → Selects output (Adder/Subtractor OR Logic unit)</li>
+          </ul>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-cogs"></i>
+          </div>
+          <div class="component-content">
+            <h4>Control Signals</h4>
+            <ul>
+              <li>00 → Addition</li>
+              <li>01 → Subtraction</li>
+              <li>10 → AND</li>
+              <li>11 → OR</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="truth-table">
+            <thead>
+              <tr>
+                <th>Control (Opcode)</th>
+                <th>Operation</th>
+                <th>Result</th>
+                <th>Flags Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>00</td>
+                <td>Addition</td>
+                <td>1101 (13)</td>
+                <td>C=0, Z=0, S=0, V=0</td>
+              </tr>
+              <tr>
+                <td>01</td>
+                <td>Subtraction</td>
+                <td>0111 (7)</td>
+                <td>C=1, Z=0, S=0, V=0</td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td>AND</td>
+                <td>0010 (2)</td>
+                <td>Z=0</td>
+              </tr>
+              <tr>
+                <td>11</td>
+                <td>OR</td>
+                <td>1011 (11)</td>
+                <td>Z=0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Advanced Design Section -->
+      <section id="advanced">
+        <h2><i class="fas fa-rocket"></i> Advanced ALU Design</h2>
+
+        <h3>Modern CPU ALU Features</h3>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-stream"></i>
+          </div>
+          <div class="component-content">
+            <h4>Pipelined ALUs</h4>
+            <p>
+              Allow multiple operations at once by breaking them into stages
+            </p>
+            <p>Improves throughput and performance</p>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-layer-group"></i>
+          </div>
+          <div class="component-content">
+            <h4>Multiple ALUs per Core</h4>
+            <p>
+              Superscalar processors (e.g., Intel, AMD) have several ALUs
+              working in parallel
+            </p>
+            <p>Enables instruction-level parallelism</p>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-calculator"></i>
+          </div>
+          <div class="component-content">
+            <h4>Integrated Floating-Point Unit (FPU)</h4>
+            <p>Handles real-number math with high precision</p>
+            <p>Essential for scientific computing and graphics</p>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-vector-square"></i>
+          </div>
+          <div class="component-content">
+            <h4>SIMD ALUs</h4>
+            <p>Single Instruction, Multiple Data</p>
+            <p>Process vectors/matrices (used in GPUs and AI)</p>
+          </div>
+        </div>
+
+        <h3>Optimization Techniques in ALU Design</h3>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-tachometer-alt"></i>
+          </div>
+          <div class="component-content">
+            <h4>Carry-Lookahead Adders</h4>
+            <p>Reduces carry propagation delay in multi-bit addition</p>
+            <p>Commonly used in high-performance ALUs</p>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-compress-arrows-alt"></i>
+          </div>
+          <div class="component-content">
+            <h4>Wallace Tree Multipliers</h4>
+            <p>Parallel multiplication circuits for faster computation</p>
+            <p>Used in advanced ALUs and FPUs</p>
+          </div>
+        </div>
+
+        <div class="component-card">
+          <div class="component-icon">
+            <i class="fas fa-microchip"></i>
+          </div>
+          <div class="component-content">
+            <h4>Barrel Shifters</h4>
+            <p>Fast multi-bit shift operations using multiplexers</p>
+            <p>Essential for efficient bit manipulation</p>
+          </div>
+        </div>
+
+        <div class="key-point">
+          <h4>Summary of Modern ALU Design</h4>
+          <ul>
+            <li>
+              ALU design = combining arithmetic, logic, and shifting circuits
+              under control logic
+            </li>
+            <li>Uses multiplexers to choose the correct result</li>
+            <li>Generates flags to support decision making in CPU</li>
+            <li>
+              Modern ALUs are highly parallel, pipelined, and specialized for
+              speed
+            </li>
+          </ul>
+        </div>
+
+        <div class="key-point">
+          <h4>In Simple Words:</h4>
+          <p>
+            An ALU is like a multi-tool, and ALU design is about wiring together
+            adders, subtractors, logic gates, and shifters, controlled by
+            opcodes, to perform all CPU operations
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // Function to scroll to a specific section
+      function scrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        section.scrollIntoView({ behavior: "smooth" });
+
+        // Update active nav dot
+        const navDots = document.querySelectorAll(".nav-dot");
+        navDots.forEach((dot, index) => {
+          if (index === 0 && sectionId === "intro") dot.classList.add("active");
+          else if (index === 1 && sectionId === "components")
+            dot.classList.add("active");
+          else if (index === 2 && sectionId === "block-diagram")
+            dot.classList.add("active");
+          else if (index === 3 && sectionId === "example")
+            dot.classList.add("active");
+          else if (index === 4 && sectionId === "advanced")
+            dot.classList.add("active");
+          else dot.classList.remove("active");
+        });
+      }
+
+      // Update active nav dot on scroll
+      window.addEventListener("scroll", () => {
+        const sections = [
+          "intro",
+          "components",
+          "block-diagram",
+          "example",
+          "advanced",
+        ];
+        const navDots = document.querySelectorAll(".nav-dot");
+
+        let current = "";
+        sections.forEach((section) => {
+          const element = document.getElementById(section);
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= 100 && rect.bottom >= 100) {
+            current = section;
+          }
+        });
+
+        navDots.forEach((dot, index) => {
+          if (index === 0 && current === "intro") dot.classList.add("active");
+          else if (index === 1 && current === "components")
+            dot.classList.add("active");
+          else if (index === 2 && current === "block-diagram")
+            dot.classList.add("active");
+          else if (index === 3 && current === "example")
+            dot.classList.add("active");
+          else if (index === 4 && current === "advanced")
+            dot.classList.add("active");
+          else dot.classList.remove("active");
+        });
+      });
+    </script>
+  </body>
+</html>

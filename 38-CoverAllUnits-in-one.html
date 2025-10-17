@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Organization & Architecture: The Mountain Hike</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/mountain-hike/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .camp1 { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .camp2 { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .camp3 { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .camp4 { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .linking { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .summary { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Hierarchy Styles */
+        .hierarchy-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .hierarchy-level {
+            width: 80%;
+            padding: 20px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hierarchy-level::after {
+            content: "↓";
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        .hierarchy-level:last-child::after {
+            display: none;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" data-section="header"></div>
+        <div class="nav-dot" data-section="intro"></div>
+        <div class="nav-dot" data-section="camp1"></div>
+        <div class="nav-dot" data-section="camp2"></div>
+        <div class="nav-dot" data-section="camp3"></div>
+        <div class="nav-dot" data-section="camp4"></div>
+        <div class="nav-dot" data-section="linking"></div>
+        <div class="nav-dot" data-section="summary"></div>
+    </div>
+
+    <!-- Header Section -->
+    <header class="header" id="header">
+        <div class="container">
+            <h1>Computer Organization & Architecture: The Mountain Hike</h1>
+            <div class="metrics-character">⛰️</div>
+            <p>A journey through the landscape of computing: From basic components to complete systems</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </header>
+
+    <!-- Introduction Section -->
+    <section class="section intro" id="intro">
+        <div class="container">
+            <h2 class="section-title fade-in">The Mountain Hike Analogy</h2>
+            <div class="card fade-in">
+                <p>Picture the entire Computer Organization & Architecture course as one long, adventurous hike up a mountain. Each "part" you studied is a camp along the trail. When you zoom out, they fit together as a single story of how a computer is born, thinks, remembers, and runs at lightning speed.</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">⛺</div>
+                        <div class="metric-title">Camp 1</div>
+                        <p>The Wide-Angle View — "Meet the Computer"</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">⛺</div>
+                        <div class="metric-title">Camp 2</div>
+                        <p>The Alphabet of Circuits — "Logic & Boolean Land"</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">⛺</div>
+                        <div class="metric-title">Camp 3</div>
+                        <p>The Music of Memory & Timing — "Sequential Circuits"</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">⛺</div>
+                        <div class="metric-title">Camp 4</div>
+                        <p>The Workshop of Thought — "Inside the ALU"</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🗺️</span>The Journey Ahead</h3>
+                    <p class="fade-in">As we explore each camp, we'll see how they connect to form the complete picture of computer architecture, from the most basic electronic components to the complex systems that power our digital world.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Camp 1 Section -->
+    <section class="section camp1" id="camp1">
+        <div class="container">
+            <h2 class="section-title fade-in">Camp 1: The Wide-Angle View — "Meet the Computer"</h2>
+            <div class="card fade-in">
+                <p>You began at the foothills, meeting the whole landscape:</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🚪</div>
+                        <div class="feature-content">
+                            <h3>Input Devices</h3>
+                            <p>Gates to the mountain</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🏠</div>
+                        <div class="feature-content">
+                            <h3>CPU</h3>
+                            <p>The central lodge</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🏕️</div>
+                        <div class="feature-content">
+                            <h3>Storage</h3>
+                            <p>Vast supply huts</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔢</span>Languages of Computing</h3>
+                    <p class="fade-in">Here you learned the languages—binary, octal, hexadecimal—and the historic path from vacuum tubes to today's AI age.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🖼️</span>The Outer Frame</h3>
+                    <p class="fade-in">This sets the outer frame of COA: the complete computer system, from early history to modern number systems.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔗</span>Key COA Tie-in</h3>
+                    <p class="fade-in">Defines the top level of the hierarchy: computer system → CPU + memory + I/O.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Camp 2 Section -->
+    <section class="section camp2" id="camp2">
+        <div class="container">
+            <h2 class="section-title fade-in">Camp 2: The Alphabet of Circuits — "Logic & Boolean Land"</h2>
+            <div class="card fade-in">
+                <p>Next you walked into the micro-world where computers actually decide:</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔤</div>
+                        <div class="metric-title">Logic Gates</div>
+                        <p>The letters of computation</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">📐</div>
+                        <div class="metric-title">Boolean Algebra</div>
+                        <p>The grammar of logic</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🧩</div>
+                        <div class="metric-title">Karnaugh Maps</div>
+                        <p>The editor's board for simplifying sentences</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔧</span>Building Blocks</h3>
+                    <p class="fade-in">From these you built adders, multiplexers, decoders, and encoders—the first meaningful "words" of hardware.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔗</span>Hierarchy Link</h3>
+                    <p class="fade-in">Transistor switches → Logic gates → Combinational circuits. These are the raw stones from which every CPU temple is carved.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Camp 3 Section -->
+    <section class="section camp3" id="camp3">
+        <div class="container">
+            <h2 class="section-title fade-in">Camp 3: The Music of Memory & Timing — "Sequential Circuits"</h2>
+            <div class="card fade-in">
+                <p>Then came the living heartbeat: flip-flops, registers, and counters.</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">💾</div>
+                        <div class="feature-content">
+                            <h3>Flip-Flops</div>
+                            <p>Basic memory cells that remember state</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🗄️</div>
+                        <div class="feature-content">
+                            <h3>Registers</div>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⏱️</div>
+                        <div class="feature-content">
+                            <h3>Counters</div>
+                            <p>Keep track of events and time</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🎵</span>The Living Heartbeat</h3>
+                    <p class="fade-in">Unlike the memory-less combinational world, these circuits remember and keep time. They form the conductor's baton that marks every beat of a CPU clock.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">⚙️</span>Functionality</h3>
+                    <p class="fade-in">Registers hold operands for the ALU, counters keep track of the next instruction, and all of it ticks in synchrony.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔗</span>Hierarchy Link</h3>
+                    <p class="fade-in">Combinational logic + flip-flops → Sequential circuits → Processor datapath & control.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Camp 4 Section -->
+    <section class="section camp4" id="camp4">
+        <div class="container">
+            <h2 class="section-title fade-in">Camp 4: The Workshop of Thought — "Inside the ALU"</h2>
+            <div class="card fade-in">
+                <p>Finally you reached the summit: the Arithmetic Logic Unit, the CPU's main craftsman.</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">➕</div>
+                        <div class="feature-content">
+                            <h3>Arithmetic Operations</h3>
+                            <p>Addition, subtraction, multiplication, division</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔍</div>
+                        <div class="feature-content">
+                            <h3>Logical Operations</h3>
+                            <p>AND, OR, NOT, XOR for decision making</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Bit Manipulation</div>
+                            <p>Shifting and rotating bits</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">⚙️</span>Micro-Operations</h3>
+                    <p class="fade-in">Its micro-operations are choreographed by the control unit and powered by those same gates, adders, multiplexers, and registers you met earlier.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🚀</span>Advanced Features</h3>
+                    <p class="fade-in">Fast multiplication algorithms, status flags, and pipelined chips show the ALU at full industrial scale.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔗</span>Hierarchy Link</h3>
+                    <p class="fade-in">Sequential circuits + optimized algorithms → ALU → Central Processing Unit.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Linking Section -->
+    <section class="section linking" id="linking">
+        <div class="container">
+            <h2 class="section-title fade-in">How the Camps Link into One Mountain</h2>
+            <div class="card fade-in">
+                <div class="hierarchy-container">
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">💻</span>
+                            <strong>Software / Programs</strong>
+                        </div>
+                        <div>High-level instructions</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">📋</span>
+                            <strong>Instruction Set Architecture</strong>
+                        </div>
+                        <div>Interface between software and hardware</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">⚙️</span>
+                            <strong>CPU: Control Unit + ALU</strong>
+                        </div>
+                        <div>Central processing unit</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🔄</span>
+                            <strong>Sequential Circuits (registers, counters)</strong>
+                        </div>
+                        <div>Memory and timing elements</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🔧</span>
+                            <strong>Combinational Circuits (adders, MUX/DEMUX)</strong>
+                        </div>
+                        <div>Decision-making elements</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🚪</span>
+                            <strong>Logic Gates</strong>
+                        </div>
+                        <div>Basic building blocks</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🔌</span>
+                            <strong>Transistors & Electronic Signals</strong>
+                        </div>
+                        <div>Fundamental electronic components</div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔗</span>The Connections</h3>
+                    <p class="fade-in">Number Systems & Character Codes (Camp 1) give the language the hardware must handle.</p>
+                    <p class="fade-in">Logic & Boolean Circuits (Camp 2) provide the letters and grammar to build functional components.</p>
+                    <p class="fade-in">Flip-Flops, Registers, Counters (Camp 3) add memory and rhythm, allowing instructions to persist and flow in time.</p>
+                    <p class="fade-in">ALU (Camp 4) is the mind that performs the computations using everything built below it.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Summary Section -->
+    <section class="section summary" id="summary">
+        <div class="container">
+            <h2 class="section-title fade-in">One-Glance Summary</h2>
+            <div class="card fade-in">
+                <table>
+                    <tr>
+                        <th>Layer in Story</th>
+                        <th>Core Role</th>
+                        <th>COA Placement</th>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🖥️</span> Computer Overview & Number Systems</td>
+                        <td>Big picture, digital language</td>
+                        <td>Full computer system</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🚪</span> Logic Gates & Boolean Algebra</td>
+                        <td>Fundamental decision elements</td>
+                        <td>Digital circuit foundation</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🔄</span> Combinational + Sequential Circuits</td>
+                        <td>Build memory, control, timing</td>
+                        <td>CPU datapath, memory control</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🧮</span> ALU</td>
+                        <td>Executes arithmetic & logic</td>
+                        <td>Heart of CPU</td>
+                    </tr>
+                </table>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🏔️</span>The Summit View</h3>
+                    <p class="fade-in">From this vantage point, we can see how each part of Computer Organization & Architecture connects to form a complete system. Understanding these relationships helps us appreciate how computers work at every level, from electrons to applications.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        const navDots = document.querySelectorAll('.nav-dot');
+        const sections = document.querySelectorAll('.section, .header');
+        
+        // Update active nav dot on scroll
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+                if (dot.getAttribute('data-section') === current) {
+                    dot.classList.add('active');
+                }
+            });
+            
+            // Fade in animation
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        });
+        
+        // Nav dot click functionality
+        navDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const targetId = dot.getAttribute('data-section');
+                const targetSection = document.getElementById(targetId);
+                
+                window.scrollTo({
+                    top: targetSection.offsetTop - 50,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Initial check for fade-in elements
+        const fadeElements = document.querySelectorAll('.fade-in');
+        fadeElements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top;
+            const elementVisible = 150;
+            
+            if (elementTop < window.innerHeight - elementVisible) {
+                element.classList.add('visible');
+            }
+        });
+    </script>
+</body>
+</html>

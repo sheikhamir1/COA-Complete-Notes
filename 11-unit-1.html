@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Fundamentals Journey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/computer-journey/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .objectives { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .meet-computer { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .what-computers-do { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .generations { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .number-languages { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .conversion-tricks { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .character-codes { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .wrapping-up { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+        .summary-table { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 152, 80, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Memory Hierarchy Styles */
+        .hierarchy-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .hierarchy-level {
+            width: 80%;
+            padding: 20px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hierarchy-level::after {
+            content: "↓";
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        .hierarchy-level:last-child::after {
+            display: none;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" data-section="header"></div>
+        <div class="nav-dot" data-section="intro"></div>
+        <div class="nav-dot" data-section="objectives"></div>
+        <div class="nav-dot" data-section="meet-computer"></div>
+        <div class="nav-dot" data-section="what-computers-do"></div>
+        <div class="nav-dot" data-section="generations"></div>
+        <div class="nav-dot" data-section="number-languages"></div>
+        <div class="nav-dot" data-section="conversion-tricks"></div>
+        <div class="nav-dot" data-section="character-codes"></div>
+        <div class="nav-dot" data-section="wrapping-up"></div>
+        <div class="nav-dot" data-section="summary-table"></div>
+    </div>
+
+    <!-- Header Section -->
+    <header class="header" id="header">
+        <div class="container">
+            <h1>Computer Fundamentals Journey</h1>
+            <div class="metrics-character">💻</div>
+            <p>From vacuum tubes to artificial intelligence: Explore the evolution of computers and their secret languages</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </header>
+
+    <!-- Introduction Section -->
+    <section class="section intro" id="intro">
+        <div class="container">
+            <h2 class="section-title fade-in">1.0 Introduction – Setting the Stage</h2>
+            <div class="card fade-in">
+                <p>Imagine a world that once ran on paper ledgers, slow calculations, and handwritten letters. Then came computers—tiny electronic thinkers that can calculate faster than a lightning bolt. This unit is like a travel guide through the land of computers:</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🖥️</div>
+                        <div class="feature-content">
+                            <h3>What they are</h3>
+                            <p>The fundamental components and functions of computers</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📜</div>
+                        <div class="feature-content">
+                            <h3>How they grew up</h3>
+                            <p>The evolution through generations from giant machines to modern devices</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>Secret number languages</h3>
+                            <p>Binary, decimal, octal, and hexadecimal systems</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔤</div>
+                        <div class="feature-content">
+                            <h3>Character codes</h3>
+                            <p>How computers understand and process text</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Objectives Section -->
+    <section class="section objectives" id="objectives">
+        <div class="container">
+            <h2 class="section-title fade-in">1.1 Objectives – What You'll Be Able to Do</h2>
+            <div class="card fade-in">
+                <p>By the end of this journey, you'll know:</p>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">🧩</div>
+                        <div class="metric-title">Computer Parts</div>
+                        <p>The main components of a computer and what they do</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🌳</div>
+                        <div class="metric-title">Computer Family Tree</div>
+                        <p>The evolution from giant early machines to today's AI helpers</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🔢</div>
+                        <div class="metric-title">Number Languages</div>
+                        <p>How to read and convert between binary, decimal, octal, and hexadecimal</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🔤</div>
+                        <div class="metric-title">Character Codes</div>
+                        <p>Why ASCII and other codes matter when typing or storing files</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Meet the Computer Section -->
+    <section class="section meet-computer" id="meet-computer">
+        <div class="container">
+            <h2 class="section-title fade-in">1.2 Meet the Computer</h2>
+            <div class="card fade-in">
+                <p>Think of a computer as a busy office:</p>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">📥</span>Input Desk</h3>
+                    <p class="fade-in">Keyboards, mice, scanners—where raw information arrives.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🧠</span>Processing Brain (CPU)</h3>
+                    <p class="fade-in">Does the thinking and calculations. Inside the CPU live tiny helpers:</p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">➕</div>
+                            <div class="feature-content">
+                                <h3>ALU</h3>
+                                <p>Arithmetic & Logic Unit - handles math and logic operations</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🎮</div>
+                            <div class="feature-content">
+                                <h3>Control Unit</h3>
+                                <p>Directs the flow of operations within the computer</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>Registers</h3>
+                                <p>Lightning-fast temporary storage inside the CPU</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🗄️</span>Storage Rooms</h3>
+                    <p class="fade-in">Short-term memory (RAM) and long-term filing cabinets (hard drives, SSDs).</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">📤</span>Output Counter</h3>
+                    <p class="fade-in">Monitors, printers, speakers—where results are handed back to you.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">📏</span>Computer Types</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">💻</div>
+                            <div class="feature-content">
+                                <h3>Microcomputers</h3>
+                                <p>Your laptop or phone</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🖥️</div>
+                            <div class="feature-content">
+                                <h3>Minicomputers</h3>
+                                <p>Mid-sized computers for small businesses</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🏢</div>
+                            <div class="feature-content">
+                                <h3>Mainframes</h3>
+                                <p>Giants running airlines and banks</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🌐</div>
+                            <div class="feature-content">
+                                <h3>Supercomputers</h3>
+                                <p>Predict weather or model galaxies</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What Computers Do for Us Section -->
+    <section class="section what-computers-do" id="what-computers-do">
+        <div class="container">
+            <h2 class="section-title fade-in">1.2.1 What Computers Do for Us</h2>
+            <div class="card fade-in">
+                <p>Computers are everywhere—helping in countless fields:</p>
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔬</div>
+                        <div class="feature-content">
+                            <h3>Science</h3>
+                            <p>Simulating black holes and decoding DNA</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">💼</div>
+                        <div class="feature-content">
+                            <h3>Business</h3>
+                            <p>Crunching sales data and managing operations</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🏥</div>
+                        <div class="feature-content">
+                            <h3>Healthcare</h3>
+                            <p>Reading MRI scans and managing patient records</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🎓</div>
+                        <div class="feature-content">
+                            <h3>Education</h3>
+                            <p>Running online classes and educational software</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🎮</div>
+                        <div class="feature-content">
+                            <h3>Entertainment</h3>
+                            <p>Streaming movies and exploring virtual worlds</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📱</div>
+                        <div class="feature-content">
+                            <h3>Communication</h3>
+                            <p>Connecting people across the globe</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Generations Section -->
+    <section class="section generations" id="generations">
+        <div class="container">
+            <h2 class="section-title fade-in">1.3 Generations – The Computer Family Story</h2>
+            <div class="card fade-in">
+                <p>Picture five dramatic eras in computer evolution:</p>
+                
+                <div class="hierarchy-container">
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">💡</span>
+                            <strong>First Generation (1940–1956)</strong>
+                        </div>
+                        <div>Vacuum Tubes</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🔌</span>
+                            <strong>Second Generation (1956–1963)</strong>
+                        </div>
+                        <div>Transistors</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🔲</span>
+                            <strong>Third Generation (1964–1971)</strong>
+                        </div>
+                        <div>Integrated Circuits</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🧩</span>
+                            <strong>Fourth Generation (1971–today)</strong>
+                        </div>
+                        <div>Microprocessors</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🤖</span>
+                            <strong>Fifth Generation (present & beyond)</strong>
+                        </div>
+                        <div>Artificial Intelligence</div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">💡</span>First Generation: Vacuum Tubes</h3>
+                    <p class="fade-in">Huge machines glowing with hot vacuum tubes, like ENIAC, filling whole rooms and eating electricity.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔌</span>Second Generation: Transistors</h3>
+                    <p class="fade-in">Sleek new transistors replace the tubes—smaller, faster, cooler.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔲</span>Third Generation: Integrated Circuits</h3>
+                    <p class="fade-in">ICs pack many transistors onto tiny chips, making computers cheaper and quicker.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🧩</span>Fourth Generation: Microprocessors</h3>
+                    <p class="fade-in">An entire CPU shrinks onto a single chip—hello personal computers, laptops, and the internet age.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🤖</span>Fifth Generation: Artificial Intelligence</h3>
+                    <p class="fade-in">Machines that recognize speech, play chess, and learn patterns.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Number Languages Section -->
+    <section class="section number-languages" id="number-languages">
+        <div class="container">
+            <h2 class="section-title fade-in">1.4 The Number Languages</h2>
+            <div class="card fade-in">
+                <p>Humans like 0–9, but computers only understand binary—a series of 0s and 1s (on/off electrical signals). To make life easier we sometimes write these numbers in different systems:</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔢</div>
+                        <div class="metric-title">Binary (Base 2)</div>
+                        <p>Only 0s and 1s, the fundamental language of computers</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔣</div>
+                        <div class="metric-title">Octal (Base 8)</div>
+                        <p>Digits 0–7, a shorter way to write binary</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔟</div>
+                        <div class="metric-title">Decimal (Base 10)</div>
+                        <p>Our everyday number system with digits 0–9</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔡</div>
+                        <div class="metric-title">Hexadecimal (Base 16)</div>
+                        <p>Digits 0–9 plus A–F, popular with programmers</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔄</span>Converting Between Systems</h3>
+                    <p class="fade-in">Learning to convert between these systems is like translating between different dialects of the same secret language. Each system has its own advantages and use cases in computing.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Conversion Tricks Section -->
+    <section class="section conversion-tricks" id="conversion-tricks">
+        <div class="container">
+            <h2 class="section-title fade-in">1.5 Conversion Tricks</h2>
+            <div class="card fade-in">
+                <p>Converting between number systems is easier than you might think! Here's how it works:</p>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔢➡️💻</span>Decimal to Binary</h3>
+                    <p class="fade-in">To turn 13 into binary, keep dividing by 2 and note the remainders backward:</p>
+                    <div class="card fade-in">
+                        <p>13 ÷ 2 = 6 remainder 1<br>
+                        6 ÷ 2 = 3 remainder 0<br>
+                        3 ÷ 2 = 1 remainder 1<br>
+                        1 ÷ 2 = 0 remainder 1</p>
+                        <p>Reading the remainders backward: 13 → 1101</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">💻➡️🔣</span>Binary to Octal</h3>
+                    <p class="fade-in">Group binary digits in sets of three (from right to left) and convert each group:</p>
+                    <div class="card fade-in">
+                        <p>1101 → 001 101 → 1 5 → 15 in octal</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">💻➡️🔡</span>Binary to Hexadecimal</h3>
+                    <p class="fade-in">Group binary digits in sets of four (from right to left) and convert each group:</p>
+                    <div class="card fade-in">
+                        <p>1101 → 1101 → D in hexadecimal</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔄</span>Other Conversions</h3>
+                    <p class="fade-in">Similar step-by-step methods work for converting between any of the four number systems. With practice, you'll be fluent in all these computer languages!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Character Codes Section -->
+    <section class="section character-codes" id="character-codes">
+        <div class="container">
+            <h2 class="section-title fade-in">1.6 Character Codes – Turning Letters into Numbers</h2>
+            <div class="card fade-in">
+                <p>Computers can't store "A" or "&" directly, so every character is given a number:</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔤</div>
+                        <div class="metric-title">ASCII</div>
+                        <p>The most common standard: "A" is 65, "a" is 97, "!" is 33</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔣</div>
+                        <div class="metric-title">BCD</div>
+                        <p>Binary Coded Decimal: used mainly in older systems</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🌐</div>
+                        <div class="metric-title">EBCDIC</div>
+                        <p>Extended Binary Coded Decimal Interchange Code: used in IBM mainframes</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🌍</div>
+                        <div class="metric-title">Unicode</div>
+                        <p>Modern standard supporting characters from all languages</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">💬</span>How It Works</h3>
+                    <p class="fade-in">When you type a message, the letters travel as these hidden numbers. For example, when you type "Hello", the computer actually stores:</p>
+                    <div class="card fade-in">
+                        <table>
+                            <tr>
+                                <th>Character</th>
+                                <th>ASCII Value</th>
+                                <th>Binary</th>
+                            </tr>
+                            <tr>
+                                <td>H</td>
+                                <td>72</td>
+                                <td>01001000</td>
+                            </tr>
+                            <tr>
+                                <td>e</td>
+                                <td>101</td>
+                                <td>01100101</td>
+                            </tr>
+                            <tr>
+                                <td>l</td>
+                                <td>108</td>
+                                <td>01101100</td>
+                            </tr>
+                            <tr>
+                                <td>l</td>
+                                <td>108</td>
+                                <td>01101100</td>
+                            </tr>
+                            <tr>
+                                <td>o</td>
+                                <td>111</td>
+                                <td>01101111</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wrapping Up Section -->
+    <section class="section wrapping-up" id="wrapping-up">
+        <div class="container">
+            <h2 class="section-title fade-in">1.7 Wrapping Up</h2>
+            <div class="card fade-in">
+                <p>From room-sized vacuum-tube giants to pocket-sized AI companions, computers have raced through generations while quietly speaking their numeric tongue. Understanding their parts, history, number systems, and codes gives you the keys to the digital kingdom.</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🖥️</div>
+                        <div class="metric-title">Parts</div>
+                        <p>Input, processing, storage, output</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">📜</div>
+                        <div class="metric-title">History</div>
+                        <p>Five generations of evolution</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔢</div>
+                        <div class="metric-title">Languages</div>
+                        <p>Binary, decimal, octal, hexadecimal</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔤</div>
+                        <div class="metric-title">Codes</div>
+                        <p>ASCII, BCD, EBCDIC, Unicode</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🚀</span>Next Steps</h3>
+                    <p class="fade-in">Now that you understand the fundamentals, you're ready to explore more advanced topics like programming, networking, and artificial intelligence. The digital world is at your fingertips!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Summary Table Section -->
+    <section class="section summary-table" id="summary-table">
+        <div class="container">
+            <h2 class="section-title fade-in">Quick Summary Table</h2>
+            <div class="card fade-in">
+                <table>
+                    <tr>
+                        <th>Topic</th>
+                        <th>Key Idea</th>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🧩</span> Computer Basics</td>
+                        <td>Input, processing (CPU: ALU, CU, Registers), storage, output</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">📏</span> Types</td>
+                        <td>Micro, mini, medium, mainframe, supercomputer</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🌐</span> Applications</td>
+                        <td>Science, business, education, entertainment, healthcare</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">📜</span> Generations</td>
+                        <td>1st: Vacuum tubes → 2nd: Transistors → 3rd: ICs → 4th: Microprocessors → 5th: AI</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🔢</span> Number Systems</td>
+                        <td>Binary (base 2), Octal (8), Decimal (10), Hexadecimal (16)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🔄</span> Conversions</td>
+                        <td>Step-by-step division or grouping of bits</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🔤</span> Character Codes</td>
+                        <td>ASCII, BCD, EBCDIC translate text into numbers</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        const navDots = document.querySelectorAll('.nav-dot');
+        const sections = document.querySelectorAll('.section, .header');
+        
+        // Update active nav dot on scroll
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+                if (dot.getAttribute('data-section') === current) {
+                    dot.classList.add('active');
+                }
+            });
+            
+            // Fade in animation
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        });
+        
+        // Nav dot click functionality
+        navDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const targetId = dot.getAttribute('data-section');
+                const targetSection = document.getElementById(targetId);
+                
+                window.scrollTo({
+                    top: targetSection.offsetTop - 50,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Initial check for fade-in elements
+        const fadeElements = document.querySelectorAll('.fade-in');
+        fadeElements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top;
+            const elementVisible = 150;
+            
+            if (elementTop < window.innerHeight - elementVisible) {
+                element.classList.add('visible');
+            }
+        });
+    </script>
+</body>
+</html>

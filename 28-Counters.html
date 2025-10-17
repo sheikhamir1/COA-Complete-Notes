@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Counters in Computer Organization and Architecture</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f8fafc;
+        color: #1e293b;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      header {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        padding: 60px 0;
+        text-align: center;
+        /* position: sticky; */
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        font-size: 1.125rem;
+        opacity: 0.9;
+        font-weight: 400;
+      }
+
+      section {
+        background: white;
+        border-radius: 12px;
+        padding: 60px;
+        margin: 40px 0;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.2s ease;
+      }
+
+      section:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      h2 {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #1e40af;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #3730a3;
+        margin: 30px 0 20px;
+      }
+
+      h4 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #4338ca;
+        margin: 20px 0 12px;
+      }
+
+      .content-block {
+        background: #f8fafc;
+        border-left: 4px solid #3b82f6;
+        padding: 24px;
+        margin: 24px 0;
+        border-radius: 0 8px 8px 0;
+      }
+
+      .counter-type {
+        display: flex;
+        align-items: flex-start;
+        margin: 20px 0;
+        padding: 20px;
+        background: #f1f5f9;
+        border-radius: 8px;
+        transition: background-color 0.2s ease;
+      }
+
+      .counter-type:hover {
+        background: #e2e8f0;
+      }
+
+      .counter-icon {
+        width: 48px;
+        height: 48px;
+        background: #3b82f6;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        margin-right: 20px;
+        flex-shrink: 0;
+      }
+
+      .counter-content {
+        flex: 1;
+      }
+
+      .counter-content h4 {
+        margin: 0 0 8px;
+        color: #1e40af;
+      }
+
+      .counter-content p {
+        margin: 0;
+        color: #475569;
+        font-size: 0.95rem;
+      }
+
+      .counter-diagram {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 30px;
+        margin: 30px 0;
+        text-align: center;
+      }
+
+      .counter-row {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 15px 0;
+        flex-wrap: wrap;
+      }
+
+      .flip-flop {
+        width: 50px;
+        height: 50px;
+        background: #3b82f6;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.875rem;
+      }
+
+      .clock-pulse {
+        width: 36px;
+        height: 36px;
+        background: #10b981;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-weight: 600;
+        font-size: 0.875rem;
+      }
+
+      .connection {
+        width: 30px;
+        height: 2px;
+        background: #64748b;
+        margin: 0 5px;
+        align-self: center;
+      }
+
+      .table-container {
+        overflow-x: auto;
+        margin: 30px 0;
+      }
+
+      .truth-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      .truth-table th {
+        background: #3b82f6;
+        color: white;
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.875rem;
+      }
+
+      .truth-table td {
+        padding: 12px;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 0.875rem;
+      }
+
+      .truth-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .truth-table tr:nth-child(even) {
+        background: #f8fafc;
+      }
+
+      .highlight {
+        background: #dbeafe;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      .nav-dots {
+        position: fixed;
+        right: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+      }
+
+      .nav-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #cbd5e1;
+        margin: 12px 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .nav-dot:hover {
+        background: #94a3b8;
+      }
+
+      .nav-dot.active {
+        background: #3b82f6;
+        transform: scale(1.2);
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 30px 0;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      .comparison-table th {
+        background: #4f46e5;
+        color: white;
+        padding: 16px;
+        text-align: left;
+        font-weight: 600;
+      }
+
+      .comparison-table td {
+        padding: 16px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .comparison-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .key-point {
+        background: #eff6ff;
+        border-left: 4px solid #3b82f6;
+        padding: 16px 20px;
+        margin: 24px 0;
+        border-radius: 0 8px 8px 0;
+      }
+
+      .key-point h4 {
+        color: #1e40af;
+        margin: 0 0 8px;
+      }
+
+      ul {
+        margin: 16px 0;
+        padding-left: 24px;
+      }
+
+      li {
+        margin: 8px 0;
+        color: #475569;
+      }
+
+      p {
+        margin: 16px 0;
+        color: #475569;
+      }
+
+      .step {
+        background: #f1f5f9;
+        border-radius: 8px;
+        padding: 16px;
+        margin: 16px 0;
+        border-left: 3px solid #64748b;
+      }
+
+      .step h5 {
+        color: #334155;
+        margin: 0 0 8px;
+        font-weight: 600;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2rem;
+        }
+        h2 {
+          font-size: 1.5rem;
+        }
+        section {
+          padding: 30px 20px;
+        }
+        .nav-dots {
+          display: none;
+        }
+        .counter-row {
+          flex-wrap: wrap;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="nav-dots">
+      <div class="nav-dot active" onclick="scrollToSection('intro')"></div>
+      <div class="nav-dot" onclick="scrollToSection('types')"></div>
+      <div class="nav-dot" onclick="scrollToSection('example')"></div>
+      <div class="nav-dot" onclick="scrollToSection('applications')"></div>
+      <div class="nav-dot" onclick="scrollToSection('detailed')"></div>
+      <div class="nav-dot" onclick="scrollToSection('comparison')"></div>
+    </div>
+
+    <header>
+      <div class="container">
+        <h1>Counters in Computer Organization and Architecture</h1>
+        <p class="subtitle">Sequential Circuits for Digital Systems</p>
+      </div>
+    </header>
+
+    <div class="container">
+      <!-- Introduction Section -->
+      <section id="intro">
+        <h2><i class="fas fa-microchip"></i> What is a Counter?</h2>
+
+        <div class="content-block">
+          <p>
+            A counter is a sequential digital circuit built using flip-flops.
+          </p>
+          <p>It stores and counts the number of clock pulses applied to it.</p>
+          <p>
+            Counters are basically registers that go through a predetermined
+            sequence of states (binary numbers).
+          </p>
+          <p>Each state (binary value) represents a count.</p>
+        </div>
+
+        <div class="content-block">
+          <h4>In COA, counters are essential because they are used in:</h4>
+          <ul>
+            <li>
+              Program execution sequencing (like keeping track of instructions).
+            </li>
+            <li>Timing operations in CPUs.</li>
+            <li>Generating addresses in memory access.</li>
+            <li>Event counting in digital systems.</li>
+          </ul>
+        </div>
+
+        <div class="counter-diagram">
+          <h3>Basic Counter Concept</h3>
+          <div class="counter-row">
+            <div class="clock-pulse">CLK</div>
+            <div class="connection"></div>
+            <div class="flip-flop">FF</div>
+            <div class="connection"></div>
+            <div class="flip-flop">FF</div>
+            <div class="connection"></div>
+            <div class="flip-flop">FF</div>
+          </div>
+          <p>Each clock pulse increments the counter by 1</p>
+        </div>
+      </section>
+
+      <!-- Types Section -->
+      <section id="types">
+        <h2><i class="fas fa-list"></i> Types of Counters</h2>
+
+        <p>Counters are classified mainly into two categories:</p>
+
+        <div class="counter-type">
+          <div class="counter-icon">
+            <i class="fas fa-water"></i>
+          </div>
+          <div class="counter-content">
+            <h4>1. Asynchronous (Ripple) Counter</h4>
+            <p>
+              Each flip-flop is triggered by the output of the previous
+              flip-flop.
+            </p>
+            <p>The clock is applied only to the first flip-flop.</p>
+            <p>
+              Propagation delay accumulates → slower for large bit counters.
+            </p>
+            <p>
+              <strong>Example:</strong> 4-bit ripple counter → counts 0 to 15
+              (0000 → 1111).
+            </p>
+          </div>
+        </div>
+
+        <div class="counter-type">
+          <div class="counter-icon">
+            <i class="fas fa-sync-alt"></i>
+          </div>
+          <div class="counter-content">
+            <h4>2. Synchronous Counter</h4>
+            <p>Clock is applied to all flip-flops simultaneously.</p>
+            <p>Faster than ripple counters.</p>
+            <p>Requires extra logic (AND/OR gates) to control transitions.</p>
+          </div>
+        </div>
+
+        <h3>Common Types Based on Counting Sequence</h3>
+
+        <div class="counter-type">
+          <div class="counter-icon">
+            <i class="fas fa-arrow-up"></i>
+          </div>
+          <div class="counter-content">
+            <h4>Up Counter</h4>
+            <p>Counts in increasing order (0000, 0001, 0010, …).</p>
+          </div>
+        </div>
+
+        <div class="counter-type">
+          <div class="counter-icon">
+            <i class="fas fa-arrow-down"></i>
+          </div>
+          <div class="counter-content">
+            <h4>Down Counter</h4>
+            <p>Counts in decreasing order (1111, 1110, 1101, …).</p>
+          </div>
+        </div>
+
+        <div class="counter-type">
+          <div class="counter-icon">
+            <i class="fas fa-exchange-alt"></i>
+          </div>
+          <div class="counter-content">
+            <h4>Up/Down Counter</h4>
+            <p>Can count both up and down based on control input.</p>
+          </div>
+        </div>
+
+        <div class="counter-type">
+          <div class="counter-icon">
+            <i class="fas fa-circle-notch"></i>
+          </div>
+          <div class="counter-content">
+            <h4>Ring Counter</h4>
+            <p>A type of shift register counter where a single 1 circulates.</p>
+          </div>
+        </div>
+
+        <div class="counter-type">
+          <div class="counter-icon">
+            <i class="fas fa-adjust"></i>
+          </div>
+          <div class="counter-content">
+            <h4>Johnson Counter</h4>
+            <p>A modified ring counter where complement feedback is used.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Example Section -->
+      <section id="example">
+        <h2>
+          <i class="fas fa-eye"></i> Counter Example: 3-bit Up Counter
+          (Asynchronous)
+        </h2>
+
+        <div class="content-block">
+          <p>Uses 3 flip-flops (Q2, Q1, Q0).</p>
+          <p>Counts from 000 → 111 (0 to 7 in decimal).</p>
+          <p>After 111, it rolls back to 000 (modulo-8 counter).</p>
+        </div>
+
+        <div class="counter-diagram">
+          <h3>3-bit Asynchronous Counter Structure</h3>
+          <div class="counter-row">
+            <div class="clock-pulse">CLK</div>
+            <div class="connection"></div>
+            <div class="flip-flop">Q0</div>
+            <div class="connection"></div>
+            <div class="flip-flop">Q1</div>
+            <div class="connection"></div>
+            <div class="flip-flop">Q2</div>
+          </div>
+        </div>
+
+        <h3>Truth Table (Sequence)</h3>
+        <div class="table-container">
+          <table class="truth-table">
+            <thead>
+              <tr>
+                <th>Clock Pulses</th>
+                <th>Q2</th>
+                <th>Q1</th>
+                <th>Q0</th>
+                <th>Decimal Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td>1</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td>2</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>0</td>
+                <td>1</td>
+                <td>1</td>
+                <td>3</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td>4</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>1</td>
+                <td>0</td>
+                <td>1</td>
+                <td>5</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>1</td>
+                <td>1</td>
+                <td>0</td>
+                <td>6</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+                <td>7</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Applications Section -->
+      <section id="applications">
+        <h2><i class="fas fa-cogs"></i> Applications of Counters in COA</h2>
+
+        <div class="counter-type">
+          <div class="counter-icon">
+            <i class="fas fa-map-marker-alt"></i>
+          </div>
+          <div class="counter-content">
+            <h4>Program Counter (PC)</h4>
+            <p>Keeps track of the address of the next instruction.</p>
+          </div>
+        </div>
+
+        <div class="counter-type">
+          <div class="counter-icon">
+            <i class="fas fa-tasks"></i>
+          </div>
+          <div class="counter-content">
+            <h4>Instruction Counting</h4>
+            <p>To count number of executed instructions.</p>
+          </div>
+        </div>
+
+        <div class="counter-type">
+          <div class="counter-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="counter-content">
+            <h4>Frequency Divider</h4>
+            <p>Divide clock frequency by 2, 4, 8… for timing.</p>
+          </div>
+        </div>
+
+        <div class="counter-type">
+          <div class="counter-icon">
+            <i class="fas fa-calculator"></i>
+          </div>
+          <div class="counter-content">
+            <h4>Event Counting</h4>
+            <p>Detecting and counting input pulses (e.g., in I/O devices).</p>
+          </div>
+        </div>
+
+        <div class="counter-type">
+          <div class="counter-icon">
+            <i class="fas fa-home"></i>
+          </div>
+          <div class="counter-content">
+            <h4>Memory Address Sequencing</h4>
+            <p>Counters generate addresses sequentially in RAM/ROM.</p>
+          </div>
+        </div>
+
+        <div class="key-point">
+          <h4>Summary</h4>
+          <p>
+            A counter in COA is a hardware sequential circuit made from
+            flip-flops that counts clock pulses in binary form. They are crucial
+            for instruction sequencing, timing, and event counting in computer
+            systems.
+          </p>
+        </div>
+      </section>
+
+      <!-- Detailed Information Section -->
+      <section id="detailed">
+        <h2><i class="fas fa-info-circle"></i> Detailed Information</h2>
+
+        <h3>What is a Counter?</h3>
+        <div class="content-block">
+          <p>
+            A counter is a sequential circuit (made from flip-flops) that counts
+            the number of clock pulses applied to it.
+          </p>
+          <p>Each clock pulse changes the counter's state.</p>
+          <p>The states are represented in binary form.</p>
+          <p>
+            Counters are widely used in timers, frequency dividers, program
+            counters, event counting, and digital clocks.
+          </p>
+        </div>
+
+        <div class="content-block">
+          <h4>In simple words:</h4>
+          <p>
+            A counter is like a digital "pulse counter" that goes 0 → 1 → 2 → …
+            depending on clock inputs.
+          </p>
+        </div>
+
+        <h3>Types of Counters</h3>
+
+        <h4>1. Asynchronous Counter (Ripple Counter)</h4>
+        <div class="content-block">
+          <p>
+            Called ripple because the clock "ripples" from one flip-flop to the
+            next.
+          </p>
+          <p>Only the first flip-flop gets the external clock pulse.</p>
+          <p>
+            Each subsequent flip-flop is triggered by the output of the previous
+            one.
+          </p>
+          <p>
+            This creates a propagation delay (because the clock signal travels
+            step-by-step).
+          </p>
+          <p>Simpler design, but slower for large bit counters.</p>
+        </div>
+
+        <h5>Example: 2-bit Asynchronous Counter</h5>
+        <div class="content-block">
+          <p>
+            <strong>Components:</strong> Two T flip-flops (or JK flip-flops with
+            J=K=1).
+          </p>
+        </div>
+
+        <div class="counter-diagram">
+          <h3>Block Diagram</h3>
+          <div class="counter-row">
+            <div class="clock-pulse">CLK</div>
+            <div class="connection"></div>
+            <div class="flip-flop">FF-A</div>
+            <div class="connection"></div>
+            <div class="flip-flop">FF-B</div>
+          </div>
+        </div>
+
+        <h5>Operation (step-by-step)</h5>
+
+        <div class="step">
+          <h5>Condition 1 (Reset State)</h5>
+          <p>QA = 0, QB = 0. (binary = 00)</p>
+        </div>
+
+        <div class="step">
+          <h5>1st Negative Clock Edge</h5>
+          <p>FF-A toggles → QA = 1.</p>
+          <p>
+            FF-B sees QA=1 as a clock, but since it is negative-edge triggered,
+            it does not toggle yet.
+          </p>
+          <p><strong>Result:</strong> QA = 1, QB = 0 (binary = 01)</p>
+        </div>
+
+        <div class="step">
+          <h5>2nd Negative Clock Edge</h5>
+          <p>FF-A toggles → QA = 0.</p>
+          <p>
+            This falling edge of QA acts as a clock for FF-B → toggles QB = 1.
+          </p>
+          <p><strong>Result:</strong> QA = 0, QB = 1 (binary = 10)</p>
+        </div>
+
+        <div class="step">
+          <h5>3rd Negative Clock Edge</h5>
+          <p>FF-A toggles → QA = 1.</p>
+          <p>QB remains unchanged (still 1).</p>
+          <p><strong>Result:</strong> QA = 1, QB = 1 (binary = 11)</p>
+        </div>
+
+        <div class="step">
+          <h5>4th Negative Clock Edge</h5>
+          <p>FF-A toggles → QA = 0.</p>
+          <p>This falling edge toggles FF-B back to 0.</p>
+          <p>
+            <strong>Result:</strong> QA = 0, QB = 0 (binary = 00 → back to
+            start)
+          </p>
+        </div>
+
+        <div class="content-block">
+          <p>
+            <strong>So, the counter cycles through:</strong> 00 → 01 → 10 → 11 →
+            00.
+          </p>
+          <p>This is a mod-4 counter (counts 4 states).</p>
+        </div>
+
+        <h4>2. Synchronous Counter</h4>
+        <div class="content-block">
+          <p>
+            In this design, all flip-flops receive the same clock pulse
+            simultaneously.
+          </p>
+          <p>No "rippling" delay → much faster.</p>
+          <p>
+            Requires extra logic to ensure that each flip-flop toggles at the
+            right time.
+          </p>
+        </div>
+
+        <h5>Example: 2-bit Synchronous Counter</h5>
+        <div class="counter-diagram">
+          <h3>Block Diagram</h3>
+          <div class="counter-row">
+            <div class="clock-pulse">CLK</div>
+            <div style="display: flex; align-items: center">
+              <div
+                class="connection"
+                style="transform: rotate(90deg); height: 30px"
+              ></div>
+            </div>
+            <div class="flip-flop">FF-A</div>
+            <div style="display: flex; align-items: center">
+              <div
+                class="connection"
+                style="transform: rotate(90deg); height: 30px"
+              ></div>
+            </div>
+            <div class="flip-flop">FF-B</div>
+          </div>
+          <p style="margin-top: 15px">
+            Clock signal goes directly to both FF-A and FF-B.
+          </p>
+          <p>FF-A is always toggled (J=K=1).</p>
+          <p>FF-B toggles only when QA = 1 (controlled by logic gates).</p>
+        </div>
+
+        <h5>Operation (step-by-step)</h5>
+
+        <div class="step">
+          <h5>Condition 1 (Reset State)</h5>
+          <p>QA = 0, QB = 0 (binary = 00)</p>
+        </div>
+
+        <div class="step">
+          <h5>1st Negative Clock Edge</h5>
+          <p>FF-A toggles → QA = 1.</p>
+          <p>FF-B stays unchanged (QB = 0).</p>
+          <p><strong>Result:</strong> QA = 1, QB = 0 (binary = 01)</p>
+        </div>
+
+        <div class="step">
+          <h5>2nd Negative Clock Edge</h5>
+          <p>FF-A toggles → QA = 0.</p>
+          <p>Since QA=0 before toggle, logic makes FF-B toggle → QB = 1.</p>
+          <p><strong>Result:</strong> QA = 0, QB = 1 (binary = 10)</p>
+        </div>
+
+        <div class="step">
+          <h5>3rd Negative Clock Edge</h5>
+          <p>FF-A toggles → QA = 1.</p>
+          <p>FF-B stays 1.</p>
+          <p><strong>Result:</strong> QA = 1, QB = 1 (binary = 11)</p>
+        </div>
+
+        <div class="step">
+          <h5>4th Negative Clock Edge</h5>
+          <p>FF-A toggles → QA = 0.</p>
+          <p>Logic toggles FF-B → QB = 0.</p>
+          <p>
+            <strong>Result:</strong> QA = 0, QB = 0 (binary = 00 → back to
+            start)
+          </p>
+        </div>
+
+        <div class="content-block">
+          <p>
+            <strong
+              >Again, sequence is 00 → 01 → 10 → 11 → 00, but much faster than
+              asynchronous because all flip-flops are clocked together.</strong
+            >
+          </p>
+        </div>
+      </section>
+
+      <!-- Comparison Section -->
+      <section id="comparison">
+        <h2>
+          <i class="fas fa-balance-scale"></i> Key Differences Between
+          Asynchronous & Synchronous Counters
+        </h2>
+
+        <div class="table-container">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>Asynchronous (Ripple)</th>
+                <th>Synchronous</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Clock Input</strong></td>
+                <td>Only 1st flip-flop gets external clock</td>
+                <td>All flip-flops get clock simultaneously</td>
+              </tr>
+              <tr>
+                <td><strong>Speed</strong></td>
+                <td>Slower (propagation delay)</td>
+                <td>Faster (no delay)</td>
+              </tr>
+              <tr>
+                <td><strong>Complexity</strong></td>
+                <td>Simple design</td>
+                <td>More complex (requires gating logic)</td>
+              </tr>
+              <tr>
+                <td><strong>Use Cases</strong></td>
+                <td>Simple low-speed counters</td>
+                <td>High-speed counters in CPUs & digital circuits</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="key-point">
+          <h4>Applications of Counters in COA</h4>
+          <ul>
+            <li>
+              <strong>Program Counter (PC):</strong> Keeps track of instruction
+              sequence in CPU.
+            </li>
+            <li>
+              <strong>Frequency Division:</strong> Used in digital clocks,
+              timers.
+            </li>
+            <li>
+              <strong>Event Counting:</strong> Counting external signals (like
+              sensor data).
+            </li>
+            <li>
+              <strong>Memory Addressing:</strong> Generating sequential
+              addresses in RAM/ROM.
+            </li>
+            <li>
+              <strong>State Machines:</strong> Used in control logic for CPUs.
+            </li>
+          </ul>
+        </div>
+
+        <div class="key-point">
+          <h4>Summary</h4>
+          <ul>
+            <li>
+              A counter is a sequential circuit (hardware) built using
+              flip-flops that counts clock pulses in binary.
+            </li>
+            <li>
+              Asynchronous counters are simple but slower due to ripple delays.
+            </li>
+            <li>Synchronous counters are faster, preferred in modern CPUs.</li>
+            <li>
+              They are vital in COA for program execution, timing, and memory
+              operations.
+            </li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // Function to scroll to a specific section
+      function scrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        section.scrollIntoView({ behavior: "smooth" });
+
+        // Update active nav dot
+        const navDots = document.querySelectorAll(".nav-dot");
+        navDots.forEach((dot, index) => {
+          if (index === 0 && sectionId === "intro") dot.classList.add("active");
+          else if (index === 1 && sectionId === "types")
+            dot.classList.add("active");
+          else if (index === 2 && sectionId === "example")
+            dot.classList.add("active");
+          else if (index === 3 && sectionId === "applications")
+            dot.classList.add("active");
+          else if (index === 4 && sectionId === "detailed")
+            dot.classList.add("active");
+          else if (index === 5 && sectionId === "comparison")
+            dot.classList.add("active");
+          else dot.classList.remove("active");
+        });
+      }
+
+      // Update active nav dot on scroll
+      window.addEventListener("scroll", () => {
+        const sections = [
+          "intro",
+          "types",
+          "example",
+          "applications",
+          "detailed",
+          "comparison",
+        ];
+        const navDots = document.querySelectorAll(".nav-dot");
+
+        let current = "";
+        sections.forEach((section) => {
+          const element = document.getElementById(section);
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= 100 && rect.bottom >= 100) {
+            current = section;
+          }
+        });
+
+        navDots.forEach((dot, index) => {
+          if (index === 0 && current === "intro") dot.classList.add("active");
+          else if (index === 1 && current === "types")
+            dot.classList.add("active");
+          else if (index === 2 && current === "example")
+            dot.classList.add("active");
+          else if (index === 3 && current === "applications")
+            dot.classList.add("active");
+          else if (index === 4 && current === "detailed")
+            dot.classList.add("active");
+          else if (index === 5 && current === "comparison")
+            dot.classList.add("active");
+          else dot.classList.remove("active");
+        });
+      });
+    </script>
+  </body>
+</html>

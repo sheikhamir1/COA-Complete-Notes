@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boolean Algebra Explained from Scratch</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+        color: #333;
+        min-height: 100vh;
+      }
+
+      /* Header Navigation */
+      .header {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: rgba(26, 42, 108, 0.95);
+        backdrop-filter: blur(10px);
+        z-index: 1000;
+        padding: 15px 0;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        display: flex;
+        align-items: center;
+      }
+
+      .logo i {
+        margin-right: 10px;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 30px;
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .nav-links a:hover {
+        color: #fdbb2d;
+      }
+
+      .nav-links a::after {
+        content: "";
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #fdbb2d;
+        transition: width 0.3s ease;
+      }
+
+      .nav-links a:hover::after {
+        width: 100%;
+      }
+
+      /* Main Content */
+      .main-content {
+        margin-top: 80px;
+        padding: 40px 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      /* Section Styles */
+      .section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        padding: 40px;
+        margin-bottom: 40px;
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.8s ease;
+      }
+
+      .section.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a2a6c;
+        margin-bottom: 30px;
+        text-align: center;
+        position: relative;
+      }
+
+      .section-title::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #b21f1f, #fdbb2d);
+        border-radius: 2px;
+      }
+
+      .content {
+        font-size: 1.2rem;
+        line-height: 1.6;
+      }
+
+      /* Box Styles */
+      .box {
+        background: #f8f9fa;
+        border-left: 4px solid #1a2a6c;
+        padding: 20px 25px;
+        margin: 25px 0;
+        border-radius: 0 10px 10px 0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .box:hover {
+        transform: translateX(10px);
+      }
+
+      .highlight {
+        background: linear-gradient(
+          120deg,
+          rgba(253, 187, 45, 0.3) 0%,
+          rgba(253, 187, 45, 0.1) 100%
+        );
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      /* Example Box */
+      .example {
+        background: #e9f7fe;
+        border-left: 4px solid #3498db;
+        padding: 20px 25px;
+        margin: 25px 0;
+        border-radius: 0 10px 10px 0;
+        transition: all 0.3s ease;
+      }
+
+      .example:hover {
+        box-shadow: 0 6px 12px rgba(52, 152, 219, 0.2);
+      }
+
+      .example-title {
+        font-weight: 600;
+        color: #2980b9;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        font-size: 1.1rem;
+      }
+
+      .example-title i {
+        margin-right: 10px;
+      }
+
+      /* Operator Cards */
+      .operator-box {
+        display: flex;
+        justify-content: space-around;
+        margin: 40px 0;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .operator {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        width: 30%;
+        min-width: 280px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .operator::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, #1a2a6c, #b21f1f, #fdbb2d);
+      }
+
+      .operator:hover {
+        transform: translateY(-15px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      .operator-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        display: block;
+        animation: bounce 2s infinite;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      .operator-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #1a2a6c;
+      }
+
+      .operator-desc {
+        color: #555;
+        font-size: 1.1rem;
+      }
+
+      /* Law Cards */
+      .law-container {
+        margin: 30px 0;
+      }
+
+      .law {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .law::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: #b21f1f;
+      }
+
+      .law:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        transform: translateX(5px);
+      }
+
+      .law-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #b21f1f;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+      }
+
+      .law-title i {
+        margin-right: 15px;
+        font-size: 1.8rem;
+      }
+
+      .law-formula {
+        font-family: "Courier New", monospace;
+        background: #f8f9fa;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin: 15px 0;
+        display: inline-block;
+        font-size: 1.1rem;
+        border-left: 3px solid #fdbb2d;
+      }
+
+      /* Tables */
+      .table-container {
+        margin: 30px 0;
+        overflow-x: auto;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+      }
+
+      th,
+      td {
+        padding: 15px 20px;
+        text-align: center;
+        border-bottom: 1px solid #e1e1e1;
+      }
+
+      th {
+        background: #1a2a6c;
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+
+      tr:hover {
+        background-color: #e9f7fe;
+      }
+
+      /* Emoji */
+      .emoji {
+        font-size: 1.5rem;
+        vertical-align: middle;
+        margin: 0 5px;
+        display: inline-block;
+        animation: wiggle 2s infinite;
+      }
+
+      @keyframes wiggle {
+        0%,
+        100% {
+          transform: rotate(0deg);
+        }
+        25% {
+          transform: rotate(5deg);
+        }
+        75% {
+          transform: rotate(-5deg);
+        }
+      }
+
+      /* Formula */
+      .formula {
+        font-family: "Courier New", monospace;
+        background: #f1f1f1;
+        padding: 5px 12px;
+        border-radius: 5px;
+        margin: 0 5px;
+        display: inline-block;
+        font-weight: 600;
+        color: #1a2a6c;
+      }
+
+      /* Hero Section */
+      .hero {
+        text-align: center;
+        padding: 60px 0;
+      }
+
+      .hero-image {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 30px;
+        display: block;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 6px solid #fdbb2d;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+
+      /* Back to Top Button */
+      .back-to-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: #1a2a6c;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      .back-to-top.visible {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .back-to-top:hover {
+        background: #b21f1f;
+        transform: scale(1.1);
+      }
+
+      /* Progress Bar */
+      .progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #fdbb2d, #b21f1f);
+        z-index: 1001;
+        transition: width 0.3s ease;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+        }
+
+        .section {
+          padding: 25px;
+        }
+
+        .section-title {
+          font-size: 2rem;
+        }
+
+        .content {
+          font-size: 1rem;
+        }
+
+        .operator {
+          width: 100%;
+        }
+
+        .law-title {
+          font-size: 1.2rem;
+        }
+
+        .hero-image {
+          width: 150px;
+          height: 150px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Header Navigation -->
+    <header class="header">
+      <div class="nav-container">
+        <div class="logo">
+          <i class="fas fa-calculator"></i>
+          Boolean Algebra
+        </div>
+        <nav class="nav-links">
+          <a href="#intro">Introduction</a>
+          <a href="#what-is">What is?</a>
+          <a href="#operators">Operators</a>
+          <a href="#laws1">part 1</a>
+          <a href="#laws2">part 2</a>
+          <a href="#laws3">part 3</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <!-- Hero Section -->
+        <section id="intro" class="section hero">
+          <img
+            src="https://media.geeksforgeeks.org/wp-content/uploads/20240717131820/Boolean-Algebraic-Theorems.webp"
+            alt="Boolean Algebra Concept"
+            class="hero-image"
+          />
+          <h1 class="section-title">
+            🔢 Boolean Algebra Explained from Scratch
+          </h1>
+          <div class="content">
+            <div class="box">
+              <p>
+                Welcome to the fascinating world of
+                <span class="highlight">Boolean Algebra</span>!
+                <span class="emoji">👋</span>
+              </p>
+              <p>In this guide, we'll explore:</p>
+              <ul style="margin-left: 30px; margin-top: 15px">
+                <li>What is Boolean Algebra?</li>
+                <li>Boolean Operators</li>
+                <li>Boolean Laws and Theorems</li>
+              </ul>
+            </div>
+            <div class="example">
+              <div class="example-title">
+                <i class="fas fa-lightbulb"></i> Did you know?
+              </div>
+              <p>
+                Boolean algebra is the foundation of all modern digital
+                computers! <span class="emoji">💻</span>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- What is Boolean Algebra? -->
+        <section id="what-is" class="section">
+          <h2 class="section-title">What is Boolean Algebra?</h2>
+          <div class="content">
+            <div class="box">
+              <p>
+                Boolean algebra is a branch of mathematics that works with only
+                <span class="highlight">two values</span>:
+              </p>
+              <ul style="margin-left: 30px; margin-top: 15px">
+                <li>
+                  <span class="formula">0</span> → False (OFF, Low voltage)
+                  <span class="emoji">🔌</span>
+                </li>
+                <li>
+                  <span class="formula">1</span> → True (ON, High voltage)
+                  <span class="emoji">💡</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="box">
+              <p>
+                It was introduced by
+                <span class="highlight">George Boole</span> in the 19th century.
+              </p>
+              <p>
+                In computers, Boolean algebra is the
+                <span class="highlight">foundation of digital logic</span> (how
+                circuits and processors work). <span class="emoji">🔧</span>
+              </p>
+            </div>
+
+            <div class="example">
+              <div class="example-title">
+                <i class="fas fa-lightbulb"></i> Example:
+              </div>
+              <p>A simple light switch:</p>
+              <ul style="margin-left: 30px; margin-top: 10px">
+                <li>Switch OFF = 0</li>
+                <li>Switch ON = 1</li>
+              </ul>
+              <p style="margin-top: 15px">
+                If we say
+                <span class="formula">Light = Switch1 AND Switch2</span>, the
+                light will only turn ON if both switches are ON.
+                <span class="emoji">💡</span>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Boolean Operators -->
+        <section id="operators" class="section">
+          <h2 class="section-title">Boolean Operators</h2>
+          <div class="content">
+            <div class="box">
+              <p>
+                Boolean algebra uses operators just like normal math does (+, -,
+                ×), but here they mean something different:
+              </p>
+            </div>
+
+            <div class="operator-box">
+              <div class="operator">
+                <span class="operator-icon">🔗</span>
+                <div class="operator-title">AND (•)</div>
+                <div class="operator-desc">
+                  Output is 1 only if both inputs are 1.
+                </div>
+              </div>
+
+              <div class="operator">
+                <span class="operator-icon">🔀</span>
+                <div class="operator-title">OR (+)</div>
+                <div class="operator-desc">
+                  Output is 1 if at least one input is 1.
+                </div>
+              </div>
+
+              <div class="operator">
+                <span class="operator-icon">🔄</span>
+                <div class="operator-title">NOT (¬ or ')</div>
+                <div class="operator-desc">Flips the input (0 → 1, 1 → 0).</div>
+              </div>
+            </div>
+
+            <div class="example">
+              <div class="example-title">
+                <i class="fas fa-lightbulb"></i> Visual Example:
+              </div>
+              <p>
+                <strong>AND</strong>: Like two switches in series - both must be
+                ON for the light to work. <span class="emoji">💡</span>
+              </p>
+              <p>
+                <strong>OR</strong>: Like two switches in parallel - either one
+                can turn the light ON. <span class="emoji">💡</span>
+              </p>
+              <p>
+                <strong>NOT</strong>: Like an inverter - it flips the state.
+                <span class="emoji">🔄</span>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Boolean Laws - Part 1 -->
+        <section id="laws1" class="section">
+          <h2 class="section-title">Boolean Laws and Theorems - Part 1</h2>
+          <div class="content">
+            <div class="box">
+              <p>
+                These laws are like the rules of arithmetic, but for logic. They
+                make it possible to simplify complex logical circuits.
+                <span class="emoji">⚙️</span>
+              </p>
+            </div>
+
+            <div class="law-container">
+              <div class="law">
+                <div class="law-title">
+                  <i class="fas fa-exchange-alt"></i> Commutative Laws
+                </div>
+                <p>Order doesn't matter.</p>
+                <p>OR: <span class="law-formula">A + B = B + A</span></p>
+                <p>AND: <span class="law-formula">AB = BA</span></p>
+                <div class="example">
+                  <div class="example-title">
+                    <i class="fas fa-lightbulb"></i> Example:
+                  </div>
+                  <p>
+                    Pressing Switch A OR B will turn ON the fan, no matter the
+                    order. <span class="emoji">🌀</span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="law">
+                <div class="law-title">
+                  <i class="fas fa-sitemap"></i> Associative Laws
+                </div>
+                <p>Grouping doesn't matter.</p>
+                <p>
+                  OR: <span class="law-formula">(A + B) + C = A + (B + C)</span>
+                </p>
+                <p>AND: <span class="law-formula">(AB)C = A(BC)</span></p>
+                <div class="example">
+                  <div class="example-title">
+                    <i class="fas fa-lightbulb"></i> Example:
+                  </div>
+                  <p>
+                    If 3 people vote YES, the result doesn't depend on the
+                    grouping order. <span class="emoji">👥</span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="law">
+                <div class="law-title">
+                  <i class="fas fa-project-diagram"></i> Distributive Laws
+                </div>
+                <p>Just like in normal algebra, but with AND/OR.</p>
+                <p>
+                  OR distributes over AND:
+                  <span class="law-formula">A(B + C) = AB + AC</span>
+                </p>
+                <p>
+                  AND distributes over OR:
+                  <span class="law-formula">A + BC = (A + B)(A + C)</span>
+                </p>
+                <div class="example">
+                  <div class="example-title">
+                    <i class="fas fa-lightbulb"></i> Example:
+                  </div>
+                  <p>
+                    <span class="formula">A(B + C)</span> → If A must be ON and
+                    either B or C is ON → it's same as (A and B) OR (A and C).
+                    <span class="emoji">💡</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Boolean Laws - Part 2 -->
+        <section id="laws2" class="section">
+          <h2 class="section-title">Boolean Laws and Theorems - Part 2</h2>
+          <div class="content">
+            <div class="law-container">
+              <div class="law">
+                <div class="law-title">
+                  <i class="fas fa-id-card"></i> Identity Laws
+                </div>
+                <p>Adding or multiplying by constants 0 or 1.</p>
+                <p>OR: <span class="law-formula">A + 0 = A</span></p>
+                <p>AND: <span class="law-formula">A • 1 = A</span></p>
+                <p>OR: <span class="law-formula">A + 1 = 1</span></p>
+                <p>AND: <span class="law-formula">A • 0 = 0</span></p>
+                <div class="example">
+                  <div class="example-title">
+                    <i class="fas fa-lightbulb"></i> Example:
+                  </div>
+                  <p>
+                    Anything OR 1 = always 1 (a lamp connected to a permanent
+                    battery is always ON). <span class="emoji">🔋</span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="law">
+                <div class="law-title">
+                  <i class="fas fa-sync-alt"></i> Complement Laws
+                </div>
+                <p>A variable plus its opposite covers all cases.</p>
+                <p><span class="law-formula">A + A′ = 1</span></p>
+                <p><span class="law-formula">A • A′ = 0</span></p>
+                <div class="example">
+                  <div class="example-title">
+                    <i class="fas fa-lightbulb"></i> Example:
+                  </div>
+                  <p>
+                    A switch and its opposite cannot be ON together.
+                    <span class="emoji">🔌</span>
+                  </p>
+                </div>
+
+                <div class="table-container">
+                  <table>
+                    <tr>
+                      <th>A</th>
+                      <th>A′</th>
+                      <th>A + A′ (OR)</th>
+                      <th>A • A′ (AND)</th>
+                    </tr>
+                    <tr>
+                      <td>0</td>
+                      <td>1</td>
+                      <td>0 + 1 = 1</td>
+                      <td>0 × 1 = 0</td>
+                    </tr>
+                    <tr>
+                      <td>1</td>
+                      <td>0</td>
+                      <td>1 + 0 = 1</td>
+                      <td>1 × 0 = 0</td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Boolean Laws - Part 3 -->
+        <section id="laws3" class="section">
+          <h2 class="section-title">Boolean Laws and Theorems - Part 3</h2>
+          <div class="content">
+            <div class="law-container">
+              <div class="law">
+                <div class="law-title">
+                  <i class="fas fa-undo"></i> Involution Law
+                </div>
+                <p>Double negation brings you back to the original value:</p>
+                <p><span class="law-formula">(A′)′ = A</span></p>
+                <p>
+                  This means: If you take the complement (NOT) of a variable
+                  twice, you get the original variable back.
+                </p>
+
+                <div class="example">
+                  <div class="example-title">
+                    <i class="fas fa-lightbulb"></i> What does this mean with
+                    numbers?
+                  </div>
+                  <p>Recall:</p>
+                  <ul style="margin-left: 30px; margin-top: 10px">
+                    <li>If A = 0, then A′ = 1</li>
+                    <li>If A = 1, then A′ = 0</li>
+                  </ul>
+                  <p style="margin-top: 15px">Now apply double negation:</p>
+                </div>
+
+                <div class="table-container">
+                  <table>
+                    <tr>
+                      <th>A</th>
+                      <th>A′</th>
+                      <th>(A′)′</th>
+                      <th>Result compared to A</th>
+                    </tr>
+                    <tr>
+                      <td>0</td>
+                      <td>1</td>
+                      <td>0</td>
+                      <td>Same as A = 0</td>
+                    </tr>
+                    <tr>
+                      <td>1</td>
+                      <td>0</td>
+                      <td>1</td>
+                      <td>Same as A = 1</td>
+                    </tr>
+                  </table>
+                </div>
+
+                <div class="example">
+                  <div class="example-title">
+                    <i class="fas fa-lightbulb"></i> Real-world example:
+                  </div>
+                  <p>Imagine a switch A:</p>
+                  <p>
+                    A′ means NOT A (switch OFF if A was ON, ON if A was OFF).
+                  </p>
+                  <p>
+                    Taking NOT again, (A′)′, returns it back to the original
+                    state of A.
+                  </p>
+                  <p style="margin-top: 15px">So:</p>
+                  <ul style="margin-left: 30px; margin-top: 10px">
+                    <li>NOT(NOT(ON)) = ON</li>
+                    <li>NOT(NOT(OFF)) = OFF</li>
+                  </ul>
+                  <p style="margin-top: 15px">
+                    <strong>Summary:</strong> The double NOT cancels out and
+                    leaves the original value unchanged. This is similar to
+                    saying: "The opposite of the opposite is the original."
+                    <span class="emoji">🔄</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+      // Smooth scrolling for navigation links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target) {
+            target.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }
+        });
+      });
+
+      // Intersection Observer for section animations
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px",
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll(".section").forEach((section) => {
+        observer.observe(section);
+      });
+
+      // Progress bar
+      window.addEventListener("scroll", () => {
+        const scrollTop = window.pageYOffset;
+        const docHeight = document.body.scrollHeight - window.innerHeight;
+        const scrollPercent = (scrollTop / docHeight) * 100;
+        document.getElementById("progressBar").style.width =
+          scrollPercent + "%";
+      });
+
+      // Back to top button
+      const backToTopButton = document.getElementById("backToTop");
+
+      window.addEventListener("scroll", () => {
+        if (window.pageYOffset > 300) {
+          backToTopButton.classList.add("visible");
+        } else {
+          backToTopButton.classList.remove("visible");
+        }
+      });
+
+      backToTopButton.addEventListener("click", () => {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      });
+
+      // Add some interactive animations
+      document.querySelectorAll(".operator-icon").forEach((icon) => {
+        icon.addEventListener("mouseenter", function () {
+          this.style.animation = "bounce 0.5s ease";
+        });
+
+        icon.addEventListener("animationend", function () {
+          this.style.animation = "bounce 2s infinite";
+        });
+      });
+    </script>
+  </body>
+</html>

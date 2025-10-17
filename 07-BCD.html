@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BCD (Character Encoding) - Deep Explanation</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: #333;
+        overflow-y: auto;
+        min-height: 100vh;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header {
+        background: linear-gradient(90deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        padding: 25px 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+      }
+
+      .header-icon {
+        font-size: 3rem;
+        margin-right: 20px;
+        color: #3498db;
+        background: white;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+      }
+
+      .header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-top: 5px;
+      }
+
+      .slide {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        margin-bottom: 30px;
+      }
+
+      .section {
+        margin-bottom: 40px;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      .section-title i {
+        margin-right: 15px;
+        color: #3498db;
+        font-size: 1.6rem;
+      }
+
+      .definition-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+      }
+
+      .definition-title {
+        font-size: 1.4rem;
+        font-weight: 500;
+        margin-bottom: 15px;
+      }
+
+      .definition-content {
+        font-size: 1.1rem;
+        line-height: 1.6;
+      }
+
+      .example-box {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 15px;
+        border-left: 4px solid #3498db;
+      }
+
+      .example-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .example-title i {
+        margin-right: 10px;
+        color: #3498db;
+      }
+
+      .connection-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        margin-top: 20px;
+      }
+
+      .connection-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+        height: 100%;
+      }
+
+      .connection-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .connection-icon {
+        font-size: 2rem;
+        color: #3498db;
+        margin-bottom: 15px;
+      }
+
+      .connection-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+      }
+
+      .connection-content {
+        font-size: 1rem;
+        color: #555;
+        line-height: 1.6;
+      }
+
+      .real-example {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 25px;
+      }
+
+      .real-example-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+      }
+
+      .real-example-title i {
+        margin-right: 10px;
+        color: #3498db;
+      }
+
+      .real-example-content {
+        font-size: 1rem;
+        color: #555;
+        line-height: 1.6;
+      }
+
+      .punched-card {
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        position: relative;
+        font-family: "Courier New", monospace;
+      }
+
+      .punched-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(circle, #ddd 1px, transparent 1px);
+        background-size: 20px 20px;
+        opacity: 0.3;
+        pointer-events: none;
+      }
+
+      .punch-hole {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #2c3e50;
+        margin: 0 3px;
+        vertical-align: middle;
+      }
+
+      .no-hole {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: transparent;
+        border: 1px solid #ddd;
+        margin: 0 3px;
+        vertical-align: middle;
+      }
+
+      .evolution-timeline {
+        display: flex;
+        justify-content: space-between;
+        margin: 30px 0;
+        position: relative;
+      }
+
+      .evolution-timeline::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: #3498db;
+        z-index: 0;
+      }
+
+      .timeline-item {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        width: 22%;
+      }
+
+      .timeline-year {
+        background: #3498db;
+        color: white;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0 auto 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .timeline-label {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.1rem;
+      }
+
+      .timeline-desc {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 5px;
+      }
+
+      .importance-points {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .importance-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+      }
+
+      .importance-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .importance-icon {
+        font-size: 2rem;
+        color: #3498db;
+        margin-bottom: 15px;
+      }
+
+      .importance-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+      }
+
+      .importance-content {
+        font-size: 1rem;
+        color: #555;
+        line-height: 1.6;
+      }
+
+      .summary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-top: 30px;
+      }
+
+      .summary-title {
+        font-size: 1.6rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .summary-content {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .key-points {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .key-point {
+        flex: 1;
+        min-width: 200px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .highlight {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          flex-direction: column;
+          text-align: center;
+          padding: 20px;
+        }
+
+        .header-icon {
+          margin-right: 0;
+          margin-bottom: 15px;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .connection-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .evolution-timeline {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .evolution-timeline::before {
+          width: 4px;
+          height: 100%;
+          top: 0;
+          left: 50%;
+        }
+
+        .timeline-item {
+          width: 100%;
+          margin-bottom: 30px;
+          display: flex;
+          align-items: center;
+        }
+
+        .timeline-year {
+          margin: 0 20px 0 0;
+        }
+
+        .importance-points {
+          grid-template-columns: 1fr;
+        }
+
+        .key-points {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="header-icon">
+          <i class="fas fa-code"></i>
+        </div>
+        <div>
+          <h1>BCD (Character Encoding)</h1>
+          <p>
+            Deep Explanation & Connection to Computer Organization &
+            Architecture
+          </p>
+        </div>
+      </div>
+
+      <div class="slide">
+        <!-- Section: What is BCD in Character Encoding? -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-question-circle"></i>
+            What is BCD in Character Encoding?
+          </div>
+
+          <div class="definition-box">
+            <div class="definition-title">Definition</div>
+            <div class="definition-content">
+              Not the same as numeric BCD (4-bit decimal representation).<br />
+              Here, BCD refers to
+              <strong>Binary Coded Decimal Interchange Codes (BCDIC)</strong> —
+              a family of 6-bit encodings for letters, numbers, and symbols.<br /><br />
+              It evolved from IBM punched card codes (1920s) → adopted in early
+              IBM computers → later became EBCDIC (8-bit).<br /><br />
+              Think of BCDIC as the grandfather of ASCII/EBCDIC, used before
+              ASCII became the global standard.
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: How it Worked (Real Example) -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-history"></i>
+            How it Worked (Real Example)
+          </div>
+
+          <div class="definition-content" style="margin-bottom: 20px">
+            Imagine an IBM 1401 computer (1960s). You type "HELLO" on a punched
+            card. Each letter was represented by a pattern of holes (punches).
+            That punch pattern was mapped into a 6-bit BCD code.
+          </div>
+
+          <div class="example-box">
+            <div class="example-title">
+              <i class="fas fa-keyboard"></i>
+              Character to BCD Mapping
+            </div>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                margin-top: 15px;
+              "
+            >
+              <div><strong>'A'</strong> → 110001 (in one BCD variant)</div>
+              <div><strong>'0'</strong> → 111100</div>
+              <div><strong>'#'</strong> → 010011</div>
+            </div>
+          </div>
+
+          <div class="punched-card">
+            <div style="margin-bottom: 15px; font-weight: 500">
+              Punched Card Representation of "HELLO":
+            </div>
+            <div style="margin-bottom: 10px">
+              <span class="punch-hole"></span>
+              <span class="punch-hole"></span>
+              <span class="no-hole"></span>
+              <span class="no-hole"></span>
+              <span class="punch-hole"></span>
+              <span class="no-hole"></span>
+              <span style="margin-left: 15px">H</span>
+            </div>
+            <div style="margin-bottom: 10px">
+              <span class="punch-hole"></span>
+              <span class="no-hole"></span>
+              <span class="punch-hole"></span>
+              <span class="no-hole"></span>
+              <span class="punch-hole"></span>
+              <span class="no-hole"></span>
+              <span style="margin-left: 15px">E</span>
+            </div>
+            <div style="margin-bottom: 10px">
+              <span class="punch-hole"></span>
+              <span class="no-hole"></span>
+              <span class="punch-hole"></span>
+              <span class="punch-hole"></span>
+              <span class="no-hole"></span>
+              <span class="no-hole"></span>
+              <span style="margin-left: 15px">L</span>
+            </div>
+            <div style="margin-bottom: 10px">
+              <span class="punch-hole"></span>
+              <span class="no-hole"></span>
+              <span class="punch-hole"></span>
+              <span class="punch-hole"></span>
+              <span class="no-hole"></span>
+              <span class="no-hole"></span>
+              <span style="margin-left: 15px">L</span>
+            </div>
+            <div>
+              <span class="punch-hole"></span>
+              <span class="no-hole"></span>
+              <span class="punch-hole"></span>
+              <span class="no-hole"></span>
+              <span class="punch-hole"></span>
+              <span class="punch-hole"></span>
+              <span style="margin-left: 15px">O</span>
+            </div>
+          </div>
+
+          <div class="example-box">
+            <div class="example-title">
+              <i class="fas fa-building"></i>
+              Real World Application
+            </div>
+            A bank in the 1960s would have customer names and balances stored as
+            punched card records in BCDIC format. Printers, card readers, and
+            mainframes all had to agree on the same BCD table.
+          </div>
+        </div>
+
+        <!-- Section: Connection to Computer Organization & Architecture -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-microchip"></i>
+            Connection to Computer Organization & Architecture
+          </div>
+
+          <div class="connection-grid">
+            <!-- Instruction Set & CPU Design -->
+            <div class="connection-card">
+              <div class="connection-icon">
+                <i class="fas fa-microchip"></i>
+              </div>
+              <div class="connection-title">Instruction Set & CPU Design</div>
+              <div class="connection-content">
+                Early CPUs (like IBM 1401, IBM 1620) had instructions
+                specifically for BCD arithmetic and character handling.
+                <br /><br />
+                Example: IBM 1401 had Move Characters, Edit, and Add Packed
+                Decimal instructions.
+                <br /><br />
+                This means the ISA (Instruction Set Architecture) was designed
+                around character codes like BCD.
+              </div>
+              <div class="example-box" style="margin-top: 15px">
+                If a payroll system stored salary as "1234.56" in BCDIC → the
+                CPU had to add/subtract directly in BCD form, not binary
+                integers.
+              </div>
+            </div>
+
+            <!-- Memory Organization -->
+            <div class="connection-card">
+              <div class="connection-icon">
+                <i class="fas fa-memory"></i>
+              </div>
+              <div class="connection-title">Memory Organization</div>
+              <div class="connection-content">
+                A character in BCDIC = 6 bits.
+                <br /><br />
+                But computers usually stored in 8-bit bytes.
+                <br /><br />
+                So memory alignment was tricky → many machines stored packed BCD
+                (two digits per byte).
+              </div>
+              <div class="example-box" style="margin-top: 15px">
+                "1975" in packed BCD = 0001 1001 0111 0101.
+                <br /><br />
+                Stored efficiently in memory → saves space but CPU must decode.
+              </div>
+            </div>
+
+            <!-- Input/Output Devices -->
+            <div class="connection-card">
+              <div class="connection-icon">
+                <i class="fas fa-print"></i>
+              </div>
+              <div class="connection-title">Input/Output Devices</div>
+              <div class="connection-content">
+                Punch cards, magnetic tapes, printers all worked on BCD
+                encoding.
+                <br /><br />
+                If your punched card used a hole pattern for "%", that had to
+                match the CPU's internal BCD table → otherwise wrong symbols
+                would print.
+              </div>
+              <div class="example-box" style="margin-top: 15px">
+                In Spanish IBM systems, "Ñ" wasn't available → manufacturers
+                mapped it to "@". This caused problems when migrating to ASCII
+                systems later.
+              </div>
+            </div>
+
+            <!-- Transition to EBCDIC and ASCII -->
+            <div class="connection-card">
+              <div class="connection-icon">
+                <i class="fas fa-exchange-alt"></i>
+              </div>
+              <div class="connection-title">Transition to EBCDIC and ASCII</div>
+              <div class="connection-content">
+                IBM standardized on EBCDIC (8-bit) for System/360 in 1964 → an
+                evolution of BCDIC.
+                <br /><br />
+                Other companies and universities shifted to ASCII (7-bit, later
+                8-bit).
+                <br /><br />
+                This shift is crucial in COA history because:
+                <br /><br />
+                CPU microcode, ALUs, and memory handling had to change from
+                6-bit BCD words to 8-bit ASCII bytes.
+                <br /><br />
+                This was one of the biggest architectural transitions in
+                computing.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Real-World Examples -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-globe"></i>
+            Real-World Examples
+          </div>
+
+          <div class="real-example">
+            <div class="real-example-title">
+              <i class="fas fa-university"></i>
+              Example 1: Bank Ledger (1960s)
+            </div>
+            <div class="real-example-content">
+              A punched card record:
+              <div class="punched-card" style="margin-top: 15px">
+                <div style="margin-bottom: 10px; font-weight: 500">
+                  CUSTOMER: JOHN DOE
+                </div>
+                <div style="margin-bottom: 10px; font-weight: 500">
+                  BALANCE: 001234.56
+                </div>
+              </div>
+              Stored in BCDIC codes on magnetic tape.
+              <br /><br />
+              When printed on an IBM 1403 printer, the CPU translated BCD →
+              printer characters.
+              <br /><br />
+              If you migrated this data to ASCII computers in the 1970s, symbols
+              like "@" or "%" might map differently.
+            </div>
+          </div>
+
+          <div class="real-example">
+            <div class="real-example-title">
+              <i class="fas fa-lock"></i>
+              Example 2: Unix File Permissions (Today)
+            </div>
+            <div class="real-example-content">
+              Unix permissions use octal (base 8), but historically BCD-based
+              encoding was used in some IBM systems.
+              <br /><br />
+              When those IBM systems moved to ASCII/Unix machines, conversions
+              had to happen → this is why character encoding compatibility is
+              critical.
+            </div>
+          </div>
+
+          <div class="real-example">
+            <div class="real-example-title">
+              <i class="fas fa-exclamation-triangle"></i>
+              Example 3: Character Misinterpretation
+            </div>
+            <div class="real-example-content">
+              Old BCDIC files → converted to ASCII → "Ñ" turned into "/" or "@".
+              <br /><br />
+              In databases, customer names could get corrupted.
+              <br /><br />
+              This problem still exists when migrating mainframe (EBCDIC) →
+              modern cloud (ASCII/UTF-8) systems.
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Why It Matters in COA Course -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-graduation-cap"></i>
+            Why It Matters in COA Course
+          </div>
+
+          <div class="importance-points">
+            <div class="importance-card">
+              <div class="importance-icon">
+                <i class="fas fa-history"></i>
+              </div>
+              <div class="importance-title">
+                Evolution of Data Representation
+              </div>
+              <div class="importance-content">
+                Shows evolution of data representation: from punched cards →
+                BCDIC → ASCII → Unicode.
+              </div>
+            </div>
+
+            <div class="importance-card">
+              <div class="importance-icon">
+                <i class="fas fa-microchip"></i>
+              </div>
+              <div class="importance-title">Hardware-Software Interface</div>
+              <div class="importance-content">
+                Connects architecture to real world: Instruction sets (like IBM
+                1401 BCD arithmetic) show how hardware was built to support
+                character encodings.
+              </div>
+            </div>
+
+            <div class="importance-card">
+              <div class="importance-icon">
+                <i class="fas fa-cogs"></i>
+              </div>
+              <div class="importance-title">Legacy Instructions</div>
+              <div class="importance-content">
+                Explains why modern CPUs still have decimal instructions (Intel
+                x86 has DAA – Decimal Adjust after Addition, a leftover from BCD
+                arithmetic).
+              </div>
+            </div>
+
+            <div class="importance-card">
+              <div class="importance-icon">
+                <i class="fas fa-exchange-alt"></i>
+              </div>
+              <div class="importance-title">Data Compatibility</div>
+              <div class="importance-content">
+                Highlights data compatibility issues: Encoding mismatches
+                between ASCII, EBCDIC, and Unicode → still a big deal in
+                software engineering.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Evolution Timeline -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-clock"></i>
+            Evolution of Character Encoding
+          </div>
+
+          <div class="evolution-timeline">
+            <div class="timeline-item">
+              <div class="timeline-year">1920s</div>
+              <div class="timeline-label">Punched Cards</div>
+              <div class="timeline-desc">Physical hole patterns</div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-year">1950s</div>
+              <div class="timeline-label">BCDIC</div>
+              <div class="timeline-desc">6-bit encoding</div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-year">1964</div>
+              <div class="timeline-label">EBCDIC</div>
+              <div class="timeline-desc">IBM 8-bit standard</div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-year">1967</div>
+              <div class="timeline-label">ASCII</div>
+              <div class="timeline-desc">7-bit standard</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Summary -->
+        <div class="summary">
+          <div class="summary-title">
+            <i class="fas fa-check-circle" style="margin-right: 10px"></i>
+            Summary for COA Connection
+          </div>
+          <div class="summary-content">
+            BCDIC = 6-bit character codes, derived from punched cards. Used in
+            early IBM/other computers to encode letters, digits, and symbols.
+          </div>
+
+          <div class="key-points">
+            <div class="key-point">
+              CPU instruction sets, memory layouts, and I/O devices were
+              designed specifically around BCD
+            </div>
+            <div class="key-point">
+              Transition to EBCDIC (IBM) and ASCII (others) shaped modern
+              computer architecture
+            </div>
+            <div class="key-point">
+              Still affects data migration from mainframes to PCs, and explains
+              why certain CPU instructions exist today
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Computer Hardware Presentation</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: #333;
+        overflow-y: auto;
+        min-height: 100vh;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header {
+        background: linear-gradient(90deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        padding: 25px 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+      }
+
+      .header-icon {
+        font-size: 3rem;
+        margin-right: 20px;
+        color: #3498db;
+        background: white;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+      }
+
+      .header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-top: 5px;
+      }
+
+      .slide {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        margin-bottom: 30px;
+      }
+
+      .section {
+        margin-bottom: 40px;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      .section-title i {
+        margin-right: 15px;
+        color: #3498db;
+        font-size: 1.6rem;
+      }
+
+      .definition-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+      }
+
+      .definition-title {
+        font-size: 1.4rem;
+        font-weight: 500;
+        margin-bottom: 15px;
+      }
+
+      .definition-content {
+        font-size: 1.1rem;
+        line-height: 1.6;
+      }
+
+      .analogy {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        gap: 20px;
+      }
+
+      .analogy-item {
+        flex: 1;
+        text-align: center;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+      }
+
+      .analogy-item:hover {
+        transform: translateY(-5px);
+      }
+
+      .analogy-icon {
+        font-size: 2.5rem;
+        color: #3498db;
+        margin-bottom: 15px;
+      }
+
+      .analogy-label {
+        font-weight: 500;
+        font-size: 1.1rem;
+      }
+
+      .hardware-types {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .hardware-type {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+      }
+
+      .hardware-type:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .hardware-type-icon {
+        font-size: 2.5rem;
+        color: #3498db;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+
+      .hardware-type-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      .hardware-type-description {
+        font-size: 0.95rem;
+        color: #666;
+        margin-bottom: 15px;
+        line-height: 1.5;
+      }
+
+      .hardware-type-examples {
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+      }
+
+      .hardware-type-examples strong {
+        color: #3498db;
+      }
+
+      .real-examples {
+        display: flex;
+        gap: 30px;
+        margin-top: 20px;
+      }
+
+      .real-example {
+        flex: 1;
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      .real-example-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .real-example-title i {
+        margin-right: 10px;
+        color: #3498db;
+      }
+
+      .hardware-components {
+        margin-top: 15px;
+      }
+
+      .component {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        padding: 10px;
+        border-radius: 8px;
+        background: #f8f9fa;
+        transition: background 0.3s ease;
+      }
+
+      .component:hover {
+        background: #e9ecef;
+      }
+
+      .component-icon {
+        width: 30px;
+        text-align: center;
+        color: #3498db;
+        margin-right: 15px;
+        font-size: 1.1rem;
+      }
+
+      .component-name {
+        font-weight: 500;
+        color: #333;
+        flex: 1;
+      }
+
+      .component-type {
+        font-size: 0.9rem;
+        color: #666;
+        background: #e9ecef;
+        padding: 4px 10px;
+        border-radius: 20px;
+      }
+
+      .summary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-top: 30px;
+      }
+
+      .summary-title {
+        font-size: 1.6rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .summary-content {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .example-flow {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .flow-step {
+        flex: 1;
+        min-width: 150px;
+        text-align: center;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+      }
+
+      .flow-step-icon {
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+      }
+
+      .flow-step-text {
+        font-size: 0.95rem;
+      }
+
+      .arrow {
+        display: flex;
+        align-items: center;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.5rem;
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          flex-direction: column;
+          text-align: center;
+          padding: 20px;
+        }
+
+        .header-icon {
+          margin-right: 0;
+          margin-bottom: 15px;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .real-examples {
+          flex-direction: column;
+        }
+
+        .example-flow {
+          flex-direction: column;
+        }
+
+        .arrow {
+          transform: rotate(90deg);
+          margin: 10px 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="header-icon">
+          <i class="fas fa-microchip"></i>
+        </div>
+        <div>
+          <h1>Computer Hardware</h1>
+          <p>The Physical Components of Computing Systems</p>
+        </div>
+      </div>
+
+      <div class="slide">
+        <!-- Section 1: What is Computer Hardware? -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-question-circle"></i>
+            What is Computer Hardware?
+          </div>
+
+          <div class="definition-box">
+            <div class="definition-title">Definition</div>
+            <div class="definition-content">
+              Hardware is the physical, touchable components of a computer
+              system. It's everything you can see and touch — like the keyboard,
+              monitor, mouse, CPU cabinet, etc.
+            </div>
+
+            <div class="analogy">
+              <div class="analogy-item">
+                <div class="analogy-icon">
+                  <i class="fas fa-desktop"></i>
+                </div>
+                <div class="analogy-label">Hardware → The Body</div>
+              </div>
+              <div class="analogy-item">
+                <div class="analogy-icon">
+                  <i class="fas fa-brain"></i>
+                </div>
+                <div class="analogy-label">Software → The Brain</div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            style="
+              background: #f8f9fa;
+              padding: 20px;
+              border-radius: 10px;
+              border-left: 4px solid #3498db;
+            "
+          >
+            <div style="font-weight: 500; margin-bottom: 10px; color: #2c3e50">
+              Example:
+            </div>
+            <p style="margin-bottom: 10px">
+              A keyboard (hardware) lets you type letters. The typing software
+              (MS Word) shows the letters on screen.
+            </p>
+            <ul style="padding-left: 20px; line-height: 1.6">
+              <li>Without hardware, software cannot run</li>
+              <li>Without software, hardware is useless</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Section 2: Types of Hardware -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-list"></i>
+            Types of Hardware
+          </div>
+
+          <div class="hardware-types">
+            <!-- Input Devices -->
+            <div class="hardware-type">
+              <div class="hardware-type-icon">
+                <i class="fas fa-keyboard"></i>
+              </div>
+              <div class="hardware-type-title">Input Devices</div>
+              <div class="hardware-type-description">
+                Used to give data/instructions to the computer
+              </div>
+              <div class="hardware-type-examples">
+                <strong>Examples:</strong> Keyboard, Mouse, Scanner, Microphone
+                <div style="margin-top: 10px; font-size: 0.85rem; color: #777">
+                  <i
+                    class="fas fa-info-circle"
+                    style="color: #3498db; margin-right: 5px"
+                  ></i>
+                  When you press "A", binary code (01000001) goes to CPU
+                </div>
+              </div>
+            </div>
+
+            <!-- Output Devices -->
+            <div class="hardware-type">
+              <div class="hardware-type-icon">
+                <i class="fas fa-tv"></i>
+              </div>
+              <div class="hardware-type-title">Output Devices</div>
+              <div class="hardware-type-description">
+                Show the processed results from the computer
+              </div>
+              <div class="hardware-type-examples">
+                <strong>Examples:</strong> Monitor/Screen, Printer, Speakers,
+                Projector
+                <div style="margin-top: 10px; font-size: 0.85rem; color: #777">
+                  <i
+                    class="fas fa-info-circle"
+                    style="color: #3498db; margin-right: 5px"
+                  ></i>
+                  Press Ctrl+P to print your document
+                </div>
+              </div>
+            </div>
+
+            <!-- Processing Devices -->
+            <div class="hardware-type">
+              <div class="hardware-type-icon">
+                <i class="fas fa-microchip"></i>
+              </div>
+              <div class="hardware-type-title">Processing Devices (CPU)</div>
+              <div class="hardware-type-description">
+                The brain of the computer, processes data and controls all
+                activities
+              </div>
+              <div class="hardware-type-examples">
+                <strong>CPU Components:</strong><br />
+                • ALU (Arithmetic Logic Unit)<br />
+                • CU (Control Unit)<br />
+                • Registers & Cache
+                <div style="margin-top: 10px; font-size: 0.85rem; color: #777">
+                  <i
+                    class="fas fa-info-circle"
+                    style="color: #3498db; margin-right: 5px"
+                  ></i>
+                  ALU solves: 5 + 3 = 8
+                </div>
+              </div>
+            </div>
+
+            <!-- Storage Devices -->
+            <div class="hardware-type">
+              <div class="hardware-type-icon">
+                <i class="fas fa-database"></i>
+              </div>
+              <div class="hardware-type-title">Storage Devices</div>
+              <div class="hardware-type-description">
+                Used to store data permanently or temporarily
+              </div>
+              <div class="hardware-type-examples">
+                <strong>Primary (Volatile):</strong> RAM<br />
+                <strong>Secondary (Permanent):</strong> HDD, SSD<br />
+                <strong>External:</strong> Pen drive, CD, DVD
+                <div style="margin-top: 10px; font-size: 0.85rem; color: #777">
+                  <i
+                    class="fas fa-info-circle"
+                    style="color: #3498db; margin-right: 5px"
+                  ></i>
+                  Chrome pages load into RAM
+                </div>
+              </div>
+            </div>
+
+            <!-- Communication Devices -->
+            <div class="hardware-type">
+              <div class="hardware-type-icon">
+                <i class="fas fa-wifi"></i>
+              </div>
+              <div class="hardware-type-title">Communication Devices</div>
+              <div class="hardware-type-description">
+                Used to connect and share data between computers
+              </div>
+              <div class="hardware-type-examples">
+                <strong>Examples:</strong> Network Interface Card (NIC), Wi-Fi
+                adapter, Modem
+                <div style="margin-top: 10px; font-size: 0.85rem; color: #777">
+                  <i
+                    class="fas fa-info-circle"
+                    style="color: #3498db; margin-right: 5px"
+                  ></i>
+                  Wi-Fi connects you to YouTube
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Hardware Examples in Real Life -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-globe"></i>
+            Hardware Examples in Real Life
+          </div>
+
+          <div class="real-examples">
+            <!-- ATM Machine -->
+            <div class="real-example">
+              <div class="real-example-title">
+                <i class="fas fa-credit-card"></i>
+                ATM Machine
+              </div>
+              <div class="hardware-components">
+                <div class="component">
+                  <div class="component-icon">
+                    <i class="fas fa-sign-in-alt"></i>
+                  </div>
+                  <div class="component-name">Keypad, Card Reader</div>
+                  <div class="component-type">Input</div>
+                </div>
+                <div class="component">
+                  <div class="component-icon">
+                    <i class="fas fa-tv"></i>
+                  </div>
+                  <div class="component-name">Screen, Receipt Printer</div>
+                  <div class="component-type">Output</div>
+                </div>
+                <div class="component">
+                  <div class="component-icon">
+                    <i class="fas fa-microchip"></i>
+                  </div>
+                  <div class="component-name">CPU inside ATM</div>
+                  <div class="component-type">Processing</div>
+                </div>
+                <div class="component">
+                  <div class="component-icon">
+                    <i class="fas fa-database"></i>
+                  </div>
+                  <div class="component-name">ATM's hard disk</div>
+                  <div class="component-type">Storage</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Smartphone -->
+            <div class="real-example">
+              <div class="real-example-title">
+                <i class="fas fa-mobile-alt"></i>
+                Smartphone
+              </div>
+              <div class="hardware-components">
+                <div class="component">
+                  <div class="component-icon">
+                    <i class="fas fa-sign-in-alt"></i>
+                  </div>
+                  <div class="component-name">
+                    Touchscreen, Camera, Microphone
+                  </div>
+                  <div class="component-type">Input</div>
+                </div>
+                <div class="component">
+                  <div class="component-icon">
+                    <i class="fas fa-tv"></i>
+                  </div>
+                  <div class="component-name">Screen, Speaker</div>
+                  <div class="component-type">Output</div>
+                </div>
+                <div class="component">
+                  <div class="component-icon">
+                    <i class="fas fa-microchip"></i>
+                  </div>
+                  <div class="component-name">Mobile Processor (CPU)</div>
+                  <div class="component-type">Processing</div>
+                </div>
+                <div class="component">
+                  <div class="component-icon">
+                    <i class="fas fa-database"></i>
+                  </div>
+                  <div class="component-name">Internal memory, SD card</div>
+                  <div class="component-type">Storage</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 4: Summary -->
+        <div class="summary">
+          <div class="summary-title">
+            <i class="fas fa-check-circle" style="margin-right: 10px"></i>
+            Summary
+          </div>
+          <div class="summary-content">
+            Computer hardware = Input + Output + Processing + Storage +
+            Communication devices
+          </div>
+
+          <div class="example-flow">
+            <div class="flow-step">
+              <div class="flow-step-icon">
+                <i class="fas fa-keyboard"></i>
+              </div>
+              <div class="flow-step-text">Keyboard (input) sends signal</div>
+            </div>
+
+            <div class="arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+
+            <div class="flow-step">
+              <div class="flow-step-icon">
+                <i class="fas fa-microchip"></i>
+              </div>
+              <div class="flow-step-text">CPU (processor) processes it</div>
+            </div>
+
+            <div class="arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+
+            <div class="flow-step">
+              <div class="flow-step-icon">
+                <i class="fas fa-memory"></i>
+              </div>
+              <div class="flow-step-text">RAM (memory) stores temporarily</div>
+            </div>
+
+            <div class="arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+
+            <div class="flow-step">
+              <div class="flow-step-icon">
+                <i class="fas fa-tv"></i>
+              </div>
+              <div class="flow-step-text">Monitor (output) displays it</div>
+            </div>
+
+            <div class="arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+
+            <div class="flow-step">
+              <div class="flow-step-icon">
+                <i class="fas fa-hdd"></i>
+              </div>
+              <div class="flow-step-text">Hard disk saves permanently</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

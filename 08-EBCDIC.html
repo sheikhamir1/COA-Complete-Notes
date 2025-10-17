@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EBCDIC Presentation</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: #333;
+        overflow-y: auto;
+        min-height: 100vh;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header {
+        background: linear-gradient(90deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        padding: 25px 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+      }
+
+      .header-icon {
+        font-size: 3rem;
+        margin-right: 20px;
+        color: #3498db;
+        background: white;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+      }
+
+      .header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-top: 5px;
+      }
+
+      .slide {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        margin-bottom: 30px;
+      }
+
+      .section {
+        margin-bottom: 40px;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      .section-title i {
+        margin-right: 15px;
+        color: #3498db;
+        font-size: 1.6rem;
+      }
+
+      .definition-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+      }
+
+      .definition-title {
+        font-size: 1.4rem;
+        font-weight: 500;
+        margin-bottom: 15px;
+      }
+
+      .definition-content {
+        font-size: 1.1rem;
+        line-height: 1.6;
+      }
+
+      .example-box {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 15px;
+        border-left: 4px solid #3498db;
+      }
+
+      .example-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .example-title i {
+        margin-right: 10px;
+        color: #3498db;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        margin-top: 20px;
+      }
+
+      .info-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+        height: 100%;
+      }
+
+      .info-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .info-icon {
+        font-size: 2rem;
+        color: #3498db;
+        margin-bottom: 15px;
+      }
+
+      .info-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+      }
+
+      .info-content {
+        font-size: 1rem;
+        color: #555;
+        line-height: 1.6;
+      }
+
+      .connection-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        margin-top: 20px;
+      }
+
+      .connection-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+        height: 100%;
+      }
+
+      .connection-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .connection-icon {
+        font-size: 2rem;
+        color: #3498db;
+        margin-bottom: 15px;
+      }
+
+      .connection-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+      }
+
+      .connection-content {
+        font-size: 1rem;
+        color: #555;
+        line-height: 1.6;
+      }
+
+      .pros-cons {
+        display: flex;
+        gap: 30px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .pros,
+      .cons {
+        flex: 1;
+        min-width: 300px;
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      .pros {
+        border-top: 5px solid #2ecc71;
+      }
+
+      .cons {
+        border-top: 5px solid #e74c3c;
+      }
+
+      .pros-cons-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+      }
+
+      .pros .pros-cons-title {
+        color: #27ae60;
+      }
+
+      .cons .pros-cons-title {
+        color: #c0392b;
+      }
+
+      .pros-cons-title i {
+        margin-right: 10px;
+      }
+
+      .pros-cons-list {
+        list-style: none;
+      }
+
+      .pros-cons-list li {
+        margin-bottom: 12px;
+        padding-left: 25px;
+        position: relative;
+        line-height: 1.5;
+      }
+
+      .pros-cons-list li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 8px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+
+      .pros .pros-cons-list li::before {
+        background: #2ecc71;
+      }
+
+      .cons .pros-cons-list li::before {
+        background: #e74c3c;
+      }
+
+      .ebcdic-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      .ebcdic-table th {
+        background: #3498db;
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 500;
+      }
+
+      .ebcdic-table td {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .ebcdic-table tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+
+      .ebcdic-table tr:hover {
+        background-color: #e9f7fe;
+      }
+
+      .binary-code {
+        font-family: "Courier New", monospace;
+        background: #f1f2f6;
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      .real-world-examples {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .example-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+      }
+
+      .example-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .example-icon {
+        font-size: 2rem;
+        color: #3498db;
+        margin-bottom: 15px;
+      }
+
+      .example-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+      }
+
+      .example-content {
+        font-size: 1rem;
+        color: #555;
+        line-height: 1.6;
+      }
+
+      .summary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-top: 30px;
+      }
+
+      .summary-title {
+        font-size: 1.6rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .summary-content {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .key-points {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .key-point {
+        flex: 1;
+        min-width: 200px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .highlight {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          flex-direction: column;
+          text-align: center;
+          padding: 20px;
+        }
+
+        .header-icon {
+          margin-right: 0;
+          margin-bottom: 15px;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .info-grid,
+        .connection-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .pros-cons {
+          flex-direction: column;
+        }
+
+        .real-world-examples {
+          grid-template-columns: 1fr;
+        }
+
+        .key-points {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="header-icon">
+          <i class="fas fa-code"></i>
+        </div>
+        <div>
+          <h1>EBCDIC</h1>
+          <p>Extended Binary Coded Decimal Interchange Code</p>
+        </div>
+      </div>
+
+      <div class="slide">
+        <!-- Section: What is EBCDIC? -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-question-circle"></i>
+            What is EBCDIC?
+          </div>
+
+          <div class="definition-box">
+            <div class="definition-title">Definition</div>
+            <div class="definition-content">
+              <strong>Full form:</strong> Extended Binary Coded Decimal
+              Interchange Code<br />
+              <strong>Type:</strong> 8-bit character encoding (0–255 possible
+              values)<br />
+              <strong>Origin:</strong> Introduced by IBM in 1964 for the
+              System/360 mainframe computers<br />
+              <strong>Purpose:</strong> To represent letters, numbers,
+              punctuation, and control characters in binary form
+            </div>
+          </div>
+
+          <div class="example-box">
+            <div class="example-title">
+              <i class="fas fa-lightbulb"></i>
+              Why was it created?
+            </div>
+            Its predecessor BCDIC (Binary-Coded Decimal Interchange Code) was
+            6-bit and limited (only 64 symbols). IBM extended it to 8 bits →
+            allowing 256 different symbols (suitable for international
+            characters, symbols, and control codes).
+          </div>
+        </div>
+
+        <!-- Section: How EBCDIC Works -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-cogs"></i>
+            How EBCDIC Works
+          </div>
+
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="info-icon">
+                <i class="fas fa-microchip"></i>
+              </div>
+              <div class="info-title">Binary Representation</div>
+              <div class="info-content">
+                Every character (A–Z, 0–9, symbols, etc.) is assigned a unique
+                8-bit binary code. Text is stored/transmitted as a sequence of
+                8-bit values.
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-icon">
+                <i class="fas fa-table"></i>
+              </div>
+              <div class="info-title">Lookup Table</div>
+              <div class="info-content">
+                A lookup table (mapping table) tells the computer which binary
+                pattern corresponds to which character.
+              </div>
+            </div>
+          </div>
+
+          <table class="ebcdic-table">
+            <thead>
+              <tr>
+                <th>Character</th>
+                <th>EBCDIC Code (binary)</th>
+                <th>Decimal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>'A'</td>
+                <td><span class="binary-code">1100 0001</span></td>
+                <td>193</td>
+              </tr>
+              <tr>
+                <td>'W'</td>
+                <td><span class="binary-code">1110 0111</span></td>
+                <td>231</td>
+              </tr>
+              <tr>
+                <td>'0'</td>
+                <td><span class="binary-code">1111 0000</span></td>
+                <td>240</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="example-box">
+            <div class="example-title">
+              <i class="fas fa-keyboard"></i>
+              Example: "WORLD" in EBCDIC
+            </div>
+            <div
+              style="font-family: 'Courier New', monospace; margin-top: 10px"
+            >
+              W → <span class="binary-code">11100111</span><br />
+              O → <span class="binary-code">11001111</span><br />
+              R → <span class="binary-code">11010010</span><br />
+              L → <span class="binary-code">11000100</span><br />
+              D → <span class="binary-code">11000011</span>
+            </div>
+            <div style="margin-top: 10px">
+              The CPU stores/transmits these binary numbers, not the letters.
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Real-World Examples -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-globe"></i>
+            Real-World Examples
+          </div>
+
+          <div class="real-world-examples">
+            <div class="example-card">
+              <div class="example-icon">
+                <i class="fas fa-university"></i>
+              </div>
+              <div class="example-title">Banking Systems</div>
+              <div class="example-content">
+                Many bank mainframes still store customer records in EBCDIC
+                format.
+              </div>
+            </div>
+
+            <div class="example-card">
+              <div class="example-icon">
+                <i class="fas fa-plane"></i>
+              </div>
+              <div class="example-title">Airline Reservation</div>
+              <div class="example-content">
+                Global distribution systems (like Sabre, Amadeus) were
+                originally EBCDIC-based.
+              </div>
+            </div>
+
+            <div class="example-card">
+              <div class="example-icon">
+                <i class="fas fa-file-contract"></i>
+              </div>
+              <div class="example-title">Insurance & Government</div>
+              <div class="example-content">
+                Decades-old COBOL applications still rely on EBCDIC.
+              </div>
+            </div>
+
+            <div class="example-card">
+              <div class="example-icon">
+                <i class="fas fa-exchange-alt"></i>
+              </div>
+              <div class="example-title">Data Exchange</div>
+              <div class="example-content">
+                Old tape archives and punched cards use EBCDIC encoding.
+              </div>
+            </div>
+          </div>
+
+          <div class="example-box">
+            <div class="example-title">
+              <i class="fas fa-exclamation-triangle"></i>
+              Compatibility Challenge
+            </div>
+            If two banks share customer files, and one uses ASCII while the
+            other uses EBCDIC, they need translation middleware (EBCDIC ⇔ ASCII)
+            to avoid misinterpreting characters.
+          </div>
+        </div>
+
+        <!-- Section: Connection with Computer Organization & Architecture -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-microchip"></i>
+            Connection with Computer Organization & Architecture (COA)
+          </div>
+
+          <div class="connection-grid">
+            <div class="connection-card">
+              <div class="connection-icon">
+                <i class="fas fa-cogs"></i>
+              </div>
+              <div class="connection-title">
+                Instruction Set Architecture (ISA)
+              </div>
+              <div class="connection-content">
+                IBM System/360 ISA included instructions that operated directly
+                on EBCDIC codes, like compare, move, and translate instructions.
+                <br /><br />
+                Example: TR (Translate) instruction could convert characters
+                from one code page to another.
+              </div>
+            </div>
+
+            <div class="connection-card">
+              <div class="connection-icon">
+                <i class="fas fa-memory"></i>
+              </div>
+              <div class="connection-title">Memory Organization</div>
+              <div class="connection-content">
+                Since EBCDIC is 8-bit fixed width, IBM mainframes standardized
+                on byte = 8 bits.
+                <br /><br />
+                This influenced memory word size and addressing in COA.
+              </div>
+            </div>
+
+            <div class="connection-card">
+              <div class="connection-icon">
+                <i class="fas fa-print"></i>
+              </div>
+              <div class="connection-title">I/O Systems</div>
+              <div class="connection-content">
+                IBM card readers, printers, and tape drives used EBCDIC as their
+                default encoding.
+                <br /><br />
+                Hardware controllers had to recognize and convert EBCDIC
+                automatically.
+              </div>
+            </div>
+
+            <div class="connection-card">
+              <div class="connection-icon">
+                <i class="fas fa-sync-alt"></i>
+              </div>
+              <div class="connection-title">Compatibility</div>
+              <div class="connection-content">
+                Once IBM mainframes dominated the market, other vendors had to
+                build hardware/software compatibility layers to handle EBCDIC
+                data.
+                <br /><br />
+                This shaped architecture choices in data exchange and system
+                interconnect.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Advantages vs. Disadvantages -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-balance-scale"></i>
+            Advantages vs. Disadvantages
+          </div>
+
+          <div class="pros-cons">
+            <div class="pros">
+              <div class="pros-cons-title">
+                <i class="fas fa-check-circle"></i>
+                Advantages
+              </div>
+              <ul class="pros-cons-list">
+                <li>
+                  Perfect for legacy support → thousands of COBOL mainframe
+                  applications still rely on it
+                </li>
+                <li>
+                  Reliable & stable → same encoding scheme has worked for 50+
+                  years
+                </li>
+                <li>
+                  Supported internationalization earlier than ASCII (7-bit)
+                </li>
+              </ul>
+            </div>
+
+            <div class="cons">
+              <div class="pros-cons-title">
+                <i class="fas fa-times-circle"></i>
+                Disadvantages
+              </div>
+              <ul class="pros-cons-list">
+                <li>
+                  Not widely used outside IBM mainframes → poor compatibility
+                  with modern PCs
+                </li>
+                <li>Translation overhead needed (EBCDIC ⇔ ASCII)</li>
+                <li>
+                  Fewer people today know how to work with EBCDIC → talent
+                  shortage
+                </li>
+                <li>Migration to modern systems is complex and risky</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Conclusion -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-flag-checkered"></i>
+            Conclusion
+          </div>
+
+          <div class="summary">
+            <div class="summary-title">Key Takeaways</div>
+            <div class="summary-content">
+              EBCDIC = IBM's legacy 8-bit encoding, designed for mainframes in
+              the 1960s. Still alive in banking, insurance, airlines, and
+              government because of massive legacy systems.
+            </div>
+
+            <div class="key-points">
+              <div class="key-point">Influenced ISA design</div>
+              <div class="key-point">
+                Shaped memory architecture (byte = 8 bits)
+              </div>
+              <div class="key-point">
+                Required I/O devices to be encoding-aware
+              </div>
+              <div class="key-point">
+                Real-world example of encoding choices influencing hardware for
+                decades
+              </div>
+            </div>
+          </div>
+
+          <div class="example-box">
+            <div class="example-title">
+              <i class="fas fa-lightbulb"></i>
+              In Simple Words
+            </div>
+            EBCDIC is not just history — it's a real-world example of how
+            encoding choices influence hardware, architecture, and software for
+            decades.
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

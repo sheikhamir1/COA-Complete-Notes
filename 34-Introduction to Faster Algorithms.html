@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Introduction to Faster Algorithms</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --success-color: #2ecc71;
+        --warning-color: #f39c12;
+        --info-color: #9b59b6;
+        --text-color: #333;
+        --light-bg: #f8f9fa;
+        --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        color: var(--text-color);
+        background-color: var(--light-bg);
+        overflow-x: hidden;
+      }
+
+      .slide-container {
+        width: 100%;
+        height: 100vh;
+        overflow-y: scroll;
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+      }
+
+      .slide {
+        min-height: 100vh;
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        scroll-snap-align: start;
+        position: relative;
+        background-color: white;
+      }
+
+      .slide:nth-child(even) {
+        background-color: var(--light-bg);
+      }
+
+      .slide-content {
+        max-width: 900px;
+        width: 100%;
+        text-align: center;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      h1 {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+        position: relative;
+        display: inline-block;
+      }
+
+      h1::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(
+          90deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        border-radius: 2px;
+      }
+
+      h2 {
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+        color: var(--primary-color);
+      }
+
+      h3 {
+        font-size: 1.8rem;
+        margin: 25px 0 15px;
+        color: var(--secondary-color);
+        position: relative;
+        display: inline-block;
+      }
+
+      p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .emoji {
+        font-size: 1.5rem;
+        vertical-align: middle;
+        margin: 0 5px;
+      }
+
+      .card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: left;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+
+      .algorithm-card {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 8px;
+        background-color: var(--light-bg);
+        transition: all 0.3s ease;
+      }
+
+      .algorithm-card:hover {
+        background-color: #e9ecef;
+        transform: translateX(10px);
+      }
+
+      .algorithm-icon {
+        font-size: 2rem;
+        margin-right: 20px;
+        color: var(--secondary-color);
+      }
+
+      .algorithm-details {
+        flex: 1;
+      }
+
+      .algorithm-name {
+        font-weight: 600;
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+      }
+
+      .navigation {
+        position: fixed;
+        right: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+      }
+
+      .nav-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #ccc;
+        margin: 15px 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .nav-dot.active {
+        background-color: var(--primary-color);
+        transform: scale(1.3);
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .feature-card {
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        text-align: center;
+      }
+
+      .feature-card:hover {
+        transform: scale(1.05);
+      }
+
+      .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+      }
+
+      .complexity-box {
+        background-color: var(--light-bg);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        position: relative;
+      }
+
+      .complexity-title {
+        font-weight: 600;
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+        color: var(--primary-color);
+      }
+
+      .complexity-value {
+        font-family: "Courier New", monospace;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--accent-color);
+        display: inline-block;
+        padding: 5px 15px;
+        background-color: white;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .summary-box {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        margin-top: 30px;
+        box-shadow: var(--card-shadow);
+      }
+
+      .highlight {
+        background-color: rgba(52, 152, 219, 0.2);
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      .floating {
+        animation: floating 3s ease-in-out infinite;
+      }
+
+      @keyframes floating {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+
+      .pulse {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .slide-number {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        font-size: 1rem;
+        color: #888;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background-color: #ecf0f1;
+        border-radius: 4px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        border-radius: 4px;
+        background: linear-gradient(
+          90deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        animation: fillBar 2s ease-out;
+      }
+
+      @keyframes fillBar {
+        from {
+          width: 0;
+        }
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background-color: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ecf0f1;
+      }
+
+      .comparison-table th {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .comparison-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .comparison-table tr:hover {
+        background-color: #f8f9fa;
+      }
+
+      .algorithm-visual {
+        width: 100%;
+        height: 150px;
+        background-color: var(--light-bg);
+        border-radius: 8px;
+        margin: 15px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .bar {
+        position: absolute;
+        bottom: 0;
+        width: 20px;
+        background-color: var(--secondary-color);
+        border-radius: 4px 4px 0 0;
+        transition: height 1s ease-out;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2.5rem;
+        }
+        h2 {
+          font-size: 2rem;
+        }
+        h3 {
+          font-size: 1.5rem;
+        }
+        .slide {
+          padding: 40px 20px;
+        }
+        .navigation {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <!-- Slide 1: Title -->
+      <div class="slide" id="slide1">
+        <div class="slide-content">
+          <h1 class="floating">Introduction to Faster Algorithms</h1>
+          <p class="emoji" style="font-size: 3rem">⚡ 🚀 💡</p>
+          <p style="font-size: 1.3rem; margin-top: 30px">
+            Optimizing computational efficiency for better performance
+          </p>
+          <div class="algorithm-visual" id="sorting-visual">
+            <!-- Bars will be added by JavaScript -->
+          </div>
+        </div>
+        <div class="slide-number">1/8</div>
+      </div>
+
+      <!-- Slide 2: Definition -->
+      <div class="slide" id="slide2">
+        <div class="slide-content">
+          <h2>Definition of Faster Algorithms</h2>
+          <div class="card pulse">
+            <p>
+              <span class="emoji">📝</span> A faster algorithm is an improved
+              way of solving a problem that reduces the
+              <span class="highlight">time complexity</span> (speed of
+              execution) or
+              <span class="highlight">space complexity</span> (memory used)
+              compared to basic methods.
+            </p>
+          </div>
+
+          <div class="grid-container">
+            <div class="complexity-box">
+              <div class="complexity-title">Time Complexity</div>
+              <p>How execution time grows as input size increases.</p>
+              <div class="complexity-value">O(n²) vs O(n log n)</div>
+            </div>
+
+            <div class="complexity-box">
+              <div class="complexity-title">Space Complexity</div>
+              <p>How much memory is used as input size increases.</p>
+              <div class="complexity-value">O(n) vs O(1)</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <p>
+              <span class="emoji">📌</span> <strong>Example: Sorting</strong>
+            </p>
+            <p>Normal bubble sort takes O(n²).</p>
+            <p>Faster quicksort/merge sort takes O(n log n).</p>
+            <p>
+              So, faster algorithms let us solve larger problems more
+              efficiently.
+            </p>
+          </div>
+        </div>
+        <div class="slide-number">2/8</div>
+      </div>
+
+      <!-- Slide 3: Importance -->
+      <div class="slide" id="slide3">
+        <div class="slide-content">
+          <h2>Importance of Faster Algorithms</h2>
+          <p>Faster algorithms are vital in:</p>
+
+          <div class="grid-container">
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--info-color)">
+                📊
+              </div>
+              <h3>Big Data</h3>
+              <p>Handling millions/billions of records efficiently</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--success-color)">
+                🤖
+              </div>
+              <h3>Machine Learning</h3>
+              <p>Training models efficiently with large datasets</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--warning-color)">
+                🔐
+              </div>
+              <h3>Cryptography</h3>
+              <p>Secure communication depends on efficient math</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--accent-color)">
+                ⏱️
+              </div>
+              <h3>Real-time Systems</h3>
+              <p>Critical in robotics, trading, AI assistants</p>
+            </div>
+          </div>
+
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 95%"></div>
+          </div>
+          <p>
+            <span class="emoji">💡</span> Faster algorithms enable technologies
+            that would otherwise be impossible or impractical
+          </p>
+        </div>
+        <div class="slide-number">3/8</div>
+      </div>
+
+      <!-- Slide 4: Types -->
+      <div class="slide" id="slide4">
+        <div class="slide-content">
+          <h2>Types of Faster Algorithms</h2>
+
+          <div class="algorithm-card">
+            <div class="algorithm-icon">🔀</div>
+            <div class="algorithm-details">
+              <div class="algorithm-name">Divide and Conquer</div>
+              <p>
+                Break into subproblems → solve recursively → combine results.
+              </p>
+              <p>
+                Examples: QuickSort, MergeSort, Strassen's Matrix
+                Multiplication.
+              </p>
+            </div>
+          </div>
+
+          <div class="algorithm-card">
+            <div class="algorithm-icon">🎯</div>
+            <div class="algorithm-details">
+              <div class="algorithm-name">Greedy Algorithms</div>
+              <p>
+                Always take the locally best choice → hope it leads to a global
+                solution.
+              </p>
+              <p>
+                Examples: Dijkstra (shortest path), Prim's (minimum spanning
+                tree).
+              </p>
+            </div>
+          </div>
+
+          <div class="algorithm-card">
+            <div class="algorithm-icon">🔄</div>
+            <div class="algorithm-details">
+              <div class="algorithm-name">Dynamic Programming (DP)</div>
+              <p>
+                Break problem into overlapping subproblems → store results →
+                avoid recalculation.
+              </p>
+              <p>Example: Fibonacci using DP instead of recursion.</p>
+            </div>
+          </div>
+
+          <div class="algorithm-card">
+            <div class="algorithm-icon">🎲</div>
+            <div class="algorithm-details">
+              <div class="algorithm-name">Randomized Algorithms</div>
+              <p>Use randomness to get good average-case performance.</p>
+              <p>Example: Randomized QuickSort.</p>
+            </div>
+          </div>
+
+          <div class="algorithm-card">
+            <div class="algorithm-icon">≈</div>
+            <div class="algorithm-details">
+              <div class="algorithm-name">Approximation Algorithms</div>
+              <p>
+                Give near-optimal solutions for problems where exact solutions
+                are too expensive.
+              </p>
+              <p>Example: Traveling Salesman Problem approximations.</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">4/8</div>
+      </div>
+
+      <!-- Slide 5: Advantages and Challenges -->
+      <div class="slide" id="slide5">
+        <div class="slide-content">
+          <h2>Advantages and Challenges</h2>
+
+          <div class="grid-container">
+            <div class="card">
+              <h3><span class="emoji">✅</span> Advantages</h3>
+              <ul
+                style="
+                  text-align: left;
+                  margin: 15px 0 0 20px;
+                  line-height: 1.8;
+                "
+              >
+                <li><strong>Scalability</strong> → handle bigger inputs</li>
+                <li>
+                  <strong>Efficiency</strong> → saves CPU, memory, and energy
+                </li>
+                <li>
+                  <strong>Real-Time Use</strong> → critical in robotics, online
+                  services, and streaming
+                </li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h3><span class="emoji">⚠️</span> Challenges</h3>
+              <ul
+                style="
+                  text-align: left;
+                  margin: 15px 0 0 20px;
+                  line-height: 1.8;
+                "
+              >
+                <li>Need deep complexity analysis to ensure improvement</li>
+                <li>
+                  Implementation can be tricky (requires clever data structures)
+                </li>
+                <li>Sometimes trade-offs exist (speed vs. accuracy)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="algorithm-visual" id="advantage-visual">
+            <!-- Bars will be added by JavaScript -->
+          </div>
+        </div>
+        <div class="slide-number">5/8</div>
+      </div>
+
+      <!-- Slide 6: Faster Algorithms for Multiplication -->
+      <div class="slide" id="slide6">
+        <div class="slide-content">
+          <h2>Faster Algorithms for Multiplication</h2>
+          <p>
+            Multiplication is basic, but naive multiplication is slow for very
+            large numbers. Faster algorithms optimize it:
+          </p>
+
+          <div class="algorithm-card">
+            <div class="algorithm-icon">🔢</div>
+            <div class="algorithm-details">
+              <div class="algorithm-name">Binary Multiplication</div>
+              <p>Uses bitwise operations.</p>
+              <p>Example: Booth's Algorithm → reduces unnecessary additions.</p>
+            </div>
+          </div>
+
+          <div class="algorithm-card">
+            <div class="algorithm-icon">🔀</div>
+            <div class="algorithm-details">
+              <div class="algorithm-name">Karatsuba Algorithm</div>
+              <p>Divide-and-conquer method.</p>
+              <p>Reduces multiplications from O(n²) to about O(n^1.58).</p>
+            </div>
+          </div>
+
+          <div class="algorithm-card">
+            <div class="algorithm-icon">📊</div>
+            <div class="algorithm-details">
+              <div class="algorithm-name">Toom-Cook Multiplication</div>
+              <p>Extends Karatsuba using evaluation & interpolation.</p>
+              <p>
+                More efficient for very large numbers (used in cryptography).
+              </p>
+            </div>
+          </div>
+
+          <div class="algorithm-card">
+            <div class="algorithm-icon">〰️</div>
+            <div class="algorithm-details">
+              <div class="algorithm-name">FFT-based Multiplication</div>
+              <p>Uses Fast Fourier Transform.</p>
+              <p>Complexity: O(n log n).</p>
+              <p>
+                Extremely fast for large numbers/polynomials → used in signal
+                processing.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">6/8</div>
+      </div>
+
+      <!-- Slide 7: Faster Algorithms for Division -->
+      <div class="slide" id="slide7">
+        <div class="slide-content">
+          <h2>Faster Algorithms for Division</h2>
+          <p>
+            Division is slower than multiplication, so optimized algorithms are
+            essential:
+          </p>
+
+          <div class="algorithm-card">
+            <div class="algorithm-icon">🔢</div>
+            <div class="algorithm-details">
+              <div class="algorithm-name">Binary Division</div>
+              <p>Uses bitwise shifts and subtraction.</p>
+              <p>
+                Example: Non-Restoring Division → skips unnecessary "restoring"
+                steps.
+              </p>
+            </div>
+          </div>
+
+          <div class="algorithm-card">
+            <div class="algorithm-icon">🔄</div>
+            <div class="algorithm-details">
+              <div class="algorithm-name">Restoring Division</div>
+              <p>Old method → repeatedly subtract divisor.</p>
+              <p>Slower, but exact.</p>
+            </div>
+          </div>
+
+          <div class="algorithm-card">
+            <div class="algorithm-icon">🎛️</div>
+            <div class="algorithm-details">
+              <div class="algorithm-name">
+                SRT Division (Sweeney-Robertson-Tocher)
+              </div>
+              <p>Uses digit selection + refinement.</p>
+              <p>Faster for large operands.</p>
+            </div>
+          </div>
+
+          <div class="algorithm-card">
+            <div class="algorithm-icon">📈</div>
+            <div class="algorithm-details">
+              <div class="algorithm-name">Newton-Raphson Division</div>
+              <p>
+                Uses iterative approximation of reciprocal → multiply to get
+                division.
+              </p>
+              <p>Very fast for real numbers.</p>
+              <p>Common in scientific computing & math libraries.</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">7/8</div>
+      </div>
+
+      <!-- Slide 8: Applications -->
+      <div class="slide" id="slide8">
+        <div class="slide-content">
+          <h2>Applications of Faster Algorithms</h2>
+
+          <div class="grid-container">
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--warning-color)">
+                🔐
+              </div>
+              <h3>Cryptography</h3>
+              <p>
+                Encryption/decryption (RSA, ECC) needs fast big-number
+                multiplication/division
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--info-color)">
+                📡
+              </div>
+              <h3>Signal Processing</h3>
+              <p>FFT-based multiplication in audio/video compression</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--success-color)">
+                💻
+              </div>
+              <h3>High-Performance Computing</h3>
+              <p>Numerical simulations, weather models, AI workloads</p>
+            </div>
+          </div>
+
+          <div class="summary-box">
+            <p style="font-size: 1.3rem; margin-bottom: 20px">
+              Faster algorithms are the backbone of modern computing
+            </p>
+
+            <ul style="text-align: left; font-size: 1.1rem; line-height: 1.8">
+              <li>
+                They enable us to solve problems that were previously impossible
+              </li>
+              <li>They make technology more efficient and accessible</li>
+              <li>They continue to evolve as computing demands increase</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-number">8/8</div>
+      </div>
+    </div>
+
+    <div class="navigation">
+      <div class="nav-dot active" onclick="scrollToSlide('slide1')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide2')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide3')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide4')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide5')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide6')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide7')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide8')"></div>
+    </div>
+
+    <script>
+      // Function to scroll to a specific slide
+      function scrollToSlide(slideId) {
+        document.getElementById(slideId).scrollIntoView({ behavior: "smooth" });
+      }
+
+      // Update active navigation dot based on scroll position
+      window.addEventListener("scroll", () => {
+        const slides = document.querySelectorAll(".slide");
+        const navDots = document.querySelectorAll(".nav-dot");
+        const scrollPosition = window.scrollY + window.innerHeight / 2;
+
+        slides.forEach((slide, index) => {
+          const slideTop = slide.offsetTop;
+          const slideBottom = slideTop + slide.offsetHeight;
+
+          if (scrollPosition >= slideTop && scrollPosition < slideBottom) {
+            navDots.forEach((dot) => dot.classList.remove("active"));
+            navDots[index].classList.add("active");
+          }
+        });
+      });
+
+      // Add keyboard navigation
+      document.addEventListener("keydown", (e) => {
+        const slides = document.querySelectorAll(".slide");
+        const currentSlide = document.querySelector(".nav-dot.active");
+        const currentIndex = Array.from(
+          document.querySelectorAll(".nav-dot")
+        ).indexOf(currentSlide);
+
+        if (e.key === "ArrowDown" && currentIndex < slides.length - 1) {
+          scrollToSlide(`slide${currentIndex + 2}`);
+        } else if (e.key === "ArrowUp" && currentIndex > 0) {
+          scrollToSlide(`slide${currentIndex}`);
+        }
+      });
+
+      // Add touch/swipe support for mobile
+      let touchStartY = 0;
+      let touchEndY = 0;
+
+      document.addEventListener("touchstart", (e) => {
+        touchStartY = e.changedTouches[0].screenY;
+      });
+
+      document.addEventListener("touchend", (e) => {
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+      });
+
+      function handleSwipe() {
+        const slides = document.querySelectorAll(".slide");
+        const currentSlide = document.querySelector(".nav-dot.active");
+        const currentIndex = Array.from(
+          document.querySelectorAll(".nav-dot")
+        ).indexOf(currentSlide);
+
+        if (touchEndY < touchStartY - 50 && currentIndex < slides.length - 1) {
+          // Swipe up - go to next slide
+          scrollToSlide(`slide${currentIndex + 2}`);
+        } else if (touchEndY > touchStartY + 50 && currentIndex > 0) {
+          // Swipe down - go to previous slide
+          scrollToSlide(`slide${currentIndex}`);
+        }
+      }
+
+      // Create sorting visualization
+      function createSortingVisual() {
+        const container = document.getElementById("sorting-visual");
+        if (!container) return;
+
+        // Clear existing bars
+        container.innerHTML = "";
+
+        // Create bars
+        const barCount = 15;
+        const maxHeight = 120;
+
+        for (let i = 0; i < barCount; i++) {
+          const bar = document.createElement("div");
+          bar.className = "bar";
+          const height = Math.floor(Math.random() * maxHeight) + 20;
+          bar.style.height = "0px";
+          bar.style.left = `${i * 30 + 10}px`;
+          container.appendChild(bar);
+
+          // Animate bar height after a delay
+          setTimeout(() => {
+            bar.style.height = `${height}px`;
+          }, i * 50);
+        }
+      }
+
+      // Create advantage visualization
+      function createAdvantageVisual() {
+        const container = document.getElementById("advantage-visual");
+        if (!container) return;
+
+        // Clear existing bars
+        container.innerHTML = "";
+
+        // Create bars
+        const barCount = 10;
+        const maxHeight = 120;
+
+        for (let i = 0; i < barCount; i++) {
+          const bar = document.createElement("div");
+          bar.className = "bar";
+
+          // Create a pattern that shows improvement
+          let height;
+          if (i < barCount / 2) {
+            // First half: decreasing heights (inefficient algorithm)
+            height = maxHeight - i * 15;
+            bar.style.backgroundColor = "#e74c3c";
+          } else {
+            // Second half: increasing heights (efficient algorithm)
+            height = (i - barCount / 2) * 15 + 20;
+            bar.style.backgroundColor = "#2ecc71";
+          }
+
+          bar.style.height = "0px";
+          bar.style.left = `${i * 40 + 20}px`;
+          container.appendChild(bar);
+
+          // Animate bar height after a delay
+          setTimeout(() => {
+            bar.style.height = `${height}px`;
+          }, i * 100);
+        }
+      }
+
+      // Initialize visualizations when the page loads
+      window.addEventListener("load", () => {
+        createSortingVisual();
+        createAdvantageVisual();
+      });
+
+      // Reinitialize visualizations when slides are shown
+      const observerOptions = {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.5,
+      };
+
+      const slide1Observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            createSortingVisual();
+          }
+        });
+      }, observerOptions);
+
+      const slide5Observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            createAdvantageVisual();
+          }
+        });
+      }, observerOptions);
+
+      const slide1 = document.getElementById("slide1");
+      const slide5 = document.getElementById("slide5");
+
+      if (slide1) slide1Observer.observe(slide1);
+      if (slide5) slide5Observer.observe(slide5);
+    </script>
+  </body>
+</html>

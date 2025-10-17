@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ALU Chips - The Hardware Brain of Computation</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #3498db;
+        --secondary-color: #9b59b6;
+        --accent-color: #e74c3c;
+        --text-color: #333;
+        --light-bg: #f8f9fa;
+        --dark-bg: #2c3e50;
+        --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        color: var(--text-color);
+        background-color: var(--light-bg);
+        overflow-x: hidden;
+      }
+
+      .slide-container {
+        width: 100%;
+        height: 100vh;
+        overflow-y: scroll;
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+      }
+
+      .slide {
+        min-height: 100vh;
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        scroll-snap-align: start;
+        position: relative;
+        background-color: white;
+      }
+
+      .slide:nth-child(even) {
+        background-color: var(--light-bg);
+      }
+
+      .slide-content {
+        max-width: 900px;
+        width: 100%;
+        text-align: center;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      h1 {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+        position: relative;
+        display: inline-block;
+      }
+
+      h1::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(
+          90deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        border-radius: 2px;
+      }
+
+      h2 {
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+        color: var(--primary-color);
+      }
+
+      h3 {
+        font-size: 1.8rem;
+        margin: 25px 0 15px;
+        color: var(--secondary-color);
+        position: relative;
+        display: inline-block;
+      }
+
+      p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .emoji {
+        font-size: 1.5rem;
+        vertical-align: middle;
+        margin: 0 5px;
+      }
+
+      .card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: left;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+
+      .feature-card {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 8px;
+        background-color: var(--light-bg);
+        transition: all 0.3s ease;
+      }
+
+      .feature-card:hover {
+        background-color: #e9ecef;
+        transform: translateX(10px);
+      }
+
+      .feature-icon {
+        font-size: 2rem;
+        margin-right: 20px;
+        color: var(--secondary-color);
+      }
+
+      .feature-details {
+        flex: 1;
+      }
+
+      .feature-name {
+        font-weight: 600;
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+      }
+
+      .navigation {
+        position: fixed;
+        right: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+      }
+
+      .nav-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #ccc;
+        margin: 15px 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .nav-dot.active {
+        background-color: var(--primary-color);
+        transform: scale(1.3);
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .chip-card {
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        text-align: center;
+      }
+
+      .chip-card:hover {
+        transform: scale(1.05);
+      }
+
+      .chip-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+      }
+
+      .summary-box {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        margin-top: 30px;
+        box-shadow: var(--card-shadow);
+      }
+
+      .highlight {
+        background-color: rgba(52, 152, 219, 0.2);
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      .floating {
+        animation: floating 3s ease-in-out infinite;
+      }
+
+      @keyframes floating {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+
+      .pulse {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .slide-number {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        font-size: 1rem;
+        color: #888;
+      }
+
+      .chip-animation {
+        width: 200px;
+        height: 200px;
+        margin: 20px auto;
+        position: relative;
+        animation: rotate 20s linear infinite;
+      }
+
+      @keyframes rotate {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .chip-core {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, #3498db, #9b59b6);
+        border-radius: 10px;
+        position: relative;
+        box-shadow: 0 0 20px rgba(52, 152, 219, 0.5);
+      }
+
+      .chip-pin {
+        position: absolute;
+        width: 20px;
+        height: 40px;
+        background-color: #95a5a6;
+        border-radius: 4px;
+      }
+
+      .chip-pin:nth-child(1) {
+        top: -20px;
+        left: 40px;
+      }
+      .chip-pin:nth-child(2) {
+        top: -20px;
+        left: 90px;
+      }
+      .chip-pin:nth-child(3) {
+        top: -20px;
+        left: 140px;
+      }
+      .chip-pin:nth-child(4) {
+        bottom: -20px;
+        left: 40px;
+      }
+      .chip-pin:nth-child(5) {
+        bottom: -20px;
+        left: 90px;
+      }
+      .chip-pin:nth-child(6) {
+        bottom: -20px;
+        left: 140px;
+      }
+      .chip-pin:nth-child(7) {
+        left: -20px;
+        top: 40px;
+      }
+      .chip-pin:nth-child(8) {
+        left: -20px;
+        top: 90px;
+      }
+      .chip-pin:nth-child(9) {
+        left: -20px;
+        top: 140px;
+      }
+      .chip-pin:nth-child(10) {
+        right: -20px;
+        top: 40px;
+      }
+      .chip-pin:nth-child(11) {
+        right: -20px;
+        top: 90px;
+      }
+      .chip-pin:nth-child(12) {
+        right: -20px;
+        top: 140px;
+      }
+
+      .performance-meter {
+        width: 100%;
+        height: 30px;
+        background-color: #ecf0f1;
+        border-radius: 15px;
+        margin: 10px 0;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .performance-fill {
+        height: 100%;
+        border-radius: 15px;
+        background: linear-gradient(90deg, #3498db, #9b59b6);
+        animation: fillBar 2s ease-out;
+      }
+
+      @keyframes fillBar {
+        from {
+          width: 0;
+        }
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background-color: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ecf0f1;
+      }
+
+      .comparison-table th {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .comparison-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .comparison-table tr:hover {
+        background-color: #f8f9fa;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2.5rem;
+        }
+        h2 {
+          font-size: 2rem;
+        }
+        h3 {
+          font-size: 1.5rem;
+        }
+        .slide {
+          padding: 40px 20px;
+        }
+        .navigation {
+          display: none;
+        }
+        .chip-animation {
+          width: 150px;
+          height: 150px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <!-- Slide 1: Title -->
+      <div class="slide" id="slide1">
+        <div class="slide-content">
+          <h1 class="floating">ALU Chips</h1>
+          <p class="emoji" style="font-size: 3rem">💻 ⚙️ 🔌</p>
+          <p style="font-size: 1.3rem; margin-top: 30px">
+            The Hardware Brain of Computation
+          </p>
+          <div class="chip-animation">
+            <div class="chip-core">
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">1/8</div>
+      </div>
+
+      <!-- Slide 2: Introduction -->
+      <div class="slide" id="slide2">
+        <div class="slide-content">
+          <h2>Introduction to ALU Chips</h2>
+          <div class="card pulse">
+            <p>
+              <span class="emoji">👉</span> An ALU Chip is the
+              <span class="highlight">physical hardware implementation</span> of
+              an Arithmetic Logic Unit.
+            </p>
+            <p>
+              It is a silicon-based integrated circuit (IC) inside a
+              microprocessor or CPU.
+            </p>
+            <p>
+              It performs all arithmetic and logical operations needed to
+              execute instructions.
+            </p>
+            <p>
+              Every modern processor (Intel, AMD, ARM, etc.) has one or more ALU
+              chips as part of its CPU core.
+            </p>
+          </div>
+
+          <div class="grid-container">
+            <div class="chip-card">
+              <div class="chip-icon">🧮</div>
+              <h3>Arithmetic</h3>
+              <p>Performs mathematical operations</p>
+            </div>
+            <div class="chip-card">
+              <div class="chip-icon">🔌</div>
+              <h3>Logic</h3>
+              <p>Handles logical operations</p>
+            </div>
+            <div class="chip-card">
+              <div class="chip-icon">⚙️</div>
+              <h3>Hardware</h3>
+              <p>Physical implementation in silicon</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">2/8</div>
+      </div>
+
+      <!-- Slide 3: Architecture -->
+      <div class="slide" id="slide3">
+        <div class="slide-content">
+          <h2>Architecture of an ALU Chip</h2>
+          <p>An ALU chip contains several key components:</p>
+
+          <div class="feature-card">
+            <div class="feature-icon">🧮</div>
+            <div class="feature-details">
+              <div class="feature-name">Arithmetic Unit</div>
+              <p>Performs +, −, ×, ÷, increment, decrement, etc.</p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">🔌</div>
+            <div class="feature-details">
+              <div class="feature-name">Logic Unit</div>
+              <p>Performs AND, OR, XOR, NOT, comparisons (=, <, >).</p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">↔️</div>
+            <div class="feature-details">
+              <div class="feature-name">Shifter</div>
+              <p>Handles bit shifts (left, right, arithmetic shift, rotate).</p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">📋</div>
+            <div class="feature-details">
+              <div class="feature-name">Registers (inside ALU)</div>
+              <p>
+                Temporary storage for operands and results (e.g., operand
+                register A, operand register B, result register R).
+              </p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">🎛️</div>
+            <div class="feature-details">
+              <div class="feature-name">Control Unit (for ALU)</div>
+              <p>
+                Interprets signals from CPU's main control unit to decide which
+                operation the ALU should execute.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">3/8</div>
+      </div>
+
+      <!-- Slide 4: Features -->
+      <div class="slide" id="slide4">
+        <div class="slide-content">
+          <h2>Features of Modern ALU Chips</h2>
+          <p>Modern ALUs are far more advanced than early ones:</p>
+
+          <div class="grid-container">
+            <div class="card">
+              <h3><span class="emoji">⏱️</span> Pipelining</h3>
+              <p>
+                Breaks execution into stages so multiple instructions are
+                processed simultaneously.
+              </p>
+              <div class="performance-meter">
+                <div class="performance-fill" style="width: 90%"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3><span class="emoji">⚡</span> Parallelism</h3>
+              <p>
+                Some CPUs have multiple ALUs working in parallel to boost
+                performance.
+              </p>
+              <div class="performance-meter">
+                <div class="performance-fill" style="width: 85%"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3><span class="emoji">🔋</span> Power Efficiency</h3>
+              <p>
+                Optimized designs reduce power use, especially important for
+                laptops & mobile devices.
+              </p>
+              <div class="performance-meter">
+                <div class="performance-fill" style="width: 80%"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3><span class="emoji">🔢</span> Integrated FPU</h3>
+              <p>
+                Floating Point Unit handles real numbers (e.g., 3.14, 0.001),
+                used in graphics, AI, and scientific computing.
+              </p>
+              <div class="performance-meter">
+                <div class="performance-fill" style="width: 95%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">4/8</div>
+      </div>
+
+      <!-- Slide 5: Integration -->
+      <div class="slide" id="slide5">
+        <div class="slide-content">
+          <h2>Integration of ALU in a CPU</h2>
+          <p>
+            An ALU doesn't work alone—it's part of the CPU core. It interacts
+            with:
+          </p>
+
+          <div class="feature-card">
+            <div class="feature-icon">📥</div>
+            <div class="feature-details">
+              <div class="feature-name">Instruction Fetch Unit (IFU)</div>
+              <p>Fetches instructions from memory.</p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">📋</div>
+            <div class="feature-details">
+              <div class="feature-name">Register File</div>
+              <p>Provides operands (inputs) and stores results temporarily.</p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">💾</div>
+            <div class="feature-details">
+              <div class="feature-name">Cache Memory</div>
+              <p>Supplies frequently used data quickly.</p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">🎛️</div>
+            <div class="feature-details">
+              <div class="feature-name">Control Unit</div>
+              <p>Sends control signals (e.g., "do ADD", "do AND").</p>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 30px">
+            <p>
+              <span class="emoji">🔗</span> Together, these components make up
+              the <span class="highlight">execution pipeline</span> of a CPU.
+            </p>
+          </div>
+        </div>
+        <div class="slide-number">5/8</div>
+      </div>
+
+      <!-- Slide 6: Performance Metrics -->
+      <div class="slide" id="slide6">
+        <div class="slide-content">
+          <h2>Performance Metrics of ALU Chips</h2>
+          <p>How we measure ALU performance:</p>
+
+          <div class="grid-container">
+            <div class="card">
+              <h3><span class="emoji">⏱️</span> Clock Speed (GHz)</h3>
+              <p>How many cycles per second ALU can execute.</p>
+              <p>Example: 3.5 GHz = 3.5 billion cycles per second.</p>
+              <div class="performance-meter">
+                <div class="performance-fill" style="width: 95%"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3><span class="emoji">📊</span> IPC</h3>
+              <p>
+                Instructions Per Cycle - Number of instructions ALU can process
+                per clock cycle.
+              </p>
+              <div class="performance-meter">
+                <div class="performance-fill" style="width: 75%"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3><span class="emoji">⏳</span> Latency</h3>
+              <p>Time (in cycles) to finish one instruction.</p>
+              <div class="performance-meter">
+                <div class="performance-fill" style="width: 65%"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3><span class="emoji">🚀</span> Throughput</h3>
+              <p>
+                How many instructions the ALU completes per second (depends on
+                pipelining & parallelism).
+              </p>
+              <div class="performance-meter">
+                <div class="performance-fill" style="width: 90%"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3><span class="emoji">🔋</span> Power Consumption</h3>
+              <p>Important for efficiency, especially in laptops/mobiles.</p>
+              <div class="performance-meter">
+                <div class="performance-fill" style="width: 70%"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3><span class="emoji">🌡️</span> Heat Dissipation</h3>
+              <p>
+                More powerful ALUs produce more heat → need cooling (fans,
+                liquid cooling).
+              </p>
+              <div class="performance-meter">
+                <div class="performance-fill" style="width: 60%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">6/8</div>
+      </div>
+
+      <!-- Slide 7: Examples -->
+      <div class="slide" id="slide7">
+        <div class="slide-content">
+          <h2>Examples: Intel vs AMD ALUs</h2>
+
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>Intel ALUs</th>
+                <th>AMD ALUs</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Processor Lines</strong></td>
+                <td>Core i7, Xeon</td>
+                <td>Ryzen, EPYC</td>
+              </tr>
+              <tr>
+                <td><strong>Focus</strong></td>
+                <td>High-performance & instruction optimization</td>
+                <td>Parallelism & efficiency</td>
+              </tr>
+              <tr>
+                <td><strong>Strengths</strong></td>
+                <td>Single-thread performance, clock speed</td>
+                <td>Multi-core performance, multitasking</td>
+              </tr>
+              <tr>
+                <td><strong>Best For</strong></td>
+                <td>Gaming, content creation</td>
+                <td>Servers, workstations, multitasking</td>
+              </tr>
+              <tr>
+                <td><strong>Power Efficiency</strong></td>
+                <td>Good (especially 12th gen+)</td>
+                <td>Excellent (especially Ryzen 5000+)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="grid-container" style="margin-top: 30px">
+            <div class="chip-card">
+              <div class="chip-icon" style="color: #0071c5">💻</div>
+              <h3>Intel</h3>
+              <p>Focus on high clock speeds and single-core performance</p>
+            </div>
+            <div class="chip-card">
+              <div class="chip-icon" style="color: #ed1c24">💻</div>
+              <h3>AMD</h3>
+              <p>Focus on multi-core performance and efficiency</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">7/8</div>
+      </div>
+
+      <!-- Slide 8: Summary -->
+      <div class="slide" id="slide8">
+        <div class="slide-content">
+          <h2><span class="emoji">✅</span> In Summary</h2>
+
+          <div class="summary-box">
+            <p style="font-size: 1.3rem; margin-bottom: 20px">
+              An ALU chip is the hardware brain of computation inside a CPU—it
+              executes all math, logic, and bitwise operations.
+            </p>
+
+            <ul style="text-align: left; font-size: 1.1rem; line-height: 1.8">
+              <li>
+                Modern ALUs are <span class="highlight">fast</span>,
+                <span class="highlight">parallel</span>,
+                <span class="highlight">pipelined</span>, and
+                <span class="highlight">energy-efficient</span>
+              </li>
+              <li>They are the core performance driver of microprocessors</li>
+              <li>
+                Both Intel and AMD continuously innovate their ALU designs for
+                better performance
+              </li>
+              <li>
+                ALU performance is measured by clock speed, IPC, latency,
+                throughput, power consumption, and heat dissipation
+              </li>
+            </ul>
+          </div>
+
+          <div class="chip-animation" style="margin-top: 30px">
+            <div class="chip-core">
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+              <div class="chip-pin"></div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">8/8</div>
+      </div>
+    </div>
+
+    <div class="navigation">
+      <div class="nav-dot active" onclick="scrollToSlide('slide1')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide2')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide3')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide4')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide5')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide6')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide7')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide8')"></div>
+    </div>
+
+    <script>
+      // Function to scroll to a specific slide
+      function scrollToSlide(slideId) {
+        document.getElementById(slideId).scrollIntoView({ behavior: "smooth" });
+      }
+
+      // Update active navigation dot based on scroll position
+      window.addEventListener("scroll", () => {
+        const slides = document.querySelectorAll(".slide");
+        const navDots = document.querySelectorAll(".nav-dot");
+        const scrollPosition = window.scrollY + window.innerHeight / 2;
+
+        slides.forEach((slide, index) => {
+          const slideTop = slide.offsetTop;
+          const slideBottom = slideTop + slide.offsetHeight;
+
+          if (scrollPosition >= slideTop && scrollPosition < slideBottom) {
+            navDots.forEach((dot) => dot.classList.remove("active"));
+            navDots[index].classList.add("active");
+          }
+        });
+      });
+
+      // Add keyboard navigation
+      document.addEventListener("keydown", (e) => {
+        const slides = document.querySelectorAll(".slide");
+        const currentSlide = document.querySelector(".nav-dot.active");
+        const currentIndex = Array.from(
+          document.querySelectorAll(".nav-dot")
+        ).indexOf(currentSlide);
+
+        if (e.key === "ArrowDown" && currentIndex < slides.length - 1) {
+          scrollToSlide(`slide${currentIndex + 2}`);
+        } else if (e.key === "ArrowUp" && currentIndex > 0) {
+          scrollToSlide(`slide${currentIndex}`);
+        }
+      });
+
+      // Add touch/swipe support for mobile
+      let touchStartY = 0;
+      let touchEndY = 0;
+
+      document.addEventListener("touchstart", (e) => {
+        touchStartY = e.changedTouches[0].screenY;
+      });
+
+      document.addEventListener("touchend", (e) => {
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+      });
+
+      function handleSwipe() {
+        const slides = document.querySelectorAll(".slide");
+        const currentSlide = document.querySelector(".nav-dot.active");
+        const currentIndex = Array.from(
+          document.querySelectorAll(".nav-dot")
+        ).indexOf(currentSlide);
+
+        if (touchEndY < touchStartY - 50 && currentIndex < slides.length - 1) {
+          // Swipe up - go to next slide
+          scrollToSlide(`slide${currentIndex + 2}`);
+        } else if (touchEndY > touchStartY + 50 && currentIndex > 0) {
+          // Swipe down - go to previous slide
+          scrollToSlide(`slide${currentIndex}`);
+        }
+      }
+    </script>
+  </body>
+</html>

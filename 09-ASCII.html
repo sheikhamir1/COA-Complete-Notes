@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ASCII Character Encoding Presentation</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: #333;
+        overflow-y: auto;
+        min-height: 100vh;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header {
+        background: linear-gradient(90deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        padding: 25px 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+      }
+
+      .header-icon {
+        font-size: 3rem;
+        margin-right: 20px;
+        color: #3498db;
+        background: white;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+      }
+
+      .header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-top: 5px;
+      }
+
+      .slide {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        margin-bottom: 30px;
+      }
+
+      .section {
+        margin-bottom: 40px;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      .section-title i {
+        margin-right: 15px;
+        color: #3498db;
+        font-size: 1.6rem;
+      }
+
+      .definition-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+      }
+
+      .definition-title {
+        font-size: 1.4rem;
+        font-weight: 500;
+        margin-bottom: 15px;
+      }
+
+      .definition-content {
+        font-size: 1.1rem;
+        line-height: 1.6;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        margin-top: 20px;
+      }
+
+      .info-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+        height: 100%;
+      }
+
+      .info-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .info-icon {
+        font-size: 2rem;
+        color: #3498db;
+        margin-bottom: 15px;
+      }
+
+      .info-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+      }
+
+      .info-content {
+        font-size: 1rem;
+        color: #555;
+        line-height: 1.6;
+      }
+
+      .ascii-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        font-size: 0.9rem;
+      }
+
+      .ascii-table th {
+        background: #3498db;
+        color: white;
+        padding: 12px;
+        text-align: left;
+        font-weight: 500;
+      }
+
+      .ascii-table td {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .ascii-table tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+
+      .ascii-table tr:hover {
+        background-color: #e9f7fe;
+      }
+
+      .binary-code {
+        font-family: "Courier New", monospace;
+        background: #f1f2f6;
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      .comparison-table th {
+        background: #3498db;
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 500;
+      }
+
+      .comparison-table td {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        vertical-align: top;
+      }
+
+      .comparison-table tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+
+      .comparison-table tr:hover {
+        background-color: #e9f7fe;
+      }
+
+      .example-box {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 15px;
+        border-left: 4px solid #3498db;
+      }
+
+      .example-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .example-title i {
+        margin-right: 10px;
+        color: #3498db;
+      }
+
+      .code-block {
+        background: #2c3e50;
+        color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        margin: 15px 0;
+        overflow-x: auto;
+      }
+
+      .pros-cons {
+        display: flex;
+        gap: 30px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .pros,
+      .cons {
+        flex: 1;
+        min-width: 300px;
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      .pros {
+        border-top: 5px solid #2ecc71;
+      }
+
+      .cons {
+        border-top: 5px solid #e74c3c;
+      }
+
+      .pros-cons-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+      }
+
+      .pros .pros-cons-title {
+        color: #27ae60;
+      }
+
+      .cons .pros-cons-title {
+        color: #c0392b;
+      }
+
+      .pros-cons-title i {
+        margin-right: 10px;
+      }
+
+      .pros-cons-list {
+        list-style: none;
+      }
+
+      .pros-cons-list li {
+        margin-bottom: 12px;
+        padding-left: 25px;
+        position: relative;
+        line-height: 1.5;
+      }
+
+      .pros-cons-list li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 8px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+
+      .pros .pros-cons-list li::before {
+        background: #2ecc71;
+      }
+
+      .cons .pros-cons-list li::before {
+        background: #e74c3c;
+      }
+
+      .tab-container {
+        margin: 20px 0;
+      }
+
+      .tab-buttons {
+        display: flex;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 15px;
+      }
+
+      .tab-button {
+        padding: 10px 20px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #555;
+        border-bottom: 2px solid transparent;
+        transition: all 0.3s ease;
+      }
+
+      .tab-button.active {
+        color: #3498db;
+        border-bottom: 2px solid #3498db;
+      }
+
+      .tab-button:hover {
+        color: #3498db;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .summary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-top: 30px;
+      }
+
+      .summary-title {
+        font-size: 1.6rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .summary-content {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .key-points {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .key-point {
+        flex: 1;
+        min-width: 200px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .highlight {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      .last-updated {
+        font-size: 0.9rem;
+        color: #777;
+        text-align: right;
+        margin-top: 10px;
+        font-style: italic;
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          flex-direction: column;
+          text-align: center;
+          padding: 20px;
+        }
+
+        .header-icon {
+          margin-right: 0;
+          margin-bottom: 15px;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .info-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .pros-cons {
+          flex-direction: column;
+        }
+
+        .tab-buttons {
+          flex-wrap: wrap;
+        }
+
+        .key-points {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="header-icon">
+          <i class="fas fa-code"></i>
+        </div>
+        <div>
+          <h1>ASCII Character Encoding</h1>
+          <p>American Standard Code for Information Interchange</p>
+        </div>
+      </div>
+
+      <div class="slide">
+        <!-- Section: Introduction to ASCII -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-info-circle"></i>
+            What is ASCII?
+          </div>
+
+          <div class="definition-box">
+            <div class="definition-title">Definition</div>
+            <div class="definition-content">
+              ASCII stands for American Standard Code for Information
+              Interchange. It is a character encoding standard that has been a
+              foundational element in computing for decades.
+              <br /><br />
+              <strong>Key Features:</strong>
+              <ul style="padding-left: 20px; margin-top: 10px">
+                <li>Uses 7 bits to encode 128 characters (0–127)</li>
+                <li>
+                  Modern usage often stores them in 8-bit bytes with the high
+                  bit set to 0
+                </li>
+                <li>
+                  95 printable characters (32–126): letters, digits,
+                  punctuation, symbols
+                </li>
+                <li>
+                  33 control characters (0–31, 127): non-printing for formatting
+                  and control
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="info-icon">
+                <i class="fas fa-history"></i>
+              </div>
+              <div class="info-title">Historical Background</div>
+              <div class="info-content">
+                ASCII has a rich history, dating back to its development in the
+                early 1960s. Originating from telegraph code and Morse code,
+                ASCII emerged as a standardized way to represent characters in
+                computers, facilitating data interchange.
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-icon">
+                <i class="fas fa-globe"></i>
+              </div>
+              <div class="info-title">Unicode Foundation</div>
+              <div class="info-content">
+                Serves as the basis for Unicode's first 128 code points; still
+                fundamental in programming, data exchange, and legacy systems.
+              </div>
+            </div>
+          </div>
+
+          <!-- <div class="last-updated">
+                    Last Updated: 23 Jul, 2025
+                </div> -->
+        </div>
+
+        <!-- Section: ASCII Character Set -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-font"></i>
+            ASCII Character Set
+          </div>
+
+          <div class="tab-container">
+            <div class="tab-buttons">
+              <button
+                class="tab-button active"
+                onclick="openTab(event, 'control-chars')"
+              >
+                Control Characters
+              </button>
+              <button
+                class="tab-button"
+                onclick="openTab(event, 'printable-chars')"
+              >
+                Printable Characters
+              </button>
+              <button
+                class="tab-button"
+                onclick="openTab(event, 'extended-chars')"
+              >
+                Extended Characters
+              </button>
+            </div>
+
+            <div id="control-chars" class="tab-content active">
+              <div class="example-title">
+                <i class="fas fa-cogs"></i>
+                ASCII Control Characters (0-31, 127)
+              </div>
+              <p>
+                Non-printing characters used for formatting and controlling
+                devices.
+              </p>
+
+              <table class="ascii-table">
+                <thead>
+                  <tr>
+                    <th>Decimal</th>
+                    <th>Character</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>0</td>
+                    <td>NUL</td>
+                    <td>Null</td>
+                  </tr>
+                  <tr>
+                    <td>1</td>
+                    <td>SOH</td>
+                    <td>Start of Header</td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>STX</td>
+                    <td>Start of Text</td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td>ETX</td>
+                    <td>End of Text</td>
+                  </tr>
+                  <tr>
+                    <td>4</td>
+                    <td>EOT</td>
+                    <td>End of Transmit</td>
+                  </tr>
+                  <tr>
+                    <td>5</td>
+                    <td>ENQ</td>
+                    <td>Enquiry</td>
+                  </tr>
+                  <tr>
+                    <td>6</td>
+                    <td>ACK</td>
+                    <td>Acknowledge</td>
+                  </tr>
+                  <tr>
+                    <td>7</td>
+                    <td>BEL</td>
+                    <td>Bell</td>
+                  </tr>
+                  <tr>
+                    <td>8</td>
+                    <td>BS</td>
+                    <td>Backspace</td>
+                  </tr>
+                  <tr>
+                    <td>9</td>
+                    <td>HT</td>
+                    <td>Horizontal Tab</td>
+                  </tr>
+                  <tr>
+                    <td>10</td>
+                    <td>LF</td>
+                    <td>Line Feed</td>
+                  </tr>
+                  <tr>
+                    <td>13</td>
+                    <td>CR</td>
+                    <td>Carriage Return</td>
+                  </tr>
+                  <tr>
+                    <td>27</td>
+                    <td>ESC</td>
+                    <td>Escape</td>
+                  </tr>
+                  <tr>
+                    <td>127</td>
+                    <td>DEL</td>
+                    <td>Delete</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div id="printable-chars" class="tab-content">
+              <div class="example-title">
+                <i class="fas fa-keyboard"></i>
+                ASCII Printable Characters (32-126)
+              </div>
+              <p>
+                Characters that can be printed or displayed, including letters,
+                digits, punctuation, and symbols.
+              </p>
+
+              <table class="ascii-table">
+                <thead>
+                  <tr>
+                    <th>Decimal</th>
+                    <th>Character</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>32</td>
+                    <td>(space)</td>
+                    <td>Space</td>
+                  </tr>
+                  <tr>
+                    <td>33-47</td>
+                    <td>! " # $ % &amp; ' ( ) * + , - . /</td>
+                    <td>Punctuation and symbols</td>
+                  </tr>
+                  <tr>
+                    <td>48-57</td>
+                    <td>0 1 2 3 4 5 6 7 8 9</td>
+                    <td>Digits</td>
+                  </tr>
+                  <tr>
+                    <td>58-64</td>
+                    <td>: ; &lt; = &gt; ? @</td>
+                    <td>More symbols</td>
+                  </tr>
+                  <tr>
+                    <td>65-90</td>
+                    <td>A B C D E F G H I J K L M N O P Q R S T U V W X Y Z</td>
+                    <td>Uppercase letters</td>
+                  </tr>
+                  <tr>
+                    <td>91-96</td>
+                    <td>[ \ ] ^ _ `</td>
+                    <td>More symbols</td>
+                  </tr>
+                  <tr>
+                    <td>97-122</td>
+                    <td>a b c d e f g h i j k l m n o p q r s t u v w x y z</td>
+                    <td>Lowercase letters</td>
+                  </tr>
+                  <tr>
+                    <td>123-126</td>
+                    <td>{ | } ~</td>
+                    <td>Final symbols</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div id="extended-chars" class="tab-content">
+              <div class="example-title">
+                <i class="fas fa-language"></i>
+                ASCII Extended Characters (128-255)
+              </div>
+              <p>
+                Extended ASCII introduces an additional 128 characters,
+                accommodating symbols and characters for different languages.
+              </p>
+
+              <table class="ascii-table">
+                <thead>
+                  <tr>
+                    <th>Decimal</th>
+                    <th>Character</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>128</td>
+                    <td>Ç</td>
+                    <td>Latin Capital Letter C-cedilla</td>
+                  </tr>
+                  <tr>
+                    <td>129</td>
+                    <td>ü</td>
+                    <td>Latin Small Letter U with Diaeresis</td>
+                  </tr>
+                  <tr>
+                    <td>130</td>
+                    <td>é</td>
+                    <td>Latin Small Letter E with Acute</td>
+                  </tr>
+                  <tr>
+                    <td>131</td>
+                    <td>â</td>
+                    <td>Latin Small Letter A with Circumflex</td>
+                  </tr>
+                  <tr>
+                    <td>132</td>
+                    <td>ä</td>
+                    <td>Latin Small Letter A with Diaeresis</td>
+                  </tr>
+                  <tr>
+                    <td>133</td>
+                    <td>à</td>
+                    <td>Latin Small Letter A with Grave</td>
+                  </tr>
+                  <tr>
+                    <td>134</td>
+                    <td>å</td>
+                    <td>Latin Small Letter A with Ring Above</td>
+                  </tr>
+                  <tr>
+                    <td>160</td>
+                    <td>á</td>
+                    <td>Latin Small Letter A with Acute</td>
+                  </tr>
+                  <tr>
+                    <td>161</td>
+                    <td>í</td>
+                    <td>Latin Small Letter I with Acute</td>
+                  </tr>
+                  <tr>
+                    <td>162</td>
+                    <td>ó</td>
+                    <td>Latin Small Letter O with Acute</td>
+                  </tr>
+                  <tr>
+                    <td>163</td>
+                    <td>ú</td>
+                    <td>Latin Small Letter U with Acute</td>
+                  </tr>
+                  <tr>
+                    <td>164</td>
+                    <td>ñ</td>
+                    <td>Latin Small Letter N with Tilde</td>
+                  </tr>
+                  <tr>
+                    <td>165</td>
+                    <td>Ñ</td>
+                    <td>Latin Capital Letter N with Tilde</td>
+                  </tr>
+                  <tr>
+                    <td>255</td>
+                    <td>ÿ</td>
+                    <td>Latin Small Letter Y with Diaeresis</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: ASCII Representations -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-exchange-alt"></i>
+            ASCII Representations
+          </div>
+
+          <div class="tab-container">
+            <div class="tab-buttons">
+              <button
+                class="tab-button active"
+                onclick="openTab(event, 'binary-rep')"
+              >
+                Binary
+              </button>
+              <button
+                class="tab-button"
+                onclick="openTab(event, 'decimal-rep')"
+              >
+                Decimal
+              </button>
+              <button class="tab-button" onclick="openTab(event, 'hex-rep')">
+                Hexadecimal
+              </button>
+            </div>
+
+            <div id="binary-rep" class="tab-content active">
+              <div class="example-title">
+                <i class="fas fa-microchip"></i>
+                Binary Representation
+              </div>
+              <p>
+                ASCII characters are represented in binary, providing a
+                machine-readable format that computers use for internal
+                processing.
+              </p>
+
+              <table class="ascii-table">
+                <thead>
+                  <tr>
+                    <th>Binary</th>
+                    <th>Character</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="binary-code">00000000</span></td>
+                    <td>NUL</td>
+                    <td>Null</td>
+                  </tr>
+                  <tr>
+                    <td><span class="binary-code">00001010</span></td>
+                    <td>LF</td>
+                    <td>Line Feed</td>
+                  </tr>
+                  <tr>
+                    <td><span class="binary-code">00100000</span></td>
+                    <td>(space)</td>
+                    <td>Space</td>
+                  </tr>
+                  <tr>
+                    <td><span class="binary-code">01000001</span></td>
+                    <td>A</td>
+                    <td>Uppercase A</td>
+                  </tr>
+                  <tr>
+                    <td><span class="binary-code">01100001</span></td>
+                    <td>a</td>
+                    <td>Lowercase a</td>
+                  </tr>
+                  <tr>
+                    <td><span class="binary-code">01111110</span></td>
+                    <td>~</td>
+                    <td>Tilde</td>
+                  </tr>
+                  <tr>
+                    <td><span class="binary-code">01111111</span></td>
+                    <td>DEL</td>
+                    <td>Delete</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div id="decimal-rep" class="tab-content">
+              <div class="example-title">
+                <i class="fas fa-sort-numeric-up"></i>
+                Decimal Representation
+              </div>
+              <p>
+                In decimal form, ASCII codes offer a human-readable
+                representation, simplifying discussions and documentation.
+              </p>
+
+              <table class="ascii-table">
+                <thead>
+                  <tr>
+                    <th>Decimal</th>
+                    <th>Character</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>0</td>
+                    <td>NUL</td>
+                    <td>Null</td>
+                  </tr>
+                  <tr>
+                    <td>10</td>
+                    <td>LF</td>
+                    <td>Line Feed</td>
+                  </tr>
+                  <tr>
+                    <td>32</td>
+                    <td>(space)</td>
+                    <td>Space</td>
+                  </tr>
+                  <tr>
+                    <td>65</td>
+                    <td>A</td>
+                    <td>Uppercase A</td>
+                  </tr>
+                  <tr>
+                    <td>97</td>
+                    <td>a</td>
+                    <td>Lowercase a</td>
+                  </tr>
+                  <tr>
+                    <td>126</td>
+                    <td>~</td>
+                    <td>Tilde</td>
+                  </tr>
+                  <tr>
+                    <td>127</td>
+                    <td>DEL</td>
+                    <td>Delete</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div id="hex-rep" class="tab-content">
+              <div class="example-title">
+                <i class="fas fa-hashtag"></i>
+                Hexadecimal Representation
+              </div>
+              <p>
+                The hexadecimal representation of ASCII codes is commonly used
+                in programming and digital design.
+              </p>
+
+              <table class="ascii-table">
+                <thead>
+                  <tr>
+                    <th>Hexadecimal</th>
+                    <th>Character</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>00</td>
+                    <td>NUL</td>
+                    <td>Null</td>
+                  </tr>
+                  <tr>
+                    <td>0A</td>
+                    <td>LF</td>
+                    <td>Line Feed</td>
+                  </tr>
+                  <tr>
+                    <td>20</td>
+                    <td>(space)</td>
+                    <td>Space</td>
+                  </tr>
+                  <tr>
+                    <td>41</td>
+                    <td>A</td>
+                    <td>Uppercase A</td>
+                  </tr>
+                  <tr>
+                    <td>61</td>
+                    <td>a</td>
+                    <td>Lowercase a</td>
+                  </tr>
+                  <tr>
+                    <td>7E</td>
+                    <td>~</td>
+                    <td>Tilde</td>
+                  </tr>
+                  <tr>
+                    <td>7F</td>
+                    <td>DEL</td>
+                    <td>Delete</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: ASCII in Computing -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-laptop-code"></i>
+            ASCII in Computing
+          </div>
+
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="info-icon">
+                <i class="fas fa-code"></i>
+              </div>
+              <div class="info-title">Programming Languages</div>
+              <div class="info-content">
+                Programming languages extensively use ASCII for representing
+                characters and symbols in source code. Most programming
+                languages use ASCII or Unicode (which includes ASCII as its
+                first 128 code points).
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-icon">
+                <i class="fas fa-network-wired"></i>
+              </div>
+              <div class="info-title">Data Transmission</div>
+              <div class="info-content">
+                ASCII is fundamental in data transmission protocols, ensuring
+                compatibility and readability when exchanging information
+                between systems.
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-icon">
+                <i class="fas fa-paint-brush"></i>
+              </div>
+              <div class="info-title">ASCII Art</div>
+              <div class="info-content">
+                Artistic expressions, known as ASCII art, leverage ASCII
+                characters to create visual designs and graphics using only text
+                characters.
+              </div>
+            </div>
+          </div>
+
+          <div class="example-box">
+            <div class="example-title">
+              <i class="fas fa-file-code"></i>
+              Example: ASCII in File Handling
+            </div>
+            <div>
+              When working with text files, understanding how ASCII characters
+              are encoded and decoded is essential. Here's how ASCII is involved
+              in file handling:
+            </div>
+
+            <div class="code-block">
+              # Example in Python using UTF-8 encoding (which is compatible with
+              ASCII) with open('example.txt', 'r', encoding='utf-8') as file:
+              content = file.read()
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: ASCII vs. Unicode -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-balance-scale"></i>
+            ASCII vs. Unicode
+          </div>
+
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>ASCII</th>
+                <th>Unicode</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Definition</strong></td>
+                <td>
+                  ASCII (American Standard Code for Information Interchange) is
+                  a character encoding standard that uses 7 or 8 bits to
+                  represent characters, mainly limited to the English alphabet,
+                  numerals, and a few special characters.
+                </td>
+                <td>
+                  Unicode is a character encoding standard that aims to provide
+                  a unique code point for every character, regardless of
+                  platform, program, or language. It uses a variable number of
+                  bits (8, 16, or 32) to represent characters.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Scope</strong></td>
+                <td>
+                  Originally designed for English and a few other Western
+                  languages.
+                </td>
+                <td>
+                  Designed to be a universal character encoding standard that
+                  supports a vast range of languages, symbols, and characters
+                  from various writing systems.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Bit Usage</strong></td>
+                <td>Typically uses 7 bits (extended ASCII uses 8 bits).</td>
+                <td>
+                  Can use 8, 16, or 32 bits per character, allowing it to
+                  represent a much larger number of characters.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Number of Characters</strong></td>
+                <td>Limited to 128 (with 7 bits) or 256 (with 8 bits).</td>
+                <td>Can represent over a million unique characters.</td>
+              </tr>
+              <tr>
+                <td><strong>Multilingual Support</strong></td>
+                <td>Primarily supports English and a few Western languages.</td>
+                <td>
+                  Comprehensive support for almost all languages, including
+                  scripts like Cyrillic, Arabic, Chinese, Japanese, and many
+                  others.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Backward Compatibility</strong></td>
+                <td>
+                  Limited, as it was primarily designed for English and does not
+                  have built-in support for characters from various languages.
+                </td>
+                <td>
+                  Maintains backward compatibility with ASCII. The first 128
+                  Unicode code points correspond to ASCII, ensuring
+                  compatibility with existing ASCII data.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>When to Use</strong></td>
+                <td>
+                  Suitable for English and basic character encoding needs.
+                </td>
+                <td>
+                  Preferred for multilingual and diverse character requirements.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Section: Limitations of ASCII -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-exclamation-triangle"></i>
+            Limitations of ASCII
+          </div>
+
+          <div class="pros-cons">
+            <div class="cons">
+              <div class="pros-cons-title">
+                <i class="fas fa-times-circle"></i>
+                Key Limitations
+              </div>
+              <ul class="pros-cons-list">
+                <li>
+                  Limited to 128 characters (7-bit) or 256 characters (8-bit)
+                </li>
+                <li>
+                  No support for non-Latin characters (accented characters,
+                  Asian languages, etc.)
+                </li>
+                <li>
+                  Lack of standardization for extended ASCII across different
+                  systems
+                </li>
+                <li>Not well-suited for multilingual text representation</li>
+                <li>
+                  Limited symbolic representation for scientific and technical
+                  contexts
+                </li>
+                <li>
+                  Fixed-length encoding is less efficient than variable-length
+                  encodings like UTF-8
+                </li>
+                <li>
+                  Globalization challenges for applications with diverse
+                  linguistic requirements
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="example-box">
+            <div class="example-title">
+              <i class="fas fa-globe"></i>
+              Handling Non-ASCII Characters
+            </div>
+            <div>
+              To overcome ASCII's limitations, modern systems use Unicode
+              encodings:
+            </div>
+            <ul style="padding-left: 20px; margin-top: 10px">
+              <li>
+                <strong>UTF-8</strong>: Variable-length encoding that maintains
+                ASCII compatibility while supporting all Unicode characters
+              </li>
+              <li>
+                <strong>UTF-16</strong>: 16-bit encoding commonly used in
+                Windows and Java environments
+              </li>
+              <li>
+                <strong>UTF-32</strong>: Fixed 32-bit encoding that provides
+                direct access to any Unicode character
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Section: Summary -->
+        <div class="section">
+          <div class="summary">
+            <div class="summary-title">
+              <i class="fas fa-flag-checkered"></i>
+              Key Takeaways
+            </div>
+            <div class="summary-content">
+              ASCII is a foundational character encoding standard that uses 7
+              bits to represent 128 characters, including control characters and
+              printable characters. While limited in scope, it remains important
+              in computing history and continues to influence modern encoding
+              standards.
+            </div>
+
+            <div class="key-points">
+              <div class="key-point">7-bit encoding with 128 characters</div>
+              <div class="key-point">
+                Foundation for Unicode's first 128 code points
+              </div>
+              <div class="key-point">
+                Still used in programming and legacy systems
+              </div>
+              <div class="key-point">
+                Limited support for international characters
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function openTab(evt, tabName) {
+        // Hide all tab content
+        var tabContents = document.getElementsByClassName("tab-content");
+        for (var i = 0; i < tabContents.length; i++) {
+          tabContents[i].classList.remove("active");
+        }
+
+        // Remove active class from all tab buttons
+        var tabButtons = document.getElementsByClassName("tab-button");
+        for (var i = 0; i < tabButtons.length; i++) {
+          tabButtons[i].classList.remove("active");
+        }
+
+        // Show the specific tab content
+        document.getElementById(tabName).classList.add("active");
+
+        // Add active class to the button that opened the tab
+        evt.currentTarget.classList.add("active");
+      }
+    </script>
+  </body>
+</html>

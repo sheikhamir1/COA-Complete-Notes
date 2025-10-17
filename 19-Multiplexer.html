@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multiplexer: Digital Logic Circuit</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: #333;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      header {
+        text-align: center;
+        padding: 40px 0;
+        background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
+        color: white;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        animation: fadeInDown 1s ease;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+
+      .section {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        animation: fadeInUp 1s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(to bottom, #9c27b0, #673ab7);
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        color: #673ab7;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      .section-title i {
+        margin-right: 10px;
+      }
+
+      .step {
+        margin: 20px 0;
+        padding-left: 20px;
+        border-left: 2px solid #e0e0e0;
+        animation: slideInLeft 0.8s ease;
+      }
+
+      .step-title {
+        font-weight: 600;
+        color: #673ab7;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .step-title i {
+        margin-right: 8px;
+      }
+
+      .math {
+        font-family: "Courier New", monospace;
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        overflow-x: auto;
+        border-left: 4px solid #9c27b0;
+      }
+
+      .highlight {
+        background: linear-gradient(
+          120deg,
+          rgba(156, 39, 176, 0.1) 0%,
+          rgba(103, 58, 183, 0.1) 100%
+        );
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .final-result {
+        background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        text-align: center;
+        font-size: 1.2rem;
+        box-shadow: 0 5px 15px rgba(156, 39, 176, 0.3);
+        animation: pulse 2s infinite;
+      }
+
+      .truth-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+      }
+
+      .truth-table th,
+      .truth-table td {
+        padding: 12px 15px;
+        text-align: center;
+      }
+
+      .truth-table th {
+        background-color: #9c27b0;
+        color: white;
+        font-weight: 600;
+      }
+
+      .truth-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      .truth-table tr:hover {
+        background-color: #e2e2e2;
+      }
+
+      .summary-box {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+        border-left: 4px solid #673ab7;
+      }
+
+      .emoji {
+        font-size: 1.2rem;
+        margin-right: 5px;
+        vertical-align: middle;
+      }
+
+      .scroll-indicator {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        animation: bounce 2s infinite;
+        z-index: 100;
+      }
+
+      .nav-dots {
+        position: fixed;
+        top: 50%;
+        right: 30px;
+        transform: translateY(-50%);
+        z-index: 100;
+      }
+
+      .nav-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(156, 39, 176, 0.3);
+        margin: 10px 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .nav-dot.active {
+        background: #9c27b0;
+        transform: scale(1.2);
+      }
+
+      .mux-diagram {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+
+      .mux-block {
+        background: #f8f9fa;
+        border: 2px solid #9c27b0;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px;
+        text-align: center;
+        min-width: 120px;
+      }
+
+      .mux-title {
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #673ab7;
+      }
+
+      .mux-symbol {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      .mux-description {
+        font-size: 0.9rem;
+      }
+
+      .application-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        border-left: 4px solid #9c27b0;
+        transition: transform 0.3s ease;
+      }
+
+      .application-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .application-title {
+        font-weight: 600;
+        color: #673ab7;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .application-title i {
+        margin-right: 8px;
+      }
+
+      .block-diagram {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+
+      .block {
+        background: #f8f9fa;
+        border: 2px solid #9c27b0;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px;
+        text-align: center;
+        min-width: 100px;
+      }
+
+      .arrow {
+        font-size: 2rem;
+        margin: 0 10px;
+        color: #9c27b0;
+      }
+
+      .advantage-box {
+        background: #e8f5e9;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        border-left: 4px solid #4caf50;
+      }
+
+      .disadvantage-box {
+        background: #ffebee;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        border-left: 4px solid #f44336;
+      }
+
+      .gate-implementation {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin: 20px 0;
+      }
+
+      .gate-card {
+        background: #f8f9fa;
+        border: 2px solid #9c27b0;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px;
+        width: 45%;
+        min-width: 250px;
+      }
+
+      .gate-title {
+        font-weight: 600;
+        color: #673ab7;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideInLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(156, 39, 176, 0.4);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(156, 39, 176, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(156, 39, 176, 0);
+        }
+      }
+
+      @keyframes bounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-10px);
+        }
+        60% {
+          transform: translateY(-5px);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 10px;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        .section {
+          padding: 20px;
+        }
+
+        .truth-table {
+          font-size: 0.9rem;
+        }
+
+        .nav-dots {
+          display: none;
+        }
+
+        .gate-card {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1><span class="emoji">🔹</span> What is a Multiplexer?</h1>
+        <p class="subtitle">Digital Switch for Data Selection</p>
+      </header>
+
+      <div class="section" id="definition">
+        <h2 class="section-title">
+          <i class="fas fa-info-circle"></i> Definition
+        </h2>
+        <p>A Multiplexer is a digital switch.</p>
+        <p>
+          It allows one of many input lines to be selected and sent to a single
+          output line, depending on the select signal.
+        </p>
+
+        <div class="summary-box">
+          <p>
+            <span class="emoji">💡</span> <strong>Simple Analogy:</strong> Think
+            of it like a railway switch:
+          </p>
+          <ul>
+            <li>Many tracks (inputs)</li>
+            <li>One train (output)</li>
+            <li>
+              The switch decides which track the train takes (select signal)
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section" id="key-points">
+        <h2 class="section-title"><i class="fas fa-key"></i> Key Points</h2>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-sign-in-alt"></i> Inputs
+          </div>
+          <p>Multiple data inputs (let's say I0, I1, I2...)</p>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-sliders-h"></i> Select Lines
+          </div>
+          <p>
+            Control signals that decide which input goes to the output (e.g.,
+            S0, S1)
+          </p>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-sign-out-alt"></i> Output
+          </div>
+          <p>Single line (Y) that carries the value of the selected input</p>
+        </div>
+      </div>
+
+      <div class="section" id="formula">
+        <h2 class="section-title">
+          <i class="fas fa-calculator"></i> General Formula
+        </h2>
+
+        <p>If a multiplexer has n select lines, it can select 2^n inputs.</p>
+
+        <div class="math">
+          Number of inputs = 2<sup>Number of select lines</sup>
+        </div>
+
+        <div class="summary-box">
+          <p><span class="emoji">🔹</span> <strong>Example:</strong></p>
+          <ul>
+            <li>2 select lines → 2² = 4 inputs (I0, I1, I2, I3)</li>
+            <li>1 output line (Y)</li>
+            <li>
+              Depending on select lines S1S0, the output Y will match one of the
+              inputs
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section" id="4-to-1-mux">
+        <h2 class="section-title">
+          <i class="fas fa-project-diagram"></i> 4-to-1 Multiplexer Example
+        </h2>
+
+        <div class="step">
+          <div class="step-title"><i class="fas fa-list"></i> Components</div>
+          <ul>
+            <li>Inputs: I0, I1, I2, I3</li>
+            <li>Select Lines: S1, S0</li>
+            <li>Output: Y</li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <div class="step-title"><i class="fas fa-table"></i> Truth Table</div>
+          <table class="truth-table">
+            <thead>
+              <tr>
+                <th>S1</th>
+                <th>S0</th>
+                <th>Output Y</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0</td>
+                <td>0</td>
+                <td>I0</td>
+              </tr>
+              <tr>
+                <td>0</td>
+                <td>1</td>
+                <td>I1</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>I2</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>1</td>
+                <td>I3</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <span class="emoji">✅</span> Only one input is passed to the output
+            at a time.
+          </p>
+        </div>
+      </div>
+
+      <div class="section" id="logic-expression">
+        <h2 class="section-title">
+          <i class="fas fa-code"></i> Logic Expression for 4-to-1 MUX
+        </h2>
+
+        <div class="math">
+          Y = I0·S1'·S0' + I1·S1'·S0 + I2·S1·S0' + I3·S1·S0
+        </div>
+
+        <div class="summary-box">
+          <p>Where:</p>
+          <ul>
+            <li>' means NOT</li>
+            <li>· means AND</li>
+            <li>+ means OR</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section" id="applications">
+        <h2 class="section-title">
+          <i class="fas fa-cogs"></i> Applications of Multiplexer
+        </h2>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-route"></i> Data Selection
+          </div>
+          <p>Choose one data source from many.</p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-broadcast-tower"></i> Communication Systems
+          </div>
+          <p>Route signals efficiently.</p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-microchip"></i> ALU Design
+          </div>
+          <p>Used inside CPUs to select operations.</p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-memory"></i> Memory Access
+          </div>
+          <p>Select which memory location to read.</p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-network-wired"></i> Digital Circuits
+          </div>
+          <p>Reduce wiring by selecting inputs instead of hardwiring.</p>
+        </div>
+
+        <div class="summary-box">
+          <p><span class="emoji">💡</span> <strong>Simple Analogy:</strong></p>
+          <p>Think of a multiplexer as a TV remote:</p>
+          <ul>
+            <li>TV = Output (Y)</li>
+            <li>Channels = Inputs (I0, I1, I2...)</li>
+            <li>Remote buttons = Select lines (S0, S1)</li>
+          </ul>
+          <p>
+            The remote button decides which channel you watch (which input goes
+            to output).
+          </p>
+        </div>
+      </div>
+
+      <div class="section" id="types-mux">
+        <h2 class="section-title">
+          <i class="fas fa-list-alt"></i> Types of MUX
+        </h2>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-microchip"></i> 2×1 Multiplexer
+          </div>
+          <p>
+            The 2x1 is a fundamental circuit which is also known as 2-to-1
+            multiplexer that is used to choose one signal from two inputs and
+            transmit it to the output. The 2x1 mux has two input lines, one
+            output line, and a single selection line.
+          </p>
+
+          <div class="block-diagram">
+            <div class="block">I0</div>
+            <div class="arrow">→</div>
+            <div class="block">2:1<br />MUX</div>
+            <div class="arrow">→</div>
+            <div class="block">Y</div>
+          </div>
+
+          <div class="block-diagram">
+            <div class="block">I1</div>
+            <div class="arrow">→</div>
+            <div class="block"></div>
+            <div class="arrow"></div>
+            <div class="block"></div>
+          </div>
+
+          <div class="block-diagram">
+            <div class="block">S0</div>
+            <div class="arrow">→</div>
+            <div class="block"></div>
+            <div class="arrow"></div>
+            <div class="block"></div>
+          </div>
+
+          <p><strong>Truth Table:</strong></p>
+          <table class="truth-table">
+            <thead>
+              <tr>
+                <th>S0</th>
+                <th>Output Y</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0</td>
+                <td>I0</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>I1</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p><strong>Logical Expression:</strong></p>
+          <div class="math">Y = S0'·I0 + S0·I1</div>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-microchip"></i> 4×1 Multiplexer
+          </div>
+          <p>
+            The 4x1 Multiplexer is also known as the 4-to-1 multiplexer. It has
+            4 inputs and a single output. The output is selected as one of the 4
+            inputs based on the selection inputs.
+          </p>
+
+          <div class="block-diagram">
+            <div class="block">I0</div>
+            <div class="arrow">→</div>
+            <div class="block">4:1<br />MUX</div>
+            <div class="arrow">→</div>
+            <div class="block">Y</div>
+          </div>
+
+          <div class="block-diagram">
+            <div class="block">I1</div>
+            <div class="arrow">→</div>
+            <div class="block"></div>
+            <div class="arrow"></div>
+            <div class="block"></div>
+          </div>
+
+          <div class="block-diagram">
+            <div class="block">I2</div>
+            <div class="arrow">→</div>
+            <div class="block"></div>
+            <div class="arrow"></div>
+            <div class="block"></div>
+          </div>
+
+          <div class="block-diagram">
+            <div class="block">I3</div>
+            <div class="arrow">→</div>
+            <div class="block"></div>
+            <div class="arrow"></div>
+            <div class="block"></div>
+          </div>
+
+          <div class="block-diagram">
+            <div class="block">S0</div>
+            <div class="arrow">→</div>
+            <div class="block"></div>
+            <div class="arrow"></div>
+            <div class="block"></div>
+          </div>
+
+          <div class="block-diagram">
+            <div class="block">S1</div>
+            <div class="arrow">→</div>
+            <div class="block"></div>
+            <div class="arrow"></div>
+            <div class="block"></div>
+          </div>
+
+          <p><strong>Truth Table:</strong></p>
+          <table class="truth-table">
+            <thead>
+              <tr>
+                <th>S1</th>
+                <th>S0</th>
+                <th>Output Y</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0</td>
+                <td>0</td>
+                <td>I0</td>
+              </tr>
+              <tr>
+                <td>0</td>
+                <td>1</td>
+                <td>I1</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>I2</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>1</td>
+                <td>I3</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p><strong>Logical Expression:</strong></p>
+          <div class="math">
+            Y = I0·S1'·S0' + I1·S1'·S0 + I2·S1·S0' + I3·S1·S0
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="gate-implementation">
+        <h2 class="section-title">
+          <i class="fas fa-door-open"></i> Implementation of Logic Gates using
+          MUX
+        </h2>
+
+        <p>
+          Multiplexers can act as universal combinational circuits. All the
+          standard logic gates can be implemented with multiplexers.
+        </p>
+
+        <div class="gate-implementation">
+          <div class="gate-card">
+            <div class="gate-title">NOT Gate using 2:1 MUX</div>
+            <ul>
+              <li>Connect input signal to I0</li>
+              <li>Connect 0 to I1</li>
+              <li>Connect input to S0</li>
+            </ul>
+          </div>
+
+          <div class="gate-card">
+            <div class="gate-title">AND Gate using 2:1 MUX</div>
+            <ul>
+              <li>Connect input Y to I1</li>
+              <li>Connect input X to S0</li>
+              <li>Connect 0 to I0</li>
+            </ul>
+          </div>
+
+          <div class="gate-card">
+            <div class="gate-title">OR Gate using 2:1 MUX</div>
+            <ul>
+              <li>Connect input X to S0</li>
+              <li>Connect input Y to I1</li>
+              <li>Connect 1 to I0</li>
+            </ul>
+          </div>
+
+          <div class="gate-card">
+            <div class="gate-title">NAND Gate using 2:1 MUX</div>
+            <ul>
+              <li>Requires two 2:1 MUX</li>
+              <li>First MUX acts as NOT gate</li>
+              <li>Second MUX implements NAND</li>
+            </ul>
+          </div>
+        </div>
+
+        <p>
+          Implementation of NOR, XOR, and XNOR gates also requires two 2:1 MUX,
+          with the first multiplexer acting as a NOT gate to provide
+          complemented input to the second multiplexer.
+        </p>
+      </div>
+
+      <div class="section" id="advantages-disadvantages">
+        <h2 class="section-title">
+          <i class="fas fa-balance-scale"></i> Advantages and Disadvantages
+        </h2>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-thumbs-up"></i> Advantages
+          </div>
+
+          <div class="advantage-box">
+            <p>
+              <span class="emoji">⚡</span> <strong>Efficiency:</strong> The Mux
+              has good efficiency in routing multiple input signals to a single
+              output signal based on control signals.
+            </p>
+          </div>
+
+          <div class="advantage-box">
+            <p>
+              <span class="emoji">🛠️</span> <strong>Optimization:</strong> The
+              Mux helps to conserve resources such as wires, pins, and
+              integrated circuits (IC).
+            </p>
+          </div>
+
+          <div class="advantage-box">
+            <p>
+              <span class="emoji">🔧</span>
+              <strong>Different Implementation:</strong> The Mux can be used to
+              implement different digital logic functions such as AND, OR, etc.
+            </p>
+          </div>
+
+          <div class="advantage-box">
+            <p>
+              <span class="emoji">🔄</span> <strong>Flexibility:</strong> Mux
+              can be easily configured according to the requirements and
+              accommodate different data sources, enhancing system versatility.
+            </p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-title">
+            <i class="fas fa-thumbs-down"></i> Disadvantages
+          </div>
+
+          <div class="disadvantage-box">
+            <p>
+              <span class="emoji">📊</span>
+              <strong>Limited number of data sources:</strong> The number of
+              inputs that can be taken by a multiplexer is restricted by the
+              number of control lines, which can cause limitations in certain
+              applications.
+            </p>
+          </div>
+
+          <div class="disadvantage-box">
+            <p>
+              <span class="emoji">⏱️</span> <strong>Delay:</strong> Multiplexers
+              can have some delay in the signal path, which can impact the
+              performance of the circuit.
+            </p>
+          </div>
+
+          <div class="disadvantage-box">
+            <p>
+              <span class="emoji">🧩</span>
+              <strong>Complex control rationale:</strong> The control logic for
+              multiplexers can be complex, particularly for bigger multiplexers
+              with a large number of inputs.
+            </p>
+          </div>
+
+          <div class="disadvantage-box">
+            <p>
+              <span class="emoji">🔋</span>
+              <strong>Power utilization:</strong> Multiplexers can consume more
+              power compared with other simple logic gates, particularly when
+              they have a large number of inputs.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="detailed-applications">
+        <h2 class="section-title">
+          <i class="fas fa-cogs"></i> Applications in Detail
+        </h2>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-route"></i> Data Routing
+          </div>
+          <p>
+            The Mux is used for data routing in digital systems where they
+            select one of the several data lines and re-route it to the output.
+            This is common in communication systems and digital signal
+            processing.
+          </p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-mouse-pointer"></i> Data Selection
+          </div>
+          <p>
+            The Mux is used for data selection where they select data sources
+            according to the select lines. This is useful in systems where
+            multiple data sources need to be monitored or processed one at a
+            time.
+          </p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-exchange-alt"></i> Analog-to-Digital Conversion
+          </div>
+          <p>
+            The Mux are used in ADC to select different analog input channels
+            for conversion to digital form. This allows multiple analog signals
+            to be processed by a single ADC.
+          </p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-map-marker-alt"></i> Address Decoding
+          </div>
+          <p>
+            The Mux are used in Microprocessors or memory for address decoding.
+            They help select specific memory locations based on address lines,
+            enabling data read and write operations.
+          </p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-microchip"></i> Logic Function Implementation
+          </div>
+          <p>
+            Mux can be used to implement various logic functions. As universal
+            combinational circuits, they can replace multiple logic gates,
+            simplifying circuit design.
+          </p>
+        </div>
+
+        <div class="application-card">
+          <div class="application-title">
+            <i class="fas fa-compress-alt"></i> Data Compression
+          </div>
+          <p>
+            In data compression techniques, multiplexers can be used to combine
+            multiple data streams into a single stream, reducing bandwidth
+            requirements.
+          </p>
+        </div>
+      </div>
+
+      <div class="section" id="summary">
+        <h2 class="section-title">
+          <i class="fas fa-check-circle"></i> Summary
+        </h2>
+
+        <div class="summary-box">
+          <p>
+            <span class="emoji">🔹</span> <strong>Multiplexer:</strong> A
+            combinational circuit with numerous inputs and one output. The input
+            lines provide the binary data, which is then sent to the output
+            line.
+          </p>
+          <p>
+            <span class="emoji">🔹</span> One of these data inputs will be
+            connected to the output based on the values of the selection lines.
+          </p>
+          <p>
+            <span class="emoji">🔹</span> There are n selection lines and 2<sup
+              >n</sup
+            >
+            input lines.
+          </p>
+          <p>
+            <span class="emoji">🔹</span> Another term for a multiplexer is Mux.
+          </p>
+        </div>
+
+        <div class="final-result">
+          <p>
+            Multiplexers are essential components in digital systems, enabling
+            efficient data selection, routing, and logic implementation with
+            minimal hardware requirements.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-dots">
+      <div class="nav-dot active" onclick="scrollToSection('definition')"></div>
+      <div class="nav-dot" onclick="scrollToSection('key-points')"></div>
+      <div class="nav-dot" onclick="scrollToSection('formula')"></div>
+      <div class="nav-dot" onclick="scrollToSection('4-to-1-mux')"></div>
+      <div class="nav-dot" onclick="scrollToSection('logic-expression')"></div>
+      <div class="nav-dot" onclick="scrollToSection('applications')"></div>
+      <div class="nav-dot" onclick="scrollToSection('types-mux')"></div>
+      <div
+        class="nav-dot"
+        onclick="scrollToSection('gate-implementation')"
+      ></div>
+      <div class="nav-dot" onclick="scrollToSection('higher-order-mux')"></div>
+      <div
+        class="nav-dot"
+        onclick="scrollToSection('advantages-disadvantages')"
+      ></div>
+      <div
+        class="nav-dot"
+        onclick="scrollToSection('detailed-applications')"
+      ></div>
+      <div class="nav-dot" onclick="scrollToSection('summary')"></div>
+    </div>
+
+    <div class="scroll-indicator" onclick="scrollToTop()">
+      <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+      // Function to scroll to top
+      function scrollToTop() {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      }
+
+      // Function to scroll to a specific section
+      function scrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+          section.scrollIntoView({
+            behavior: "smooth",
+          });
+        }
+      }
+
+      // Update active nav dot based on scroll position
+      window.addEventListener("scroll", () => {
+        const sections = [
+          "definition",
+          "key-points",
+          "formula",
+          "4-to-1-mux",
+          "logic-expression",
+          "applications",
+          "types-mux",
+          "gate-implementation",
+          "higher-order-mux",
+          "advantages-disadvantages",
+          "detailed-applications",
+          "summary",
+        ];
+        const navDots = document.querySelectorAll(".nav-dot");
+
+        let current = "";
+        sections.forEach((sectionId) => {
+          const section = document.getElementById(sectionId);
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.clientHeight;
+          if (pageYOffset >= sectionTop - 200) {
+            current = sectionId;
+          }
+        });
+
+        sections.forEach((sectionId, index) => {
+          if (current === sectionId) {
+            navDots[index].classList.add("active");
+          } else {
+            navDots[index].classList.remove("active");
+          }
+        });
+      });
+
+      // Add animation to elements when they come into view
+      const observerOptions = {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.1,
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = 1;
+            entry.target.style.transform = "translateY(0)";
+          }
+        });
+      }, observerOptions);
+
+      // Observe all sections
+      document.querySelectorAll(".section").forEach((section) => {
+        section.style.opacity = 0;
+        section.style.transform = "translateY(20px)";
+        section.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+        observer.observe(section);
+      });
+    </script>
+  </body>
+</html>

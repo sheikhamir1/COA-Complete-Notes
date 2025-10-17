@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Arithmetic Logic Unit (ALU)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/computer-brain/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .setting-scene { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .meeting-alu { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .how-built { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .micro-operations { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .circuits-chips { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .faster-math { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .connecting-coa { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .takeaway { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .summary-table { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Hierarchy Styles */
+        .hierarchy-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .hierarchy-level {
+            width: 80%;
+            padding: 20px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hierarchy-level::after {
+            content: "↓";
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        .hierarchy-level:last-child::after {
+            display: none;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" data-section="header"></div>
+        <div class="nav-dot" data-section="setting-scene"></div>
+        <div class="nav-dot" data-section="meeting-alu"></div>
+        <div class="nav-dot" data-section="how-built"></div>
+        <div class="nav-dot" data-section="micro-operations"></div>
+        <div class="nav-dot" data-section="circuits-chips"></div>
+        <div class="nav-dot" data-section="faster-math"></div>
+        <div class="nav-dot" data-section="connecting-coa"></div>
+        <div class="nav-dot" data-section="takeaway"></div>
+        <div class="nav-dot" data-section="summary-table"></div>
+    </div>
+
+    <!-- Header Section -->
+    <header class="header" id="header">
+        <div class="container">
+            <h1>The Arithmetic Logic Unit (ALU)</h1>
+            <div class="metrics-character">🧮</div>
+            <p>Peeking inside a computer's brain: The workshop where math and logic come to life</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </header>
+
+    <!-- Setting the Scene Section -->
+    <section class="section setting-scene" id="setting-scene">
+        <div class="container">
+            <h2 class="section-title fade-in">Setting the Scene</h2>
+            <div class="card fade-in">
+                <p>The ALU lives inside the CPU—the central processing unit, the "thinking core" of a computer. Any time you ask a machine to add numbers, compare values, or decide which way an instruction should branch, the ALU is the craftsperson doing the job.</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">⚡</div>
+                        <div class="metric-title">Speed</div>
+                        <p>The design and speed of the ALU largely decide how fast the whole system feels</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🧮</div>
+                        <div class="metric-title">Math</div>
+                        <p>Handles arithmetic operations like addition, subtraction, multiplication, division</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔍</div>
+                        <div class="metric-title">Logic</div>
+                        <p>Performs logical operations like AND, OR, NOT, XOR for decision making</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔄</div>
+                        <div class="metric-title">Control</div>
+                        <p>Works with the control unit to execute instructions at breathtaking speed</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">💡</span>Why the ALU Matters</h3>
+                    <p class="fade-in">Because almost every action a computer takes depends on these calculations, the ALU is a critical component that directly impacts the performance and capabilities of the entire system.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Meeting the ALU Section -->
+    <section class="section meeting-alu" id="meeting-alu">
+        <div class="container">
+            <h2 class="section-title fade-in">Meeting the ALU</h2>
+            <div class="card fade-in">
+                <p>Think of the ALU as a workshop with two main tool benches:</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">➕</div>
+                        <div class="metric-title">Arithmetic Bench</div>
+                        <p>Adds, subtracts, multiplies, divides numbers</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔍</div>
+                        <div class="metric-title">Logic Bench</div>
+                        <p>AND, OR, NOT, XOR, plus bit shifting for moving data</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔄</span>How It Works</h3>
+                    <p class="fade-in">The ALU pulls numbers from CPU registers, performs the requested operation, and passes the results back. A faster, more efficient ALU means the whole CPU—and therefore the computer—runs faster.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🏃</span>Performance Impact</h3>
+                    <p class="fade-in">The efficiency of the ALU directly affects how quickly a computer can process information. Modern ALUs are designed to perform multiple operations in parallel and handle complex calculations with minimal clock cycles.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It's Built Section -->
+    <section class="section how-built" id="how-built">
+        <div class="container">
+            <h2 class="section-title fade-in">How It's Built</h2>
+            <div class="card fade-in">
+                <p>Inside the ALU are tiny, specialized stations working together:</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🗄️</div>
+                        <div class="feature-content">
+                            <h3>Registers</h3>
+                            <p>Hold the input numbers and finished results</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">➕➖</div>
+                        <div class="feature-content">
+                            <h3>Adder/Subtractor Circuits</h3>
+                            <p>Handle arithmetic operations</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🚪</div>
+                        <div class="feature-content">
+                            <h3>Logic Gates</h3>
+                            <p>Carry out comparisons and logical operations</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🚦</div>
+                        <div class="feature-content">
+                            <h3>Multiplexers and Control Lines</h3>
+                            <p>Decide which operation to perform</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🚩</div>
+                        <div class="feature-content">
+                            <h3>Status Flags</h3>
+                            <p>Report outcomes like "carry," "overflow," or "zero"</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">⏱️</span>Timing and Synchronization</h3>
+                    <p class="fade-in">All these pieces tick together in rhythm with the CPU clock so each operation lands exactly on time. This precise timing is essential for the reliable operation of the computer.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Micro-Operations Section -->
+    <section class="section micro-operations" id="micro-operations">
+        <div class="container">
+            <h2 class="section-title fade-in">Micro-Operations: The ALU's Choreography</h2>
+            <div class="card fade-in">
+                <p>Every big instruction—like "add these two numbers and store the result"—breaks down into tiny, indivisible steps called micro-operations:</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Data Movement</h3>
+                            <p>Moving data between registers</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">1️⃣</div>
+                        <div class="feature-content">
+                            <h3>Single-Bit Operations</h3>
+                            <p>Doing a single-bit add or other basic operation</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⬅️➡️</div>
+                        <div class="feature-content">
+                            <h3>Bit Shifting</h3>
+                            <p>Moving bits left or right for multiplication or division</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🎭</span>The Conductor</h3>
+                    <p class="fade-in">The CPU's control unit is the conductor, decoding each instruction and sending signals so these micro-steps happen in perfect order. This coordination is what allows complex instructions to be executed accurately and efficiently.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">⚙️</span>Pipelining</h3>
+                    <p class="fade-in">Modern processors use pipelining to overlap the execution of multiple instructions. While one instruction is completing its final micro-operations, the next one is already beginning its first steps, greatly improving throughput.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- From Circuits to Chips Section -->
+    <section class="section circuits-chips" id="circuits-chips">
+        <div class="container">
+            <h2 class="section-title fade-in">From Circuits to Chips</h2>
+            <div class="card fade-in">
+                <p>Engineers don't build a fresh ALU every time—they design ALU chips, which slot neatly into processors from companies like Intel or AMD:</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔄</div>
+                        <div class="metric-title">Pipelining</div>
+                        <p>Multiple operations overlap for increased throughput</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">⚡</div>
+                        <div class="metric-title">Parallelism</div>
+                        <p>Many operations performed simultaneously</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔢</div>
+                        <div class="metric-title">Floating-Point Units</div>
+                        <p>Built-in specialized hardware for decimal math</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🏭</span>Manufacturing Process</h3>
+                    <p class="fade-in">ALU chips are manufactured using photolithography and other semiconductor processes. The miniaturization of these components has followed Moore's Law, with billions of transistors fitting on a single chip.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🧩</span>Integration</h3>
+                    <p class="fade-in">Modern ALUs are integrated into the CPU alongside other components like caches and memory controllers. This tight integration reduces latency and improves overall system performance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Faster Math Section -->
+    <section class="section faster-math" id="faster-math">
+        <div class="container">
+            <h2 class="section-title fade-in">Faster Math: Multiplication & Division</h2>
+            <div class="card fade-in">
+                <p>Plain binary multiplication or division works, but for large numbers it can be slow. Computer scientists created faster algorithms to speed things up:</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">✂️</div>
+                        <div class="feature-content">
+                            <h3>Karatsuba Multiplication</h3>
+                            <p>Cuts a big multiplication into smaller ones using divide-and-conquer</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📊</div>
+                        <div class="feature-content">
+                            <h3>Booth's Algorithm</h3>
+                            <p>Reduces the number of adds and subtracts in binary multiplication</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🌳</div>
+                        <div class="feature-content">
+                            <h3>Wallace Tree</div>
+                            <p>Hardware combines partial results in parallel</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>Array Multipliers</div>
+                            <p>Efficient hardware implementation for multiplication</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📐</div>
+                        <div class="feature-content">
+                            <h3>SRT Division</h3>
+                            <p>Uses smart guessing and refinement to divide numbers quickly</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔍</div>
+                        <div class="feature-content">
+                            <h3>Newton-Raphson Method</h3>
+                            <p>Iterative approach for fast division and square roots</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">⚡</span>Performance Impact</h3>
+                    <p class="fade-in">These tricks mean the ALU spends fewer clock cycles on heavy calculations, which is crucial for tasks like encryption, graphics, and scientific simulations.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Connecting Back to COA Section -->
+    <section class="section connecting-coa" id="connecting-coa">
+        <div class="container">
+            <h2 class="section-title fade-in">Connecting Back to Computer Organization & Architecture (COA)</h2>
+            <div class="card fade-in">
+                <p>Within COA's grand map, the ALU sits in the CPU block alongside the control unit and registers:</p>
+                
+                <div class="hierarchy-container">
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">⚙️</span>
+                            <strong>Full Processor</strong>
+                        </div>
+                        <div>CPU with ALU, Control Unit, Registers</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🧮</span>
+                            <strong>ALU</strong>
+                        </div>
+                        <div>Arithmetic and Logic Operations</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🔌</span>
+                            <strong>Microscopic Components</strong>
+                        </div>
+                        <div>Transistors and Logic Gates</div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔍</span>Bridging Theory and Practice</h3>
+                    <p class="fade-in">Studying the ALU bridges theory and the real, buzzing hardware—showing how high-level instructions are finally boiled down to electric pulses. This understanding is essential for computer architects and engineers.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">📚</span>Educational Value</h3>
+                    <p class="fade-in">Learning about the ALU helps students understand the connection between abstract concepts like algorithms and their physical implementation in hardware, making it a cornerstone of computer science education.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Takeaway Section -->
+    <section class="section takeaway" id="takeaway">
+        <div class="container">
+            <h2 class="section-title fade-in">Takeaway</h2>
+            <div class="card fade-in">
+                <p>The ALU is the heartbeat of computation: a fast, precise, relentlessly logical workshop. Understanding its design and the clever algorithms that feed it gives you insight into how every smartphone, laptop, and supercomputer turns raw bits into the digital world we rely on.</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🧮</div>
+                        <div class="metric-title">Core Component</div>
+                        <p>Essential for all computing tasks</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">⚡</div>
+                        <div class="metric-title">Performance Driver</div>
+                        <p>Directly impacts system speed</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔍</div>
+                        <div class="metric-title">Bridge</div>
+                        <p>Connects software to hardware</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🌐</div>
+                        <div class="metric-title">Universal</div>
+                        <p>Found in all digital devices</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🚀</span>Future of ALUs</h3>
+                    <p class="fade-in">As computing demands grow, ALUs continue to evolve with new architectures, specialized units for AI and machine learning, and quantum computing approaches that may revolutionize how we process information.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Summary Table Section -->
+    <section class="section summary-table" id="summary-table">
+        <div class="container">
+            <h2 class="section-title fade-in">Summary Table</h2>
+            <div class="card fade-in">
+                <table>
+                    <tr>
+                        <th>Section</th>
+                        <th>Key Idea</th>
+                        <th>COA Connection</th>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🎭</span> Introduction</td>
+                        <td>ALU defines CPU speed and capability</td>
+                        <td>Core CPU component</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🧮</span> ALU Functions</td>
+                        <td>Arithmetic + logic operations</td>
+                        <td>Executes machine instructions</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🔧</span> Design</td>
+                        <td>Registers, adder/subtractor, logic gates, control signals</td>
+                        <td>Microarchitecture level</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">⚙️</span> Micro-Operations</td>
+                        <td>Smallest register-transfer steps</td>
+                        <td>Instruction execution pipeline</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">💻</span> ALU Chips</td>
+                        <td>Integrated circuits with pipelining & parallelism</td>
+                        <td>Hardware implementation</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">⚡</span> Faster Algorithms</td>
+                        <td>Karatsuba, Booth, SRT for quick multiply/divide</td>
+                        <td>Optimizes CPU performance</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🔢</span> Multiplication & Division</td>
+                        <td>Binary methods refined for speed</td>
+                        <td>Core arithmetic operations</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        const navDots = document.querySelectorAll('.nav-dot');
+        const sections = document.querySelectorAll('.section, .header');
+        
+        // Update active nav dot on scroll
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+                if (dot.getAttribute('data-section') === current) {
+                    dot.classList.add('active');
+                }
+            });
+            
+            // Fade in animation
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        });
+        
+        // Nav dot click functionality
+        navDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const targetId = dot.getAttribute('data-section');
+                const targetSection = document.getElementById(targetId);
+                
+                window.scrollTo({
+                    top: targetSection.offsetTop - 50,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Initial check for fade-in elements
+        const fadeElements = document.querySelectorAll('.fade-in');
+        fadeElements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top;
+            const elementVisible = 150;
+            
+            if (elementTop < window.innerHeight - elementVisible) {
+                element.classList.add('visible');
+            }
+        });
+    </script>
+</body>
+</html>

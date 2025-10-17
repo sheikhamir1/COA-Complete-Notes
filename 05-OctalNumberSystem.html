@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Octal Number System Presentation</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: #333;
+        overflow-y: auto;
+        min-height: 100vh;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header {
+        background: linear-gradient(90deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        padding: 25px 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+      }
+
+      .header-icon {
+        font-size: 3rem;
+        margin-right: 20px;
+        color: #3498db;
+        background: white;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+      }
+
+      .header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-top: 5px;
+      }
+
+      .slide {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        margin-bottom: 30px;
+      }
+
+      .section {
+        margin-bottom: 40px;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      .section-title i {
+        margin-right: 15px;
+        color: #3498db;
+        font-size: 1.6rem;
+      }
+
+      .definition-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+      }
+
+      .definition-title {
+        font-size: 1.4rem;
+        font-weight: 500;
+        margin-bottom: 15px;
+      }
+
+      .definition-content {
+        font-size: 1.1rem;
+        line-height: 1.6;
+      }
+
+      .example-box {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 15px;
+        border-left: 4px solid #3498db;
+      }
+
+      .example-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .example-title i {
+        margin-right: 10px;
+        color: #3498db;
+      }
+
+      .relation-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 30px 0;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .digit-box {
+        background: #3498db;
+        color: white;
+        width: 60px;
+        height: 60px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      .equals {
+        font-size: 1.5rem;
+        color: #3498db;
+        font-weight: 600;
+      }
+
+      .binary-group {
+        display: flex;
+        gap: 5px;
+      }
+
+      .binary-digit {
+        background: #2c3e50;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+      }
+
+      .conversion-methods {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        margin-top: 20px;
+      }
+
+      .conversion-method {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      .conversion-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+      }
+
+      .conversion-icon {
+        font-size: 1.8rem;
+        color: #3498db;
+        margin-right: 15px;
+      }
+
+      .conversion-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      .calculation-example {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 15px;
+        font-family: "Courier New", monospace;
+      }
+
+      .calculation-step {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .step-number {
+        background: #3498db;
+        color: white;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        margin-right: 12px;
+        flex-shrink: 0;
+      }
+
+      .step-content {
+        flex: 1;
+      }
+
+      .arithmetic-section {
+        margin-top: 30px;
+      }
+
+      .arithmetic-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+      }
+
+      .arithmetic-title i {
+        margin-right: 10px;
+        color: #3498db;
+      }
+
+      .rules-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .rules-table th {
+        background: #3498db;
+        color: white;
+        padding: 12px;
+        text-align: left;
+      }
+
+      .rules-table td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .rules-table tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+
+      .uses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .use-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+        height: 100%;
+      }
+
+      .use-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .use-icon {
+        font-size: 2rem;
+        color: #3498db;
+        margin-bottom: 15px;
+      }
+
+      .use-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+      }
+
+      .use-description {
+        font-size: 1rem;
+        color: #555;
+      }
+
+      .unix-permissions {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+      }
+
+      .permission-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .permission-label {
+        width: 100px;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      .permission-value {
+        flex: 1;
+      }
+
+      .permission-binary {
+        display: flex;
+        gap: 5px;
+        margin-top: 5px;
+      }
+
+      .permission-bit {
+        background: #2c3e50;
+        color: white;
+        width: 25px;
+        height: 25px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+      }
+
+      .summary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-top: 30px;
+      }
+
+      .summary-title {
+        font-size: 1.6rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .summary-content {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .key-points {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .key-point {
+        flex: 1;
+        min-width: 200px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .highlight {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          flex-direction: column;
+          text-align: center;
+          padding: 20px;
+        }
+
+        .header-icon {
+          margin-right: 0;
+          margin-bottom: 15px;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .conversion-methods {
+          grid-template-columns: 1fr;
+        }
+
+        .uses-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .key-points {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="header-icon">
+          <i class="fas fa-hashtag"></i>
+        </div>
+        <div>
+          <h1>Octal Number System</h1>
+          <p>Understanding Base 8 - The Compact Binary Representation</p>
+        </div>
+      </div>
+
+      <div class="slide">
+        <!-- Section: What is Octal? -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-question-circle"></i>
+            What is Octal?
+          </div>
+
+          <div class="definition-box">
+            <div class="definition-title">Definition</div>
+            <div class="definition-content">
+              Octal = base 8 number system<br />
+              Digits: 0, 1, 2, 3, 4, 5, 6, 7<br />
+              Each position represents a power of 8.<br />
+              Used in older computer systems and programming because it's a
+              short form of binary (1 octal digit = 3 binary bits).
+            </div>
+          </div>
+
+          <div class="example-box">
+            <div class="example-title">
+              <i class="fas fa-lightbulb"></i>
+              Example
+            </div>
+            (157)₈ = (1 × 8²) + (5 × 8¹) + (7 × 8⁰)<br />
+            = 64 + 40 + 7 = 111 in decimal
+          </div>
+        </div>
+
+        <!-- Section: Relation with Binary -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-link"></i>
+            Relation with Binary
+          </div>
+
+          <div class="definition-content" style="margin-bottom: 20px">
+            1 octal digit = 3 binary bits<br />
+            Easy conversion: just group binary digits into 3's.
+          </div>
+
+          <div class="relation-box">
+            <div class="digit-box">0</div>
+            <div class="equals">=</div>
+            <div class="binary-group">
+              <div class="binary-digit">0</div>
+              <div class="binary-digit">0</div>
+              <div class="binary-digit">0</div>
+            </div>
+
+            <div class="digit-box">1</div>
+            <div class="equals">=</div>
+            <div class="binary-group">
+              <div class="binary-digit">0</div>
+              <div class="binary-digit">0</div>
+              <div class="binary-digit">1</div>
+            </div>
+
+            <div class="digit-box">2</div>
+            <div class="equals">=</div>
+            <div class="binary-group">
+              <div class="binary-digit">0</div>
+              <div class="binary-digit">1</div>
+              <div class="binary-digit">0</div>
+            </div>
+
+            <div class="digit-box">3</div>
+            <div class="equals">=</div>
+            <div class="binary-group">
+              <div class="binary-digit">0</div>
+              <div class="binary-digit">1</div>
+              <div class="binary-digit">1</div>
+            </div>
+          </div>
+
+          <div class="relation-box">
+            <div class="digit-box">4</div>
+            <div class="equals">=</div>
+            <div class="binary-group">
+              <div class="binary-digit">1</div>
+              <div class="binary-digit">0</div>
+              <div class="binary-digit">0</div>
+            </div>
+
+            <div class="digit-box">5</div>
+            <div class="equals">=</div>
+            <div class="binary-group">
+              <div class="binary-digit">1</div>
+              <div class="binary-digit">0</div>
+              <div class="binary-digit">1</div>
+            </div>
+
+            <div class="digit-box">6</div>
+            <div class="equals">=</div>
+            <div class="binary-group">
+              <div class="binary-digit">1</div>
+              <div class="binary-digit">1</div>
+              <div class="binary-digit">0</div>
+            </div>
+
+            <div class="digit-box">7</div>
+            <div class="equals">=</div>
+            <div class="binary-group">
+              <div class="binary-digit">1</div>
+              <div class="binary-digit">1</div>
+              <div class="binary-digit">1</div>
+            </div>
+          </div>
+
+          <div class="example-box">
+            <div class="example-title">
+              <i class="fas fa-lightbulb"></i>
+              Example 1: Binary to Octal
+            </div>
+            (101101)₂ → group as (101)(101) → (5)(5) = 55₈
+          </div>
+
+          <div class="example-box">
+            <div class="example-title">
+              <i class="fas fa-lightbulb"></i>
+              Example 2: Octal to Binary
+            </div>
+            (764)₈ → each digit to 3-bit binary:<br />
+            7 = 111, 6 = 110, 4 = 100 → 111110100₂
+          </div>
+        </div>
+
+        <!-- Section: Conversions -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-exchange-alt"></i>
+            Conversions
+          </div>
+
+          <div class="conversion-methods">
+            <!-- Decimal to Octal -->
+            <div class="conversion-method">
+              <div class="conversion-header">
+                <div class="conversion-icon">
+                  <i class="fas fa-long-arrow-alt-right"></i>
+                </div>
+                <div class="conversion-title">Decimal → Octal</div>
+              </div>
+              <div><strong>Method:</strong> Division by 8</div>
+              <div class="calculation-example">
+                <div class="calculation-step">
+                  <div class="step-number">1</div>
+                  <div class="step-content">125 ÷ 8 = 15 remainder 5</div>
+                </div>
+                <div class="calculation-step">
+                  <div class="step-number">2</div>
+                  <div class="step-content">15 ÷ 8 = 1 remainder 7</div>
+                </div>
+                <div class="calculation-step">
+                  <div class="step-number">3</div>
+                  <div class="step-content">1 ÷ 8 = 0 remainder 1</div>
+                </div>
+                <div style="margin-top: 15px; font-weight: 500">
+                  Reading remainders bottom → top: <strong>175₈</strong>
+                </div>
+                <div style="margin-top: 10px">So, 125₁₀ = 175₈</div>
+              </div>
+            </div>
+
+            <!-- Octal to Decimal -->
+            <div class="conversion-method">
+              <div class="conversion-header">
+                <div class="conversion-icon">
+                  <i class="fas fa-long-arrow-alt-left"></i>
+                </div>
+                <div class="conversion-title">Octal → Decimal</div>
+              </div>
+              <div><strong>Method:</strong> Multiplication by powers of 8</div>
+              <div class="calculation-example">
+                Convert (326)₈ to decimal:
+                <div style="margin-top: 15px">
+                  (3 × 8²) + (2 × 8¹) + (6 × 8⁰)
+                </div>
+                <div style="margin-top: 10px">
+                  = (3 × 64) + (2 × 8) + (6 × 1)
+                </div>
+                <div style="margin-top: 10px">
+                  = 192 + 16 + 6 = <strong>214₁₀</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Binary to Octal -->
+            <div class="conversion-method">
+              <div class="conversion-header">
+                <div class="conversion-icon">
+                  <i class="fas fa-long-arrow-alt-right"></i>
+                </div>
+                <div class="conversion-title">Binary → Octal</div>
+              </div>
+              <div><strong>Method:</strong> Grouping into 3 bits</div>
+              <div class="calculation-example">
+                Convert (1101011)₂ to octal:
+                <div style="margin-top: 15px">
+                  Group into 3's: 1 101 011 → add leading 0: 001 101 011
+                </div>
+                <div style="margin-top: 10px">
+                  = (1)(5)(3) = <strong>153₈</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Octal to Binary -->
+            <div class="conversion-method">
+              <div class="conversion-header">
+                <div class="conversion-icon">
+                  <i class="fas fa-long-arrow-alt-left"></i>
+                </div>
+                <div class="conversion-title">Octal → Binary</div>
+              </div>
+              <div>
+                <strong>Method:</strong> Convert each digit to 3-bit binary
+              </div>
+              <div class="calculation-example">
+                Convert (745)₈ to binary:
+                <div style="margin-top: 15px">7 = 111, 4 = 100, 5 = 101</div>
+                <div style="margin-top: 10px; font-weight: 500">
+                  = <strong>111100101₂</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Octal Fractions -->
+          <div class="example-box" style="margin-top: 25px">
+            <div class="example-title">
+              <i class="fas fa-percentage"></i>
+              Octal Fractions
+            </div>
+            <div>Fractions convert by multiplying/dividing by 8.</div>
+            <div class="calculation-example">
+              Convert (0.52)₈ to decimal:
+              <div style="margin-top: 15px">= (5 × 8⁻¹) + (2 × 8⁻²)</div>
+              <div style="margin-top: 10px">= (5 ÷ 8) + (2 ÷ 64)</div>
+              <div style="margin-top: 10px">
+                = 0.625 + 0.03125 = <strong>0.65625₁₀</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Octal Arithmetic -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-calculator"></i>
+            Octal Arithmetic
+          </div>
+
+          <!-- Addition -->
+          <div class="arithmetic-section">
+            <div class="arithmetic-title">
+              <i class="fas fa-plus"></i>
+              Addition
+            </div>
+
+            <div style="margin-bottom: 15px">
+              Add like decimal, but carry when ≥ 8.
+            </div>
+
+            <div class="example-box">
+              <div class="example-title">
+                <i class="fas fa-lightbulb"></i>
+                Example: (345)₈ + (127)₈
+              </div>
+              <div class="calculation-example">
+                <div style="text-align: center; margin-bottom: 15px">
+                  = 229₁₀ + 87₁₀ = 316₁₀ = 474₈
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    justify-content: center;
+                    margin-bottom: 15px;
+                  "
+                >
+                  <div
+                    style="
+                      font-family: 'Courier New', monospace;
+                      font-size: 1.2rem;
+                    "
+                  >
+                    <div>345</div>
+                    <div>+ 127</div>
+                    <div>-------</div>
+                    <div>474</div>
+                  </div>
+                </div>
+                <div>
+                  <div class="calculation-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                      Rightmost digits: 5 + 7 = 12₁₀ = 14₈ (write 4, carry 1)
+                    </div>
+                  </div>
+                  <div class="calculation-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                      Next digits: 4 + 2 + carry 1 = 7 (write 7, carry 0)
+                    </div>
+                  </div>
+                  <div class="calculation-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                      Leftmost digits: 3 + 1 = 4 (write 4)
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="margin-top: 15px; font-weight: 500; text-align: center"
+                >
+                  Result: (345)₈ + (127)₈ = 474₈
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Subtraction -->
+          <div class="arithmetic-section">
+            <div class="arithmetic-title">
+              <i class="fas fa-minus"></i>
+              Subtraction
+            </div>
+
+            <div style="margin-bottom: 15px">
+              Subtract like decimal, borrow when needed.
+            </div>
+
+            <div class="example-box">
+              <div class="example-title">
+                <i class="fas fa-lightbulb"></i>
+                Example: (542)₈ − (237)₈
+              </div>
+              <div class="calculation-example">
+                <div style="text-align: center; margin-bottom: 15px">
+                  = 354₁₀ − 159₁₀ = 195₁₀ = 303₈
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    justify-content: center;
+                    margin-bottom: 15px;
+                  "
+                >
+                  <div
+                    style="
+                      font-family: 'Courier New', monospace;
+                      font-size: 1.2rem;
+                    "
+                  >
+                    <div>542</div>
+                    <div>- 237</div>
+                    <div>-------</div>
+                    <div>303</div>
+                  </div>
+                </div>
+                <div>
+                  <div class="calculation-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                      Rightmost digits: 2 − 7 → borrow → 12 − 7 = 5
+                    </div>
+                  </div>
+                  <div class="calculation-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                      Next digits: 3 (after borrow) − 3 = 0
+                    </div>
+                  </div>
+                  <div class="calculation-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">Leftmost digits: 5 − 2 = 3</div>
+                  </div>
+                </div>
+                <div
+                  style="margin-top: 15px; font-weight: 500; text-align: center"
+                >
+                  Result: (542)₈ − (237)₈ = 303₈
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Multiplication -->
+          <div class="arithmetic-section">
+            <div class="arithmetic-title">
+              <i class="fas fa-times"></i>
+              Multiplication
+            </div>
+
+            <div style="margin-bottom: 15px">
+              Multiply digits, carry when ≥ 8.
+            </div>
+
+            <div class="example-box">
+              <div class="example-title">
+                <i class="fas fa-lightbulb"></i>
+                Example: (7)₈ × (6)₈
+              </div>
+              <div class="calculation-example">
+                <div style="text-align: center; margin-bottom: 15px">
+                  7 × 6 = 42₁₀
+                </div>
+                <div style="margin-top: 15px">Convert 42₁₀ to octal:</div>
+                <div style="margin-top: 10px">42 ÷ 8 = 5 remainder 2</div>
+                <div style="margin-top: 10px">5 ÷ 8 = 0 remainder 5</div>
+                <div
+                  style="margin-top: 15px; font-weight: 500; text-align: center"
+                >
+                  Result: (7)₈ × (6)₈ = 52₈
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Division -->
+          <div class="arithmetic-section">
+            <div class="arithmetic-title">
+              <i class="fas fa-divide"></i>
+              Division
+            </div>
+
+            <div style="margin-bottom: 15px">
+              Divide normally, convert remainder to octal.
+            </div>
+
+            <div class="example-box">
+              <div class="example-title">
+                <i class="fas fa-lightbulb"></i>
+                Example: (345)₈ ÷ (5)₈
+              </div>
+              <div class="calculation-example">
+                <div style="text-align: center; margin-bottom: 15px">
+                  = 229₁₀ ÷ 5₁₀ = 45₁₀ = 55₈
+                </div>
+                <div style="margin-top: 15px">Convert 45₁₀ to octal:</div>
+                <div style="margin-top: 10px">45 ÷ 8 = 5 remainder 5</div>
+                <div style="margin-top: 10px">5 ÷ 8 = 0 remainder 5</div>
+                <div
+                  style="margin-top: 15px; font-weight: 500; text-align: center"
+                >
+                  Result: (345)₈ ÷ (5)₈ = 55₈
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Uses of Octal -->
+        <div class="section">
+          <div class="section-title">
+            <i class="fas fa-laptop-code"></i>
+            Uses of Octal
+          </div>
+
+          <div class="uses-grid">
+            <div class="use-card">
+              <div class="use-icon">
+                <i class="fas fa-history"></i>
+              </div>
+              <div class="use-title">Early Computers</div>
+              <div class="use-description">
+                Because binary was long, octal was a compact representation
+              </div>
+            </div>
+
+            <div class="use-card">
+              <div class="use-icon">
+                <i class="fas fa-microchip"></i>
+              </div>
+              <div class="use-title">Digital Electronics</div>
+              <div class="use-description">
+                Easier to read than long binary strings
+              </div>
+            </div>
+
+            <div class="use-card">
+              <div class="use-icon">
+                <i class="fab fa-linux"></i>
+              </div>
+              <div class="use-title">Unix Permissions</div>
+              <div class="use-description">
+                File permissions (e.g., 755, 644) are written in octal
+              </div>
+            </div>
+          </div>
+
+          <div class="unix-permissions">
+            <div class="example-title">
+              <i class="fas fa-lightbulb"></i>
+              Example: Unix file permission 755
+            </div>
+
+            <div class="permission-row">
+              <div class="permission-label">Owner:</div>
+              <div class="permission-value">
+                7 = 111₂ (read, write, execute)
+              </div>
+            </div>
+            <div class="permission-binary">
+              <div class="permission-bit">1</div>
+              <div class="permission-bit">1</div>
+              <div class="permission-bit">1</div>
+            </div>
+
+            <div class="permission-row">
+              <div class="permission-label">Group:</div>
+              <div class="permission-value">5 = 101₂ (read, execute)</div>
+            </div>
+            <div class="permission-binary">
+              <div class="permission-bit">1</div>
+              <div class="permission-bit">0</div>
+              <div class="permission-bit">1</div>
+            </div>
+
+            <div class="permission-row">
+              <div class="permission-label">Others:</div>
+              <div class="permission-value">5 = 101₂ (read, execute)</div>
+            </div>
+            <div class="permission-binary">
+              <div class="permission-bit">1</div>
+              <div class="permission-bit">0</div>
+              <div class="permission-bit">1</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Summary -->
+        <div class="summary">
+          <div class="summary-title">
+            <i class="fas fa-check-circle" style="margin-right: 10px"></i>
+            Summary
+          </div>
+          <div class="summary-content">
+            Octal = base 8 (digits 0–7). It provides a compact representation of
+            binary data.
+          </div>
+
+          <div class="key-points">
+            <div class="key-point">Octal = base 8 (0–7)</div>
+            <div class="key-point">1 octal digit = 3 binary digits</div>
+            <div class="key-point">Conversions: decimal ↔ octal ↔ binary</div>
+            <div class="key-point">
+              Arithmetic rules like decimal, but base 8
+            </div>
+            <div class="key-point">
+              Still used in Unix systems and digital circuits
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

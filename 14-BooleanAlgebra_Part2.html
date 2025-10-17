@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boolean Algebra Laws - Interactive Guide</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: #333;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      header {
+        text-align: center;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 0 0 30px 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        animation: fadeInDown 1s ease;
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        animation: fadeInUp 1s ease;
+      }
+
+      section {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        margin: 40px 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        animation: slideInUp 0.8s ease;
+      }
+
+      section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+      }
+
+      h2 {
+        color: #667eea;
+        font-size: 2rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .law-card {
+        background: #f8f9ff;
+        border-left: 5px solid #667eea;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+      }
+
+      .law-card:hover {
+        background: #f0f2ff;
+        transform: translateX(5px);
+      }
+
+      .formula {
+        font-family: "Courier New", monospace;
+        font-size: 1.3rem;
+        background: #e9ecef;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        margin: 20px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .formula::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.4),
+          transparent
+        );
+        animation: shimmer 2s infinite;
+      }
+
+      @keyframes shimmer {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+
+      .truth-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      .truth-table th,
+      .truth-table td {
+        padding: 12px;
+        text-align: center;
+        border: 1px solid #e0e0e0;
+      }
+
+      .truth-table th {
+        background: #667eea;
+        color: white;
+        font-weight: 600;
+      }
+
+      .truth-table tr:nth-child(even) {
+        background: #f8f9fa;
+      }
+
+      .truth-table tr:hover {
+        background: #e9ecef;
+        transition: background 0.3s ease;
+      }
+
+      .example-box {
+        background: #fff3cd;
+        border-left: 5px solid #ffc107;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 10px;
+        position: relative;
+      }
+
+      .example-box::before {
+        content: "\f0eb";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 1.5rem;
+        color: #ffc107;
+        opacity: 0.5;
+      }
+
+      .interactive-demo {
+        display: flex;
+        gap: 20px;
+        margin: 30px 0;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .gate {
+        width: 120px;
+        height: 80px;
+        background: #667eea;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .gate:hover {
+        transform: scale(1.05);
+        background: #5a67d8;
+      }
+
+      .gate.active {
+        background: #48bb78;
+        animation: pulse 1s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(72, 187, 120, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(72, 187, 120, 0);
+        }
+      }
+
+      .toggle-switch {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 10px 0;
+      }
+
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+      }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 34px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background-color: #667eea;
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(26px);
+      }
+
+      .result-display {
+        background: #e9ecef;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 20px 0;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .emoji {
+        font-size: 2rem;
+        margin: 0 5px;
+        display: inline-block;
+        animation: bounce 2s infinite;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      .nav-dots {
+        position: fixed;
+        right: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+      }
+
+      .nav-dot {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background: #ccc;
+        margin: 10px 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .nav-dot.active {
+        background: #667eea;
+        transform: scale(1.3);
+      }
+
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .highlight {
+        background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .visual-diagram {
+        display: flex;
+        justify-content: center;
+        margin: 30px 0;
+        position: relative;
+      }
+
+      .logic-gate {
+        width: 100px;
+        height: 60px;
+        background: #667eea;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 10px;
+        border-radius: 10px;
+        position: relative;
+      }
+
+      .connection-line {
+        position: absolute;
+        height: 2px;
+        background: #667eea;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .input-circle,
+      .output-circle {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #48bb78;
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+      }
+
+      .floating-emoji {
+        position: absolute;
+        font-size: 2rem;
+        animation: float 3s ease-in-out infinite;
+        opacity: 0.7;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-20px) rotate(10deg);
+        }
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2rem;
+        }
+        h2 {
+          font-size: 1.5rem;
+        }
+        section {
+          padding: 20px;
+        }
+        .interactive-demo {
+          flex-direction: column;
+          align-items: center;
+        }
+        .nav-dots {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="nav-dots">
+      <div class="nav-dot active" onclick="scrollToSection('demorgan')"></div>
+      <div class="nav-dot" onclick="scrollToSection('absorption')"></div>
+      <div class="nav-dot" onclick="scrollToSection('simplification')"></div>
+      <div class="nav-dot" onclick="scrollToSection('consensus')"></div>
+      <div class="nav-dot" onclick="scrollToSection('theorems')"></div>
+      <div class="nav-dot" onclick="scrollToSection('expressions')"></div>
+    </div>
+
+    <header>
+      <h1><i class="fas fa-microchip"></i> Boolean Algebra Laws</h1>
+      <p class="subtitle">
+        Interactive Guide to Understanding Logic Laws
+        <span class="emoji">🧠</span>
+      </p>
+    </header>
+
+    <div class="container">
+      <!-- De Morgan's Laws Section -->
+      <section id="demorgan">
+        <h2>
+          <i class="fas fa-project-diagram"></i> 7) De Morgan's Laws in Boolean
+          Algebra <span class="emoji">🔄</span>
+        </h2>
+
+        <div class="law-card">
+          <h3>
+            <i class="fas fa-arrow-right"></i> Law 1: NOT of OR is AND of NOTs
+          </h3>
+          <div class="formula">¬(A + B) = ¬A · ¬B</div>
+          <p>
+            <strong>Meaning:</strong> The complement of (A OR B) equals (NOT A)
+            AND (NOT B).
+          </p>
+        </div>
+
+        <div class="law-card">
+          <h3>
+            <i class="fas fa-arrow-right"></i> Law 2: NOT of AND is OR of NOTs
+          </h3>
+          <div class="formula">¬(A · B) = ¬A + ¬B</div>
+          <p>
+            <strong>Meaning:</strong> The complement of (A AND B) equals (NOT A)
+            OR (NOT B).
+          </p>
+        </div>
+
+        <h3><i class="fas fa-table"></i> Truth Table Verification</h3>
+        <table class="truth-table">
+          <thead>
+            <tr>
+              <th>A</th>
+              <th>B</th>
+              <th>A + B</th>
+              <th>¬(A + B)</th>
+              <th>¬A</th>
+              <th>¬B</th>
+              <th>¬A · ¬B</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+              <td class="highlight">1</td>
+            </tr>
+            <tr>
+              <td>0</td>
+              <td>1</td>
+              <td>1</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td class="highlight">0</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td class="highlight">0</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td class="highlight">0</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          <i class="fas fa-check-circle" style="color: #48bb78"></i> Check: ¬(A
+          + B) = ¬A · ¬B → matches perfectly!
+        </p>
+
+        <table class="truth-table">
+          <thead>
+            <tr>
+              <th>A</th>
+              <th>B</th>
+              <th>A · B</th>
+              <th>¬(A · B)</th>
+              <th>¬A</th>
+              <th>¬B</th>
+              <th>¬A + ¬B</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+              <td class="highlight">1</td>
+            </tr>
+            <tr>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>1</td>
+              <td>1</td>
+              <td>0</td>
+              <td class="highlight">1</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>1</td>
+              <td class="highlight">1</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td class="highlight">0</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          <i class="fas fa-check-circle" style="color: #48bb78"></i> Check: ¬(A
+          · B) = ¬A + ¬B → also matches perfectly!
+        </p>
+
+        <div class="example-box">
+          <h3><i class="fas fa-cloud-rain"></i> Real-world Example:</h3>
+          <p><strong>"NOT (Rain OR Snow)"</strong> means:</p>
+          <p>
+            It's NOT raining AND NOT snowing — both must be false to say no
+            precipitation.
+          </p>
+          <br />
+          <p><strong>"NOT (Rain AND Snow)"</strong> means:</p>
+          <p>
+            Either NOT raining OR NOT snowing (so if at least one is false, the
+            whole statement is false).
+          </p>
+        </div>
+
+        <div class="law-card">
+          <h3><i class="fas fa-lightbulb"></i> Why is this useful?</h3>
+          <ul>
+            <li>
+              In circuits, it allows you to replace NAND and NOR gates with
+              combinations of NOT, AND, and OR gates.
+            </li>
+            <li>Makes simplifying complex Boolean expressions easier.</li>
+          </ul>
+        </div>
+
+        <div class="interactive-demo">
+          <h3 style="width: 100%; text-align: center">Interactive Demo</h3>
+          <div style="width: 100%">
+            <div class="toggle-switch">
+              <label>A:</label>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="demorganA"
+                  onchange="updateDemorgan()"
+                />
+                <span class="slider"></span>
+              </label>
+              <span id="demorganAValue">0</span>
+            </div>
+            <div class="toggle-switch">
+              <label>B:</label>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="demorganB"
+                  onchange="updateDemorgan()"
+                />
+                <span class="slider"></span>
+              </label>
+              <span id="demorganBValue">0</span>
+            </div>
+            <div class="result-display" id="demorganResult">
+              ¬(A + B) = <span id="demorganLeft">1</span> | ¬A · ¬B =
+              <span id="demorganRight">1</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Absorption Laws Section -->
+      <section id="absorption">
+        <h2>
+          <i class="fas fa-compress-alt"></i> 8) Absorption Laws in Boolean
+          Algebra <span class="emoji">🧽</span>
+        </h2>
+
+        <div class="law-card">
+          <h3><i class="fas fa-arrow-right"></i> Law 1: A · (A + B) = A</h3>
+          <div class="formula">A · (A + B) = A</div>
+          <p>
+            <strong>Meaning:</strong> AND-ing A with (A OR B) just equals A.
+          </p>
+        </div>
+
+        <div class="law-card">
+          <h3><i class="fas fa-arrow-right"></i> Law 2: A + A · B = A</h3>
+          <div class="formula">A + A · B = A</div>
+          <p>
+            <strong>Meaning:</strong> OR-ing A with (A AND B) also just equals
+            A.
+          </p>
+        </div>
+
+        <p>
+          <i class="fas fa-info-circle"></i> This law removes redundant parts in
+          expressions.
+        </p>
+
+        <h3><i class="fas fa-table"></i> Truth Table Verification</h3>
+        <table class="truth-table">
+          <thead>
+            <tr>
+              <th>A</th>
+              <th>B</th>
+              <th>A + B</th>
+              <th>A · (A + B)</th>
+              <th>Result compared to A</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td class="highlight">Same as A = 0</td>
+            </tr>
+            <tr>
+              <td>0</td>
+              <td>1</td>
+              <td>1</td>
+              <td>0</td>
+              <td class="highlight">Same as A = 0</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>0</td>
+              <td>1</td>
+              <td>1</td>
+              <td class="highlight">Same as A = 1</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+              <td class="highlight">Same as A = 1</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          <i class="fas fa-check-circle" style="color: #48bb78"></i> Check: A ·
+          (A + B) = A
+        </p>
+
+        <table class="truth-table">
+          <thead>
+            <tr>
+              <th>A</th>
+              <th>B</th>
+              <th>A · B</th>
+              <th>A + A · B</th>
+              <th>Result compared to A</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td class="highlight">Same as A = 0</td>
+            </tr>
+            <tr>
+              <td>0</td>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td class="highlight">Same as A = 0</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td class="highlight">Same as A = 1</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+              <td class="highlight">Same as A = 1</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          <i class="fas fa-check-circle" style="color: #48bb78"></i> Check: A +
+          A · B = A
+        </p>
+
+        <div class="example-box">
+          <h3><i class="fas fa-lightbulb"></i> Real-world Example:</h3>
+          <p>Think of A as a switch controlling a lamp.</p>
+          <p>
+            <strong>A + A · B</strong> means: the lamp is ON if A is ON OR A AND
+            B are ON.
+          </p>
+          <p>
+            But if A is already ON, the second part A · B doesn't add anything
+            new — the lamp is ON anyway.
+          </p>
+          <p>So the expression simplifies to just A.</p>
+        </div>
+
+        <div class="law-card">
+          <h3><i class="fas fa-check-double"></i> Summary:</h3>
+          <p>
+            Absorption laws help you simplify Boolean expressions by removing
+            redundant terms.
+          </p>
+          <p>This saves gates and makes circuits simpler!</p>
+        </div>
+
+        <div class="interactive-demo">
+          <h3 style="width: 100%; text-align: center">Interactive Demo</h3>
+          <div style="width: 100%">
+            <div class="toggle-switch">
+              <label>A:</label>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="absorptionA"
+                  onchange="updateAbsorption()"
+                />
+                <span class="slider"></span>
+              </label>
+              <span id="absorptionAValue">0</span>
+            </div>
+            <div class="toggle-switch">
+              <label>B:</label>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="absorptionB"
+                  onchange="updateAbsorption()"
+                />
+                <span class="slider"></span>
+              </label>
+              <span id="absorptionBValue">0</span>
+            </div>
+            <div class="result-display" id="absorptionResult">
+              A + A·B = <span id="absorptionLeft">0</span> | A =
+              <span id="absorptionRight">0</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Simplification Laws Section -->
+      <section id="simplification">
+        <h2>
+          <i class="fas fa-magic"></i> 9) Simplification Laws in Boolean Algebra
+          <span class="emoji">✨</span>
+        </h2>
+
+        <div class="law-card">
+          <h3><i class="fas fa-arrow-right"></i> Law 1: A + A′ = 1</h3>
+          <div class="formula">A + A′ = 1</div>
+          <p>
+            <strong>Meaning:</strong> If either A or NOT A is true, the result
+            is always 1.
+          </p>
+        </div>
+
+        <div class="law-card">
+          <h3><i class="fas fa-arrow-right"></i> Law 2: A · A′ = 0</h3>
+          <div class="formula">A · A′ = 0</div>
+          <p>
+            <strong>Meaning:</strong> A value and its opposite can never both be
+            true at the same time — result is always 0.
+          </p>
+        </div>
+
+        <h3><i class="fas fa-table"></i> Truth Table Verification</h3>
+        <table class="truth-table">
+          <thead>
+            <tr>
+              <th>A</th>
+              <th>A′</th>
+              <th>A + A′ (OR)</th>
+              <th>A · A′ (AND)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>0</td>
+              <td>1</td>
+              <td class="highlight">1</td>
+              <td class="highlight">0</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>0</td>
+              <td class="highlight">1</td>
+              <td class="highlight">0</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          <i class="fas fa-check-circle" style="color: #48bb78"></i> Matches
+          both laws exactly!
+        </p>
+
+        <div class="example-box">
+          <h3><i class="fas fa-light-switch"></i> Real-world Analogy:</h3>
+          <p>Think of a light switch:</p>
+          <p>The switch is either ON (1) or OFF (0).</p>
+          <p>
+            There's no third option — it can't be both ON and OFF at the same
+            time.
+          </p>
+          <br />
+          <p>
+            <strong>ON OR OFF = 1</strong> → One of them is always true → light
+            can be detected as existing (binary decision).
+          </p>
+          <p>
+            <strong>ON AND OFF = 0</strong> → Can't happen together → light is
+            OFF.
+          </p>
+        </div>
+
+        <div class="law-card">
+          <h3><i class="fas fa-check-double"></i> Summary:</h3>
+          <p>
+            These laws reinforce the binary nature of Boolean logic — only two
+            states: 0 or 1.
+          </p>
+          <p>Helps in simplifying expressions and checking circuit logic.</p>
+        </div>
+
+        <div class="interactive-demo">
+          <h3 style="width: 100%; text-align: center">Interactive Demo</h3>
+          <div style="width: 100%">
+            <div class="toggle-switch">
+              <label>A:</label>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="simplificationA"
+                  onchange="updateSimplification()"
+                />
+                <span class="slider"></span>
+              </label>
+              <span id="simplificationAValue">0</span>
+            </div>
+            <div class="result-display" id="simplificationResult">
+              A + A′ = <span id="simplificationLeft">1</span> | A · A′ =
+              <span id="simplificationRight">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="visual-diagram">
+          <div class="floating-emoji" style="top: -20px; left: 10%">💡</div>
+          <div class="floating-emoji" style="top: 50px; right: 15%">⚡</div>
+          <div class="floating-emoji" style="bottom: -10px; left: 30%">🔌</div>
+
+          <div
+            class="input-circle"
+            style="left: 0; top: 50%; transform: translateY(-50%)"
+          >
+            A
+          </div>
+          <div class="logic-gate">NOT</div>
+          <div
+            class="input-circle"
+            style="left: 150px; top: 50%; transform: translateY(-50%)"
+          >
+            A′
+          </div>
+
+          <div class="connection-line" style="left: 30px; width: 70px"></div>
+          <div class="connection-line" style="left: 180px; width: 70px"></div>
+
+          <div class="logic-gate" style="left: 250px; background: #48bb78">
+            OR
+          </div>
+          <div
+            class="output-circle"
+            style="left: 370px; top: 50%; transform: translateY(-50%)"
+          >
+            1
+          </div>
+
+          <div
+            class="connection-line"
+            style="left: 30px; width: 70px; top: -30px"
+          ></div>
+          <div
+            class="connection-line"
+            style="left: 180px; width: 70px; top: -30px"
+          ></div>
+
+          <div
+            class="logic-gate"
+            style="left: 250px; top: -80px; background: #e53e3e"
+          >
+            AND
+          </div>
+          <div
+            class="output-circle"
+            style="left: 370px; top: -80px; transform: translateY(-50%)"
+          >
+            0
+          </div>
+        </div>
+      </section>
+
+      <!-- Consensus Laws Section -->
+      <section id="consensus">
+        <h2>
+          <i class="fas fa-balance-scale"></i> 10) Consensus Laws in Boolean
+          Algebra <span class="emoji">⚖️</span>
+        </h2>
+
+        <p>
+          <i class="fas fa-info-circle"></i> Eliminates unnecessary terms to
+          simplify expressions.
+        </p>
+
+        <div class="law-card">
+          <h3><i class="fas fa-arrow-right"></i> Law 1: AB + A′C = AB + C</h3>
+          <div class="formula">AB + A′C = AB + C</div>
+          <p>
+            <strong>Meaning:</strong> If you have two terms — one with A and
+            another with A′ (NOT A) — then the middle term (A′C) can be absorbed
+            into just C.
+          </p>
+
+          <div class="example-box">
+            <h4><i class="fas fa-question-circle"></i> Why does it work?</h4>
+            <ul>
+              <li>If AB is true, we already know the output is true.</li>
+              <li>
+                If AB is false, then A=0, so A′=1, and the result depends only
+                on C.
+              </li>
+              <li>
+                So the term A′C adds nothing new beyond what C already gives.
+              </li>
+            </ul>
+          </div>
+
+          <h4><i class="fas fa-table"></i> Truth Table Verification</h4>
+          <table class="truth-table">
+            <thead>
+              <tr>
+                <th>A</th>
+                <th>B</th>
+                <th>C</th>
+                <th>AB</th>
+                <th>A′</th>
+                <th>A′C</th>
+                <th>AB + A′C</th>
+                <th>AB + C</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="highlight">0</td>
+              </tr>
+              <tr>
+                <td>0</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+                <td class="highlight">1</td>
+              </tr>
+              <tr>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="highlight">0</td>
+              </tr>
+              <tr>
+                <td>0</td>
+                <td>1</td>
+                <td>1</td>
+                <td>0</td>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+                <td class="highlight">1</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="highlight">0</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="highlight">1</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>1</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td>1</td>
+                <td class="highlight">1</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td>1</td>
+                <td class="highlight">1</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <i class="fas fa-check-circle" style="color: #48bb78"></i> Notice:
+            In all rows, AB + A′C = AB + C → The consensus term A′C can be
+            eliminated.
+          </p>
+        </div>
+
+        <div class="law-card">
+          <h3>
+            <i class="fas fa-arrow-right"></i> Law 2: A + BC = A + A′B + C
+          </h3>
+          <div class="formula">A + BC = A + A′B + C</div>
+          <p>
+            <strong>Meaning:</strong> You can add terms to make the expression
+            simpler in logic or easier to implement.
+          </p>
+
+          <div class="example-box">
+            <h4><i class="fas fa-question-circle"></i> Why this works:</h4>
+            <ul>
+              <li>If A is true, the expression is true no matter what.</li>
+              <li>If A=0, then it reduces to: 0+BC=A′B+C</li>
+              <li>Which simplifies further to just A′B + C.</li>
+              <li>
+                This law is useful when implementing logic using only basic
+                gates (NOT, AND, OR).
+              </li>
+            </ul>
+          </div>
+
+          <h4><i class="fas fa-table"></i> Truth Table Verification</h4>
+          <table class="truth-table">
+            <thead>
+              <tr>
+                <th>A</th>
+                <th>B</th>
+                <th>C</th>
+                <th>BC</th>
+                <th>A + BC</th>
+                <th>A′</th>
+                <th>A′B</th>
+                <th>A′B + C</th>
+                <th>A + A′B + C</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="highlight">0</td>
+              </tr>
+              <tr>
+                <td>0</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td>1</td>
+                <td>1</td>
+                <td>0</td>
+                <td>1</td>
+                <td class="highlight">1</td>
+              </tr>
+              <tr>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+                <td class="highlight">1</td>
+              </tr>
+              <tr>
+                <td>0</td>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+                <td class="highlight">1</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="highlight">1</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td>1</td>
+                <td class="highlight">1</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="highlight">1</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td>1</td>
+                <td class="highlight">1</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <i class="fas fa-check-circle" style="color: #48bb78"></i> In all
+            rows, A + BC = A + A′B + C → The law is valid.
+          </p>
+        </div>
+
+        <div class="law-card">
+          <h3><i class="fas fa-list-alt"></i> Summary of Consensus Laws</h3>
+          <table class="truth-table">
+            <thead>
+              <tr>
+                <th>Law</th>
+                <th>Simplifies to</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>AB + A′C</td>
+                <td>AB + C</td>
+                <td>One redundant term can be removed.</td>
+              </tr>
+              <tr>
+                <td>A + BC</td>
+                <td>A + A′B + C</td>
+                <td>
+                  Extra terms can be added for simplification or implementation
+                  benefits.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="example-box">
+          <h3><i class="fas fa-lightbulb"></i> Real-world analogy:</h3>
+          <p>
+            If A is true, you don't need to check both B and C to decide the
+            output — the decision is already made.
+          </p>
+          <p>
+            These laws help reduce logic complexity in circuits by removing or
+            transforming terms.
+          </p>
+        </div>
+
+        <div class="interactive-demo">
+          <h3 style="width: 100%; text-align: center">Interactive Demo</h3>
+          <div style="width: 100%">
+            <div class="toggle-switch">
+              <label>A:</label>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="consensusA"
+                  onchange="updateConsensus()"
+                />
+                <span class="slider"></span>
+              </label>
+              <span id="consensusAValue">0</span>
+            </div>
+            <div class="toggle-switch">
+              <label>B:</label>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="consensusB"
+                  onchange="updateConsensus()"
+                />
+                <span class="slider"></span>
+              </label>
+              <span id="consensusBValue">0</span>
+            </div>
+            <div class="toggle-switch">
+              <label>C:</label>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="consensusC"
+                  onchange="updateConsensus()"
+                />
+                <span class="slider"></span>
+              </label>
+              <span id="consensusCValue">0</span>
+            </div>
+            <div class="result-display" id="consensusResult">
+              AB + A′C = <span id="consensusLeft">0</span> | AB + C =
+              <span id="consensusRight">0</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Boolean Algebra Theorems Section -->
+      <section id="theorems">
+        <h2>
+          <i class="fas fa-theorem"></i> 11) Boolean Algebra Theorems
+          <span class="emoji">📜</span>
+        </h2>
+
+        <div class="law-card">
+          <h3>
+            <i class="fas fa-arrow-right"></i> Theorem: (A + B)(A + B′) = A
+          </h3>
+          <div class="formula">(A + B)(A + B′) = A</div>
+          <p>This is a valid Boolean identity. Let's verify it step by step.</p>
+
+          <div class="example-box">
+            <h4><i class="fas fa-calculator"></i> Step-by-step logic:</h4>
+            <p><strong>Left side:</strong> (A + B)(A + B′)</p>
+            <p>Distribute using Boolean distributive law:</p>
+            <p>= A + AB′ + AB + BB′</p>
+            <p>But note:</p>
+            <ul>
+              <li>BB′ = 0 (since B and NOT B can't both be true)</li>
+              <li>AB + AB′ = A(B + B′) = A(1) = A</li>
+            </ul>
+            <p>So the full expression becomes:</p>
+            <p>= A</p>
+            <p>
+              <i class="fas fa-check-circle" style="color: #48bb78"></i> Valid!
+            </p>
+          </div>
+
+          <h4><i class="fas fa-table"></i> Truth Table Verification</h4>
+          <table class="truth-table">
+            <thead>
+              <tr>
+                <th>A</th>
+                <th>B</th>
+                <th>B′</th>
+                <th>A + B</th>
+                <th>A + B′</th>
+                <th>(A + B)(A + B′)</th>
+                <th>Result (A)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0 × 1 = 0</td>
+                <td class="highlight">0</td>
+              </tr>
+              <tr>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0</td>
+                <td>1 × 0 = 0</td>
+                <td class="highlight">0</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+                <td>1 × 1 = 1</td>
+                <td class="highlight">1</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>1</td>
+                <td>0</td>
+                <td>1</td>
+                <td>1</td>
+                <td>1 × 1 = 1</td>
+                <td class="highlight">1</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <i class="fas fa-check-circle" style="color: #48bb78"></i> Left side
+            matches the value of A in all rows.
+          </p>
+        </div>
+
+        <div class="interactive-demo">
+          <h3 style="width: 100%; text-align: center">Interactive Demo</h3>
+          <div style="width: 100%">
+            <div class="toggle-switch">
+              <label>A:</label>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="theoremA"
+                  onchange="updateTheorem()"
+                />
+                <span class="slider"></span>
+              </label>
+              <span id="theoremAValue">0</span>
+            </div>
+            <div class="toggle-switch">
+              <label>B:</label>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="theoremB"
+                  onchange="updateTheorem()"
+                />
+                <span class="slider"></span>
+              </label>
+              <span id="theoremBValue">0</span>
+            </div>
+            <div class="result-display" id="theoremResult">
+              (A + B)(A + B′) = <span id="theoremLeft">0</span> | A =
+              <span id="theoremRight">0</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Boolean Expressions & Equations Section -->
+      <section id="expressions">
+        <h2>
+          <i class="fas fa-code"></i> 4) Boolean Expressions & Equations
+          <span class="emoji">🔢</span>
+        </h2>
+
+        <div class="law-card">
+          <h3><i class="fas fa-function"></i> Boolean Expression</h3>
+          <p>A Boolean expression is just a combination of:</p>
+          <ul>
+            <li>Variables (like A, B, C)</li>
+            <li>Operators (AND, OR, NOT)</li>
+          </ul>
+
+          <div class="formula">(A + B)(A + C)</div>
+          <p>This means: A OR B, ANDed with A OR C</p>
+          <p>No statement of equality — it's just a value you can calculate.</p>
+        </div>
+
+        <div class="law-card">
+          <h3><i class="fas fa-equals"></i> Boolean Equation</h3>
+          <p>
+            A Boolean equation is when two expressions are set equal to each
+            other using an = sign.
+          </p>
+
+          <div class="formula">AB + AC = A(B + C)</div>
+          <p>This means:</p>
+          <ul>
+            <li>
+              The expression on the left is logically the same as the one on the
+              right
+            </li>
+            <li>You can prove it using Boolean laws (like distributive law)</li>
+          </ul>
+        </div>
+
+        <div class="law-card">
+          <h3><i class="fas fa-tools"></i> Using Laws to Simplify</h3>
+          <p>
+            We apply Boolean Laws (like distributive, absorption, De Morgan's,
+            etc.) to:
+          </p>
+          <ul>
+            <li>Reduce complex expressions</li>
+            <li>Minimize the number of logic gates in a circuit</li>
+            <li>Make circuits faster, cheaper, and easier to design</li>
+          </ul>
+
+          <div class="example-box">
+            <h4><i class="fas fa-search"></i> Let's look at an example:</h4>
+            <p><strong>Original Expression:</strong> AB + AC</p>
+            <p>Can be simplified using distributive law:</p>
+            <p>= A(B + C)</p>
+            <p>So the Boolean Equation: AB + AC = A(B + C) is true.</p>
+          </div>
+
+          <div class="example-box">
+            <h4><i class="fas fa-microchip"></i> Real-World Benefit:</h4>
+            <p>AB + AC uses 2 AND gates + 1 OR gate (3 gates)</p>
+            <p>A(B + C) uses 1 OR gate + 1 AND gate (2 gates)</p>
+            <p>
+              <strong>Result:</strong> Fewer gates = simpler, cheaper, faster
+              circuit.
+            </p>
+          </div>
+        </div>
+
+        <div class="law-card">
+          <h3><i class="fas fa-list"></i> Summary</h3>
+          <table class="truth-table">
+            <thead>
+              <tr>
+                <th>Term</th>
+                <th>Description</th>
+                <th>Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Expression</td>
+                <td>A logic formula (no = sign)</td>
+                <td>(A + B)(A + C)</td>
+              </tr>
+              <tr>
+                <td>Equation</td>
+                <td>Two expressions set equal</td>
+                <td>AB + AC = A(B + C)</td>
+              </tr>
+              <tr>
+                <td>Why simplify?</td>
+                <td>To reduce logic gates in circuits</td>
+                <td>Fewer gates = simpler design</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // Function to scroll to a specific section
+      function scrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        section.scrollIntoView({ behavior: "smooth" });
+
+        // Update active nav dot
+        const navDots = document.querySelectorAll(".nav-dot");
+        navDots.forEach((dot, index) => {
+          if (index === 0 && sectionId === "demorgan")
+            dot.classList.add("active");
+          else if (index === 1 && sectionId === "absorption")
+            dot.classList.add("active");
+          else if (index === 2 && sectionId === "simplification")
+            dot.classList.add("active");
+          else if (index === 3 && sectionId === "consensus")
+            dot.classList.add("active");
+          else if (index === 4 && sectionId === "theorems")
+            dot.classList.add("active");
+          else if (index === 5 && sectionId === "expressions")
+            dot.classList.add("active");
+          else dot.classList.remove("active");
+        });
+      }
+
+      // Update active nav dot on scroll
+      window.addEventListener("scroll", () => {
+        const sections = [
+          "demorgan",
+          "absorption",
+          "simplification",
+          "consensus",
+          "theorems",
+          "expressions",
+        ];
+        const navDots = document.querySelectorAll(".nav-dot");
+
+        let current = "";
+        sections.forEach((section) => {
+          const element = document.getElementById(section);
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= 100 && rect.bottom >= 100) {
+            current = section;
+          }
+        });
+
+        navDots.forEach((dot, index) => {
+          if (index === 0 && current === "demorgan")
+            dot.classList.add("active");
+          else if (index === 1 && current === "absorption")
+            dot.classList.add("active");
+          else if (index === 2 && current === "simplification")
+            dot.classList.add("active");
+          else if (index === 3 && current === "consensus")
+            dot.classList.add("active");
+          else if (index === 4 && current === "theorems")
+            dot.classList.add("active");
+          else if (index === 5 && current === "expressions")
+            dot.classList.add("active");
+          else dot.classList.remove("active");
+        });
+      });
+
+      // De Morgan's Laws Interactive Demo
+      function updateDemorgan() {
+        const a = document.getElementById("demorganA").checked ? 1 : 0;
+        const b = document.getElementById("demorganB").checked ? 1 : 0;
+
+        document.getElementById("demorganAValue").textContent = a;
+        document.getElementById("demorganBValue").textContent = b;
+
+        const notA = a === 0 ? 1 : 0;
+        const notB = b === 0 ? 1 : 0;
+
+        const aOrB = a || b;
+        const notAOrB = aOrB === 0 ? 1 : 0;
+        const notAAndNotB = notA && notB;
+
+        document.getElementById("demorganLeft").textContent = notAOrB;
+        document.getElementById("demorganRight").textContent = notAAndNotB;
+
+        const resultElement = document.getElementById("demorganResult");
+        if (notAOrB === notAAndNotB) {
+          resultElement.style.background = "#d4edda";
+          resultElement.innerHTML = `¬(A + B) = <span style="color: #155724;">${notAOrB}</span> | ¬A · ¬B = <span style="color: #155724;">${notAAndNotB}</span> <i class="fas fa-check-circle" style="color: #28a745;"></i>`;
+        } else {
+          resultElement.style.background = "#f8d7da";
+          resultElement.innerHTML = `¬(A + B) = <span style="color: #721c24;">${notAOrB}</span> | ¬A · ¬B = <span style="color: #721c24;">${notAAndNotB}</span> <i class="fas fa-times-circle" style="color: #dc3545;"></i>`;
+        }
+      }
+
+      // Absorption Laws Interactive Demo
+      function updateAbsorption() {
+        const a = document.getElementById("absorptionA").checked ? 1 : 0;
+        const b = document.getElementById("absorptionB").checked ? 1 : 0;
+
+        document.getElementById("absorptionAValue").textContent = a;
+        document.getElementById("absorptionBValue").textContent = b;
+
+        const aAndB = a && b;
+        const aOrAAndB = a || aAndB;
+
+        document.getElementById("absorptionLeft").textContent = aOrAAndB;
+        document.getElementById("absorptionRight").textContent = a;
+
+        const resultElement = document.getElementById("absorptionResult");
+        if (aOrAAndB === a) {
+          resultElement.style.background = "#d4edda";
+          resultElement.innerHTML = `A + A·B = <span style="color: #155724;">${aOrAAndB}</span> | A = <span style="color: #155724;">${a}</span> <i class="fas fa-check-circle" style="color: #28a745;"></i>`;
+        } else {
+          resultElement.style.background = "#f8d7da";
+          resultElement.innerHTML = `A + A·B = <span style="color: #721c24;">${aOrAAndB}</span> | A = <span style="color: #721c24;">${a}</span> <i class="fas fa-times-circle" style="color: #dc3545;"></i>`;
+        }
+      }
+
+      // Simplification Laws Interactive Demo
+      function updateSimplification() {
+        const a = document.getElementById("simplificationA").checked ? 1 : 0;
+        const notA = a === 0 ? 1 : 0;
+
+        document.getElementById("simplificationAValue").textContent = a;
+
+        const aOrNotA = a || notA;
+        const aAndNotA = a && notA;
+
+        document.getElementById("simplificationLeft").textContent = aOrNotA;
+        document.getElementById("simplificationRight").textContent = aAndNotA;
+
+        const resultElement = document.getElementById("simplificationResult");
+        if (aOrNotA === 1 && aAndNotA === 0) {
+          resultElement.style.background = "#d4edda";
+          resultElement.innerHTML = `A + A′ = <span style="color: #155724;">${aOrNotA}</span> | A · A′ = <span style="color: #155724;">${aAndNotA}</span> <i class="fas fa-check-circle" style="color: #28a745;"></i>`;
+        } else {
+          resultElement.style.background = "#f8d7da";
+          resultElement.innerHTML = `A + A′ = <span style="color: #721c24;">${aOrNotA}</span> | A · A′ = <span style="color: #721c24;">${aAndNotA}</span> <i class="fas fa-times-circle" style="color: #dc3545;"></i>`;
+        }
+      }
+
+      // Consensus Laws Interactive Demo
+      function updateConsensus() {
+        const a = document.getElementById("consensusA").checked ? 1 : 0;
+        const b = document.getElementById("consensusB").checked ? 1 : 0;
+        const c = document.getElementById("consensusC").checked ? 1 : 0;
+
+        document.getElementById("consensusAValue").textContent = a;
+        document.getElementById("consensusBValue").textContent = b;
+        document.getElementById("consensusCValue").textContent = c;
+
+        const ab = a && b;
+        const notA = a === 0 ? 1 : 0;
+        const notAC = notA && c;
+        const abPlusNotAC = ab || notAC;
+        const abPlusC = ab || c;
+
+        document.getElementById("consensusLeft").textContent = abPlusNotAC;
+        document.getElementById("consensusRight").textContent = abPlusC;
+
+        const resultElement = document.getElementById("consensusResult");
+        if (abPlusNotAC === abPlusC) {
+          resultElement.style.background = "#d4edda";
+          resultElement.innerHTML = `AB + A′C = <span style="color: #155724;">${abPlusNotAC}</span> | AB + C = <span style="color: #155724;">${abPlusC}</span> <i class="fas fa-check-circle" style="color: #28a745;"></i>`;
+        } else {
+          resultElement.style.background = "#f8d7da";
+          resultElement.innerHTML = `AB + A′C = <span style="color: #721c24;">${abPlusNotAC}</span> | AB + C = <span style="color: #721c24;">${abPlusC}</span> <i class="fas fa-times-circle" style="color: #dc3545;"></i>`;
+        }
+      }
+
+      // Boolean Algebra Theorems Interactive Demo
+      function updateTheorem() {
+        const a = document.getElementById("theoremA").checked ? 1 : 0;
+        const b = document.getElementById("theoremB").checked ? 1 : 0;
+
+        document.getElementById("theoremAValue").textContent = a;
+        document.getElementById("theoremBValue").textContent = b;
+
+        const notB = b === 0 ? 1 : 0;
+        const aOrB = a || b;
+        const aOrNotB = a || notB;
+        const leftSide = aOrB && aOrNotB;
+
+        document.getElementById("theoremLeft").textContent = leftSide;
+        document.getElementById("theoremRight").textContent = a;
+
+        const resultElement = document.getElementById("theoremResult");
+        if (leftSide === a) {
+          resultElement.style.background = "#d4edda";
+          resultElement.innerHTML = `(A + B)(A + B′) = <span style="color: #155724;">${leftSide}</span> | A = <span style="color: #155724;">${a}</span> <i class="fas fa-check-circle" style="color: #28a745;"></i>`;
+        } else {
+          resultElement.style.background = "#f8d7da";
+          resultElement.innerHTML = `(A + B)(A + B′) = <span style="color: #721c24;">${leftSide}</span> | A = <span style="color: #721c24;">${a}</span> <i class="fas fa-times-circle" style="color: #dc3545;"></i>`;
+        }
+      }
+
+      // Add some floating emojis randomly
+      document.addEventListener("DOMContentLoaded", () => {
+        const sections = document.querySelectorAll("section");
+        const emojis = [
+          "💡",
+          "⚡",
+          "🔌",
+          "🧠",
+          "🔄",
+          "🧽",
+          "✨",
+          "🔍",
+          "💻",
+          "🔧",
+        ];
+
+        sections.forEach((section) => {
+          const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+          const floatingEmoji = document.createElement("div");
+          floatingEmoji.className = "floating-emoji";
+          floatingEmoji.textContent = randomEmoji;
+          floatingEmoji.style.top = Math.random() * 100 + "px";
+          floatingEmoji.style.left = Math.random() * 100 + "%";
+          section.appendChild(floatingEmoji);
+        });
+      });
+    </script>
+  </body>
+</html>
