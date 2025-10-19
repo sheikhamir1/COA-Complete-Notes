@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Von Neumann Architecture</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --success-color: #2ecc71;
+        --warning-color: #f39c12;
+        --info-color: #9b59b6;
+        --text-color: #333;
+        --light-bg: #f8f9fa;
+        --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        color: var(--text-color);
+        background-color: var(--light-bg);
+        overflow-x: hidden;
+      }
+
+      .slide-container {
+        width: 100%;
+        height: 100vh;
+        overflow-y: scroll;
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+      }
+
+      .slide {
+        min-height: 100vh;
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        scroll-snap-align: start;
+        position: relative;
+        background-color: white;
+      }
+
+      .slide:nth-child(even) {
+        background-color: var(--light-bg);
+      }
+
+      .slide-content {
+        max-width: 900px;
+        width: 100%;
+        text-align: center;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      h1 {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+        position: relative;
+        display: inline-block;
+      }
+
+      h1::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(
+          90deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        border-radius: 2px;
+      }
+
+      h2 {
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+        color: var(--primary-color);
+      }
+
+      h3 {
+        font-size: 1.8rem;
+        margin: 25px 0 15px;
+        color: var(--secondary-color);
+        position: relative;
+        display: inline-block;
+      }
+
+      p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .emoji {
+        font-size: 1.5rem;
+        vertical-align: middle;
+        margin: 0 5px;
+      }
+
+      .card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: left;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+
+      .component-card {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 8px;
+        background-color: var(--light-bg);
+        transition: all 0.3s ease;
+      }
+
+      .component-card:hover {
+        background-color: #e9ecef;
+        transform: translateX(10px);
+      }
+
+      .component-icon {
+        font-size: 2rem;
+        margin-right: 20px;
+        color: var(--secondary-color);
+      }
+
+      .component-details {
+        flex: 1;
+      }
+
+      .component-name {
+        font-weight: 600;
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+      }
+
+      .navigation {
+        position: fixed;
+        right: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+      }
+
+      .nav-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #ccc;
+        margin: 15px 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .nav-dot.active {
+        background-color: var(--primary-color);
+        transform: scale(1.3);
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .feature-card {
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        text-align: center;
+      }
+
+      .feature-card:hover {
+        transform: scale(1.05);
+      }
+
+      .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+      }
+
+      .principle-box {
+        background-color: var(--light-bg);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 15px 0;
+        text-align: left;
+        position: relative;
+      }
+
+      .principle-title {
+        font-weight: 600;
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+      }
+
+      .principle-icon {
+        margin-right: 10px;
+        color: var(--secondary-color);
+      }
+
+      .summary-box {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        margin-top: 30px;
+        box-shadow: var(--card-shadow);
+      }
+
+      .highlight {
+        background-color: rgba(52, 152, 219, 0.2);
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      .floating {
+        animation: floating 3s ease-in-out infinite;
+      }
+
+      @keyframes floating {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+
+      .pulse {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .slide-number {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        font-size: 1rem;
+        color: #888;
+      }
+
+      .architecture-diagram {
+        width: 100%;
+        max-width: 600px;
+        height: 300px;
+        background-color: var(--light-bg);
+        border-radius: 10px;
+        margin: 20px auto;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 20px;
+        box-shadow: var(--card-shadow);
+      }
+
+      .cpu-box {
+        background-color: var(--secondary-color);
+        color: white;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        position: relative;
+        z-index: 2;
+      }
+
+      .memory-box {
+        background-color: var(--success-color);
+        color: white;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        position: relative;
+        z-index: 2;
+      }
+
+      .io-box {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .input-box,
+      .output-box {
+        background-color: var(--warning-color);
+        color: white;
+        border-radius: 8px;
+        padding: 15px;
+        width: 45%;
+        text-align: center;
+      }
+
+      .bus-line {
+        position: absolute;
+        background-color: var(--info-color);
+        z-index: 1;
+      }
+
+      .bus-horizontal {
+        height: 4px;
+        width: 80%;
+        left: 10%;
+      }
+
+      .bus-vertical {
+        width: 4px;
+        height: 60%;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background-color: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ecf0f1;
+      }
+
+      .comparison-table th {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .comparison-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .comparison-table tr:hover {
+        background-color: #f8f9fa;
+      }
+
+      .execution-step {
+        display: flex;
+        align-items: center;
+        margin: 15px 0;
+        padding: 15px;
+        background-color: var(--light-bg);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .execution-step:hover {
+        transform: translateX(10px);
+        background-color: #e9ecef;
+      }
+
+      .step-number {
+        width: 30px;
+        height: 30px;
+        background-color: var(--secondary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 15px;
+      }
+
+      .step-details {
+        flex: 1;
+        text-align: left;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2.5rem;
+        }
+        h2 {
+          font-size: 2rem;
+        }
+        h3 {
+          font-size: 1.5rem;
+        }
+        .slide {
+          padding: 40px 20px;
+        }
+        .navigation {
+          display: none;
+        }
+        .architecture-diagram {
+          height: 250px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <!-- Slide 1: Title -->
+      <div class="slide" id="slide1">
+        <div class="slide-content">
+          <h1 class="floating">Von Neumann Architecture</h1>
+          <p class="emoji" style="font-size: 3rem">💻 ⚙️ 🧠</p>
+          <p style="font-size: 1.3rem; margin-top: 30px">
+            The Foundation of Modern Computing
+          </p>
+          <div class="card pulse">
+            <p>
+              Proposed in 1945 by John von Neumann, this architecture is the
+              traditional model of computers still used in most general-purpose
+              systems today.
+            </p>
+            <p>
+              It is sometimes called the
+              <span class="highlight">"stored program architecture"</span>
+              because both data and program instructions are stored together in
+              the same memory.
+            </p>
+          </div>
+        </div>
+        <div class="slide-number">1/10</div>
+      </div>
+
+      <!-- Slide 2: Key Principles -->
+      <div class="slide" id="slide2">
+        <div class="slide-content">
+          <h2><span class="emoji">🟢</span> Key Principles</h2>
+
+          <div class="principle-box">
+            <div class="principle-title">
+              <span class="principle-icon"><i class="fas fa-memory"></i></span>
+              Stored Program Concept
+            </div>
+            <p>
+              Both instructions (program code) and data are kept in the same
+              memory.
+            </p>
+            <p>
+              <strong>Example:</strong> If memory address 1000 stores an
+              instruction (ADD R1, R2), memory address 1001 might store data
+              (25).
+            </p>
+          </div>
+
+          <div class="principle-box">
+            <div class="principle-title">
+              <span class="principle-icon"
+                ><i class="fas fa-sync-alt"></i
+              ></span>
+              Sequential Execution (Fetch-Decode-Execute Cycle)
+            </div>
+            <p>The CPU processes one instruction at a time:</p>
+            <ul style="text-align: left; margin-left: 20px">
+              <li><strong>Fetch</strong> → get instruction from memory</li>
+              <li>
+                <strong>Decode</strong> → interpret what the instruction means
+              </li>
+              <li>
+                <strong>Execute</strong> → perform the required operation (like
+                add, move, compare)
+              </li>
+            </ul>
+          </div>
+
+          <div class="principle-box">
+            <div class="principle-title">
+              <span class="principle-icon"
+                ><i class="fas fa-microchip"></i
+              ></span>
+              CPU Control
+            </div>
+            <p>
+              The CPU controls the whole process: it fetches instructions,
+              decodes them, executes them, and manages data transfer with memory
+              and I/O devices.
+            </p>
+          </div>
+        </div>
+        <div class="slide-number">2/10</div>
+      </div>
+
+      <!-- Slide 3: CPU -->
+      <div class="slide" id="slide3">
+        <div class="slide-content">
+          <h2><span class="emoji">🟢</span> Main Components: CPU</h2>
+          <p>The brain of the computer.</p>
+
+          <div class="component-card">
+            <div class="component-icon"><i class="fas fa-calculator"></i></div>
+            <div class="component-details">
+              <div class="component-name">ALU (Arithmetic Logic Unit)</div>
+              <p>Does arithmetic (add, subtract) and logic (AND, OR, NOT).</p>
+            </div>
+          </div>
+
+          <div class="component-card">
+            <div class="component-icon"><i class="fas fa-sliders-h"></i></div>
+            <div class="component-details">
+              <div class="component-name">CU (Control Unit)</div>
+              <p>
+                Tells other parts (ALU, memory, I/O) what to do, based on the
+                instruction.
+              </p>
+            </div>
+          </div>
+
+          <div class="component-card">
+            <div class="component-icon"><i class="fas fa-database"></i></div>
+            <div class="component-details">
+              <div class="component-name">Registers</div>
+              <p>
+                Small, fast memory locations inside the CPU to hold temporary
+                data.
+              </p>
+            </div>
+          </div>
+
+          <div class="card">
+            <p>
+              <span class="emoji">👉</span> <strong>Example:</strong> If the
+              instruction is ADD R1, R2, the CPU:
+            </p>
+            <ul style="text-align: left; margin-left: 20px">
+              <li>fetches the values of R1 and R2,</li>
+              <li>sends them to ALU,</li>
+              <li>stores the result back in a register.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-number">3/10</div>
+      </div>
+
+      <!-- Slide 4: Memory -->
+      <div class="slide" id="slide4">
+        <div class="slide-content">
+          <h2><span class="emoji">🟢</span> Main Components: Memory</h2>
+          <p>Stores both data and instructions.</p>
+
+          <div class="grid-container">
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--secondary-color)">
+                ⚡
+              </div>
+              <h3>Main Memory (RAM)</h3>
+              <p>Fast, volatile, used for active data/programs</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--warning-color)">
+                💾
+              </div>
+              <h3>Secondary Storage</h3>
+              <p>Slower, permanent storage (HDD/SSD)</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <p>
+              <span class="emoji">👉</span> <strong>Example:</strong> RAM might
+              contain:
+            </p>
+            <ul style="text-align: left; margin-left: 20px">
+              <li>Address 1000: Instruction LOAD A</li>
+              <li>Address 1001: Instruction ADD B</li>
+              <li>Address 1002: Data 5</li>
+              <li>Address 1003: Data 10</li>
+            </ul>
+          </div>
+
+          <div class="architecture-diagram">
+            <div class="cpu-box">CPU</div>
+            <div class="memory-box">Memory</div>
+            <div class="bus-line bus-horizontal" style="top: 50%"></div>
+          </div>
+        </div>
+        <div class="slide-number">4/10</div>
+      </div>
+
+      <!-- Slide 5: I/O and Bus System -->
+      <div class="slide" id="slide5">
+        <div class="slide-content">
+          <h2>
+            <span class="emoji">🟢</span> Main Components: I/O and Bus System
+          </h2>
+
+          <div class="component-card">
+            <div class="component-icon"><i class="fas fa-keyboard"></i></div>
+            <div class="component-details">
+              <div class="component-name">Input/Output (I/O) Devices</div>
+              <p>Enable interaction between computer and outside world.</p>
+              <p><strong>Input:</strong> Keyboard, Mouse, Microphone</p>
+              <p><strong>Output:</strong> Monitor, Printer, Speakers</p>
+            </div>
+          </div>
+
+          <div class="component-card">
+            <div class="component-icon">
+              <i class="fas fa-network-wired"></i>
+            </div>
+            <div class="component-details">
+              <div class="component-name">Bus System</div>
+              <p>
+                A set of wires (pathways) that connect CPU, memory, and I/O
+                devices.
+              </p>
+              <p><strong>Types:</strong></p>
+              <ul style="text-align: left; margin-left: 20px">
+                <li>
+                  <strong>Data Bus:</strong> Transfers actual data (e.g., number
+                  25)
+                </li>
+                <li>
+                  <strong>Address Bus:</strong> Transfers memory addresses
+                  (e.g., location 1000)
+                </li>
+                <li>
+                  <strong>Control Bus:</strong> Transfers control signals (e.g.,
+                  Read, Write, Clock)
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <p>
+              <span class="emoji">👉</span> <strong>Example:</strong> If CPU
+              wants to read memory at location 1003:
+            </p>
+            <ul style="text-align: left; margin-left: 20px">
+              <li>CPU sends 1003 on address bus</li>
+              <li>Sends "READ" signal on control bus</li>
+              <li>Memory puts value 10 on data bus → CPU receives it</li>
+            </ul>
+          </div>
+
+          <div class="architecture-diagram">
+            <div class="cpu-box">CPU</div>
+            <div class="memory-box">Memory</div>
+            <div class="io-box">
+              <div class="input-box">Input</div>
+              <div class="output-box">Output</div>
+            </div>
+            <div class="bus-line bus-horizontal" style="top: 33%"></div>
+            <div class="bus-line bus-horizontal" style="top: 66%"></div>
+            <div class="bus-line bus-vertical"></div>
+          </div>
+        </div>
+        <div class="slide-number">5/10</div>
+      </div>
+
+      <!-- Slide 6: Advantages -->
+      <div class="slide" id="slide6">
+        <div class="slide-content">
+          <h2><span class="emoji">🟢</span> Advantages</h2>
+
+          <div class="grid-container">
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--success-color)">
+                🔄
+              </div>
+              <h3>Flexibility</h3>
+              <p>Same memory can store new programs or data</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--secondary-color)">
+                ⚙️
+              </div>
+              <h3>Efficiency</h3>
+              <p>Simple design, instructions executed step-by-step</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--info-color)">
+                🌐
+              </div>
+              <h3>Universality</h3>
+              <p>Became the standard for general-purpose computers</p>
+            </div>
+          </div>
+
+          <div class="card pulse">
+            <p>
+              The Von Neumann architecture's simplicity and flexibility made it
+              the dominant model for computing for decades. Its ability to store
+              both programs and data in the same memory allows computers to be
+              reprogrammed for different tasks without changing hardware.
+            </p>
+          </div>
+
+          <div class="architecture-diagram">
+            <div class="cpu-box">CPU</div>
+            <div class="memory-box">Memory (Data + Instructions)</div>
+            <div class="io-box">
+              <div class="input-box">Input</div>
+              <div class="output-box">Output</div>
+            </div>
+            <div class="bus-line bus-horizontal" style="top: 33%"></div>
+            <div class="bus-line bus-horizontal" style="top: 66%"></div>
+            <div class="bus-line bus-vertical"></div>
+          </div>
+        </div>
+        <div class="slide-number">6/10</div>
+      </div>
+
+      <!-- Slide 7: Limitations -->
+      <div class="slide" id="slide7">
+        <div class="slide-content">
+          <h2><span class="emoji">🟢</span> Limitations</h2>
+
+          <div class="card">
+            <h3><span class="emoji">🚫</span> Von Neumann Bottleneck</h3>
+            <p>
+              CPU and memory share the same bus → only one transfer (instruction
+              or data) at a time.
+            </p>
+            <p>This slows down performance.</p>
+            <p>
+              <strong>Example:</strong> CPU is waiting for memory while it could
+              have been doing another task.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3><span class="emoji">🔄</span> Sequential Execution</h3>
+            <p>
+              Only one instruction at a time (less efficient for modern needs).
+            </p>
+          </div>
+
+          <div class="card">
+            <h3><span class="emoji">📈</span> Scalability Issues</h3>
+            <p>Not ideal for massive parallel processing.</p>
+          </div>
+
+          <div class="grid-container">
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--accent-color)">
+                ⏱️
+              </div>
+              <h3>Performance Limit</h3>
+              <p>Shared bus creates bottleneck</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--warning-color)">
+                🔧
+              </div>
+              <h3>Parallel Processing</h3>
+              <p>Limited by sequential design</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">7/10</div>
+      </div>
+
+      <!-- Slide 8: Comparison -->
+      <div class="slide" id="slide8">
+        <div class="slide-content">
+          <h2>
+            <span class="emoji">🟢</span> Comparison with Other Architectures
+          </h2>
+
+          <div class="card">
+            <h3><span class="emoji">🏛️</span> Harvard Architecture</h3>
+            <p>Separate memory for data and instructions.</p>
+            <p>
+              CPU can fetch instruction and access data at the same time →
+              faster.
+            </p>
+            <p>Used in microcontrollers, DSPs (Digital Signal Processors).</p>
+            <p>
+              <span class="emoji">👉</span> <strong>Example:</strong> While CPU
+              fetches "ADD R1, R2", it can simultaneously fetch R1=5 and R2=10.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3><span class="emoji">⚡</span> Parallel Architectures</h3>
+            <p>Multiple CPUs or cores execute instructions at the same time.</p>
+            <p>
+              <strong>Example:</strong> Modern multicore processors in
+              laptops/servers.
+            </p>
+          </div>
+
+          <div class="comparison-table">
+            <table style="width: 100%">
+              <thead>
+                <tr>
+                  <th>Architecture</th>
+                  <th>Memory</th>
+                  <th>Execution</th>
+                  <th>Use Case</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Von Neumann</td>
+                  <td>Shared (data + instructions)</td>
+                  <td>Sequential</td>
+                  <td>General-purpose computers</td>
+                </tr>
+                <tr>
+                  <td>Harvard</td>
+                  <td>Separate</td>
+                  <td>Parallel fetch</td>
+                  <td>Microcontrollers, DSPs</td>
+                </tr>
+                <tr>
+                  <td>Parallel</td>
+                  <td>Varies</td>
+                  <td>Multiple instructions</td>
+                  <td>High-performance computing</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="slide-number">8/10</div>
+      </div>
+
+      <!-- Slide 9: Real-Life Example -->
+      <div class="slide" id="slide9">
+        <div class="slide-content">
+          <h2>
+            <span class="emoji">🟢</span> Real-Life Example (Von Neumann in
+            Action)
+          </h2>
+
+          <div class="card">
+            <p>Let's say we want to calculate:</p>
+            <p
+              style="
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: var(--secondary-color);
+              "
+            >
+              C = A + B, where A=5, B=10
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Stored in Memory:</h3>
+            <ul style="text-align: left; margin-left: 20px">
+              <li>Address 1000: Instruction LOAD A</li>
+              <li>Address 1001: Instruction ADD B</li>
+              <li>Address 1002: Instruction STORE C</li>
+              <li>Address 1003: Data A=5</li>
+              <li>Address 1004: Data B=10</li>
+            </ul>
+          </div>
+
+          <h3>Execution (Fetch-Decode-Execute):</h3>
+
+          <div class="execution-step">
+            <div class="step-number">1</div>
+            <div class="step-details">
+              <p>CPU fetches LOAD A → loads 5 into register.</p>
+            </div>
+          </div>
+
+          <div class="execution-step">
+            <div class="step-number">2</div>
+            <div class="step-details">
+              <p>CPU fetches ADD B → adds 10, result = 15.</p>
+            </div>
+          </div>
+
+          <div class="execution-step">
+            <div class="step-number">3</div>
+            <div class="step-details">
+              <p>CPU fetches STORE C → stores 15 in memory at address 1005.</p>
+            </div>
+          </div>
+
+          <div class="card pulse">
+            <p>
+              <span class="emoji">✅</span> <strong>Result:</strong> C=15 is
+              saved.
+            </p>
+          </div>
+        </div>
+        <div class="slide-number">9/10</div>
+      </div>
+
+      <!-- Slide 10: Summary -->
+      <div class="slide" id="slide10">
+        <div class="slide-content">
+          <h2><span class="emoji">✅</span> Summary</h2>
+
+          <div class="summary-box">
+            <ul style="text-align: left; font-size: 1.1rem; line-height: 1.8">
+              <li>
+                <span class="highlight">Stored Program Concept</span> → Both
+                instructions and data in same memory
+              </li>
+              <li>
+                <span class="highlight">Sequential Execution</span> →
+                Fetch-Decode-Execute cycle
+              </li>
+              <li>
+                <span class="highlight">Main Components</span> → CPU, Memory,
+                I/O, Bus System
+              </li>
+              <li>
+                <span class="highlight">Advantages</span> → Flexibility,
+                efficiency, universality
+              </li>
+              <li>
+                <span class="highlight">Limitations</span> → Von Neumann
+                Bottleneck, sequential execution
+              </li>
+              <li>
+                <span class="highlight">Alternatives</span> → Harvard
+                Architecture, Parallel Architectures
+              </li>
+            </ul>
+          </div>
+
+          <div class="architecture-diagram" style="margin-top: 30px">
+            <div class="cpu-box">CPU</div>
+            <div class="memory-box">Memory (Data + Instructions)</div>
+            <div class="io-box">
+              <div class="input-box">Input</div>
+              <div class="output-box">Output</div>
+            </div>
+            <div class="bus-line bus-horizontal" style="top: 33%"></div>
+            <div class="bus-line bus-horizontal" style="top: 66%"></div>
+            <div class="bus-line bus-vertical"></div>
+          </div>
+
+          <p style="margin-top: 30px; font-size: 1.2rem">
+            The Von Neumann architecture remains the foundation of most
+            computing systems today, despite its limitations.
+          </p>
+        </div>
+        <div class="slide-number">10/10</div>
+      </div>
+    </div>
+
+    <div class="navigation">
+      <div class="nav-dot active" onclick="scrollToSlide('slide1')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide2')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide3')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide4')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide5')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide6')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide7')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide8')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide9')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide10')"></div>
+    </div>
+
+    <script>
+      // Function to scroll to a specific slide
+      function scrollToSlide(slideId) {
+        document.getElementById(slideId).scrollIntoView({ behavior: "smooth" });
+      }
+
+      // Update active navigation dot based on scroll position
+      window.addEventListener("scroll", () => {
+        const slides = document.querySelectorAll(".slide");
+        const navDots = document.querySelectorAll(".nav-dot");
+        const scrollPosition = window.scrollY + window.innerHeight / 2;
+
+        slides.forEach((slide, index) => {
+          const slideTop = slide.offsetTop;
+          const slideBottom = slideTop + slide.offsetHeight;
+
+          if (scrollPosition >= slideTop && scrollPosition < slideBottom) {
+            navDots.forEach((dot) => dot.classList.remove("active"));
+            navDots[index].classList.add("active");
+          }
+        });
+      });
+
+      // Add keyboard navigation
+      document.addEventListener("keydown", (e) => {
+        const slides = document.querySelectorAll(".slide");
+        const currentSlide = document.querySelector(".nav-dot.active");
+        const currentIndex = Array.from(
+          document.querySelectorAll(".nav-dot")
+        ).indexOf(currentSlide);
+
+        if (e.key === "ArrowDown" && currentIndex < slides.length - 1) {
+          scrollToSlide(`slide${currentIndex + 2}`);
+        } else if (e.key === "ArrowUp" && currentIndex > 0) {
+          scrollToSlide(`slide${currentIndex}`);
+        }
+      });
+
+      // Add touch/swipe support for mobile
+      let touchStartY = 0;
+      let touchEndY = 0;
+
+      document.addEventListener("touchstart", (e) => {
+        touchStartY = e.changedTouches[0].screenY;
+      });
+
+      document.addEventListener("touchend", (e) => {
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+      });
+
+      function handleSwipe() {
+        const slides = document.querySelectorAll(".slide");
+        const currentSlide = document.querySelector(".nav-dot.active");
+        const currentIndex = Array.from(
+          document.querySelectorAll(".nav-dot")
+        ).indexOf(currentSlide);
+
+        if (touchEndY < touchStartY - 50 && currentIndex < slides.length - 1) {
+          // Swipe up - go to next slide
+          scrollToSlide(`slide${currentIndex + 2}`);
+        } else if (touchEndY > touchStartY + 50 && currentIndex > 0) {
+          // Swipe down - go to previous slide
+          scrollToSlide(`slide${currentIndex}`);
+        }
+      }
+    </script>
+  </body>
+</html>

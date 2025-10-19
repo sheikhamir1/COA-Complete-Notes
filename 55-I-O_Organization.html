@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I/O Organization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/io-devices/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .io-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .components { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .interfaces { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .controllers { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .interrupts { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .modes { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .programmed { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .interrupt-driven { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .dma { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+        .techniques { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 152, 80, 0.7)); }
+        .polling { background: linear-gradient(135deg, rgba(114, 30, 60, 0.7), rgba(152, 42, 82, 0.7)); }
+        .interrupt-handling { background: linear-gradient(135deg, rgba(30, 114, 30, 0.7), rgba(42, 152, 42, 0.7)); }
+        .buffering { background: linear-gradient(135deg, rgba(114, 114, 30, 0.7), rgba(152, 152, 42, 0.7)); }
+        .importance { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .examples { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Code Block Styles */
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid #ff9a9e;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            border-radius: 0 10px 10px 0;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <section class="header">
+        <div class="container">
+            <div class="io-character">🔌</div>
+            <h1>I/O Organization</h1>
+            <p>How computer systems interact with external devices to exchange data and instructions</p>
+            <div class="scroll-indicator">↓</div>
+        </div>
+    </section>
+
+    <!-- Navigation -->
+    <div class="nav">
+        <div class="nav-dot" data-section="intro"></div>
+        <div class="nav-dot" data-section="components"></div>
+        <div class="nav-dot" data-section="interfaces"></div>
+        <div class="nav-dot" data-section="controllers"></div>
+        <div class="nav-dot" data-section="interrupts"></div>
+        <div class="nav-dot" data-section="modes"></div>
+        <div class="nav-dot" data-section="programmed"></div>
+        <div class="nav-dot" data-section="interrupt-driven"></div>
+        <div class="nav-dot" data-section="dma"></div>
+        <div class="nav-dot" data-section="techniques"></div>
+        <div class="nav-dot" data-section="polling"></div>
+        <div class="nav-dot" data-section="interrupt-handling"></div>
+        <div class="nav-dot" data-section="buffering"></div>
+        <div class="nav-dot" data-section="importance"></div>
+        <div class="nav-dot" data-section="examples"></div>
+    </div>
+
+    <!-- Introduction Section -->
+    <section class="section intro" id="intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to I/O Organization</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    I/O (Input/Output) organization refers to how computer systems interact with external devices to exchange data and instructions. It encompasses the hardware and software mechanisms that enable communication between the CPU and peripherals.
+                </p>
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔄</div>
+                </div>
+                <p style="font-size: 1.1rem; text-align: center; font-style: italic;">
+                    Efficient I/O organization is crucial for system performance and functionality
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Components Section -->
+    <section class="section components" id="components">
+        <div class="container">
+            <h2 class="section-title fade-in">Components of I/O Organization</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    I/O organization consists of several key components that work together to facilitate communication between the computer system and external devices:
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">🔌</div>
+                        <div class="feature-content">
+                            <h3>I/O Interfaces</h3>
+                            <p>Hardware components that facilitate communication between the CPU and peripherals</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🎛️</div>
+                        <div class="feature-content">
+                            <h3>Device Controllers</h3>
+                            <p>Interface between the CPU and specific I/O devices</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Interrupts and DMA</h3>
+                            <p>Mechanisms for efficient data transfer and device signaling</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- I/O Interfaces Section -->
+    <section class="section interfaces" id="interfaces">
+        <div class="container">
+            <h2 class="section-title fade-in">I/O Interfaces</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Hardware components that facilitate communication between the CPU and peripherals.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">🔌</div>
+                        <div class="feature-content">
+                            <h3>USB Ports</h3>
+                            <p>Universal Serial Bus for connecting various peripherals</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🌐</div>
+                        <div class="feature-content">
+                            <h3>Network Interfaces</h3>
+                            <p>Enable communication with other computers over networks</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📡</div>
+                        <div class="feature-content">
+                            <h3>Serial Ports</h3>
+                            <p>For point-to-point communication between devices</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔧</div>
+                        <div class="feature-content">
+                            <h3>Expansion Slots</h3>
+                            <p>Allow addition of specialized functionality cards</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔌</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Device Controllers Section -->
+    <section class="section controllers" id="controllers">
+        <div class="container">
+            <h2 class="section-title fade-in">Device Controllers</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Interface between the CPU and specific I/O devices. They manage data transfer, error handling, and device-specific operations.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">💾</div>
+                        <div class="feature-content">
+                            <h3>Disk Controllers</h3>
+                            <p>Manage data transfer to and from storage devices</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🖥️</div>
+                        <div class="feature-content">
+                            <h3>Display Controllers</h3>
+                            <p>Handle rendering and display of visual information</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🎵</div>
+                        <div class="feature-content">
+                            <h3>Audio Controllers</h3>
+                            <p>Process and output audio signals</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🖨️</div>
+                        <div class="feature-content">
+                            <h3>Printer Controllers</h3>
+                            <p>Manage communication with printing devices</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🎛️</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interrupts and DMA Section -->
+    <section class="section interrupts" id="interrupts">
+        <div class="container">
+            <h2 class="section-title fade-in">Interrupts and DMA (Direct Memory Access)</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Mechanisms for efficient data transfer and device signaling without CPU intervention.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">🚨</div>
+                        <div class="feature-content">
+                            <h3>Interrupts</h3>
+                            <p>Allow devices to request attention from the CPU</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>DMA (Direct Memory Access)</h3>
+                            <p>Enables high-speed data transfers between devices and memory</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-around; margin: 30px 0;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 4rem;">🚨</div>
+                        <h3>Interrupt Process</h3>
+                        <p>Device signals CPU → CPU pauses current task → Services interrupt → Resumes original task</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 4rem;">⚡</div>
+                        <h3>DMA Process</h3>
+                        <p>CPU initiates transfer → DMA controller handles data movement → CPU notified when complete</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Operation Modes Section -->
+    <section class="section modes" id="modes">
+        <div class="container">
+            <h2 class="section-title fade-in">Operation Modes</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    I/O operations can be performed in several different modes, each with its own advantages and trade-offs:
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Programmed I/O</h3>
+                            <p>CPU manages all data transfers between devices and memory</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🚨</div>
+                        <div class="feature-content">
+                            <h3>Interrupt-Driven I/O</h3>
+                            <p>Devices trigger interrupts to signal readiness or completion</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>DMA (Direct Memory Access)</h3>
+                            <p>Devices transfer data directly to/from memory without CPU intervention</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">⚙️</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Programmed I/O Section -->
+    <section class="section programmed" id="programmed">
+        <div class="container">
+            <h2 class="section-title fade-in">Programmed I/O</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Basic mode where the CPU manages data transfer between devices and memory. Each byte or word transfer requires CPU involvement, making it slower for large data volumes.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">✅</div>
+                        <div class="feature-content">
+                            <h3>Advantages</h3>
+                            <ul>
+                                <li>Simple to implement</li>
+                                <li>Requires minimal hardware support</li>
+                                <li>Predictable timing behavior</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">❌</div>
+                        <div class="feature-content">
+                            <h3>Disadvantages</h3>
+                            <ul>
+                                <li>CPU-intensive</li>
+                                <li>Inefficient for large data transfers</li>
+                                <li>CPU cannot perform other tasks during I/O</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="code-block" style="margin-top: 30px;">
+                    // Example of Programmed I/O<br>
+                    while (device_status != READY) {<br>
+                        &nbsp;&nbsp;// Wait until device is ready<br>
+                    }<br>
+                    data = read_from_device();<br>
+                    process_data(data);
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interrupt-Driven I/O Section -->
+    <section class="section interrupt-driven" id="interrupt-driven">
+        <div class="container">
+            <h2 class="section-title fade-in">Interrupt-Driven I/O</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Devices trigger interrupts to signal readiness or completion of data transfers. CPU responds to interrupts, allowing it to perform other tasks while data transfer occurs.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">✅</div>
+                        <div class="feature-content">
+                            <h3>Advantages</h3>
+                            <ul>
+                                <li>CPU can perform other tasks while waiting for I/O</li>
+                                <li>More efficient than programmed I/O</li>
+                                <li>Better for sporadic I/O operations</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">❌</div>
+                        <div class="feature-content">
+                            <h3>Disadvantages</h3>
+                            <ul>
+                                <li>More complex to implement</li>
+                                <li>Interrupt handling overhead</li>
+                                <li>Still requires CPU for each data transfer</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="code-block" style="margin-top: 30px;">
+                    // Example of Interrupt-Driven I/O<br>
+                    interrupt_handler() {<br>
+                        &nbsp;&nbsp;if (device_interrupt) {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;data = read_from_device();<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;process_data(data);<br>
+                        &nbsp;&nbsp;}<br>
+                    }<br>
+                    <br>
+                    // Main program continues execution<br>
+                    while (true) {<br>
+                        &nbsp;&nbsp;perform_other_tasks();<br>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DMA Section -->
+    <section class="section dma" id="dma">
+        <div class="container">
+            <h2 class="section-title fade-in">DMA (Direct Memory Access)</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Specialized mode where devices transfer data directly to/from memory without CPU intervention. Improves system performance by offloading data transfer tasks from the CPU.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">✅</div>
+                        <div class="feature-content">
+                            <h3>Advantages</h3>
+                            <ul>
+                                <li>High-speed data transfers</li>
+                                <li>Minimal CPU involvement</li>
+                                <li>Efficient for large data blocks</li>
+                                <li>CPU can perform other tasks during transfer</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">❌</div>
+                        <div class="feature-content">
+                            <h3>Disadvantages</h3>
+                            <ul>
+                                <li>Requires specialized hardware (DMA controller)</li>
+                                <li>More complex to implement</li>
+                                <li>Can cause memory contention</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="code-block" style="margin-top: 30px;">
+                    // Example of DMA Transfer<br>
+                    setup_dma_transfer(source_address, destination_address, size);<br>
+                    start_dma_transfer();<br>
+                    <br>
+                    // CPU continues with other tasks<br>
+                    while (dma_transfer_in_progress) {<br>
+                        &nbsp;&nbsp;perform_other_tasks();<br>
+                    }<br>
+                    <br>
+                    // DMA complete interrupt handler<br>
+                    dma_complete_handler() {<br>
+                        &nbsp;&nbsp;notify_cpu_transfer_complete();<br>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- I/O Techniques Section -->
+    <section class="section techniques" id="techniques">
+        <div class="container">
+            <h2 class="section-title fade-in">I/O Techniques</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Various techniques are employed to optimize I/O operations and improve system performance:
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">🔍</div>
+                        <div class="feature-content">
+                            <h3>Polling</h3>
+                            <p>CPU continuously checks device status</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🚨</div>
+                        <div class="feature-content">
+                            <h3>Interrupt Handling</h3>
+                            <p>Devices signal interrupts to notify CPU</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📦</div>
+                        <div class="feature-content">
+                            <h3>Buffering</h3>
+                            <p>Temporarily stores data to accommodate speed mismatches</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🛠️</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Polling Section -->
+    <section class="section polling" id="polling">
+        <div class="container">
+            <h2 class="section-title fade-in">Polling</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    CPU continuously checks the status of devices to initiate or complete data transfers. Simple but inefficient for real-time or high-speed applications.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">✅</div>
+                        <div class="feature-content">
+                            <h3>Advantages</h3>
+                            <ul>
+                                <li>Simple implementation</li>
+                                <li>Predictable behavior</li>
+                                <li>No special hardware required</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">❌</div>
+                        <div class="feature-content">
+                            <h3>Disadvantages</h3>
+                            <ul>
+                                <li>Wastes CPU cycles</li>
+                                <li>Inefficient for infrequent I/O</li>
+                                <li>Poor response time for critical operations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="code-block" style="margin-top: 30px;">
+                    // Polling example<br>
+                    while (true) {<br>
+                        &nbsp;&nbsp;if (keyboard_status == DATA_AVAILABLE) {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;data = read_keyboard_data();<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;process_keystroke(data);<br>
+                        &nbsp;&nbsp;}<br>
+                        &nbsp;&nbsp;if (mouse_status == DATA_AVAILABLE) {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;data = read_mouse_data();<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;process_mouse_movement(data);<br>
+                        &nbsp;&nbsp;}<br>
+                        &nbsp;&nbsp;// Continue with other tasks<br>
+                        &nbsp;&nbsp;perform_background_tasks();<br>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interrupt Handling Section -->
+    <section class="section interrupt-handling" id="interrupt-handling">
+        <div class="container">
+            <h2 class="section-title fade-in">Interrupt Handling</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Devices signal interrupts to notify the CPU of data readiness or completion. Enables asynchronous data transfer and multitasking capabilities.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">✅</div>
+                        <div class="feature-content">
+                            <h3>Advantages</h3>
+                            <ul>
+                                <li>Efficient CPU utilization</li>
+                                <li>Good response time for critical events</li>
+                                <li>Supports multitasking</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">❌</div>
+                        <div class="feature-content">
+                            <h3>Disadvantages</h3>
+                            <ul>
+                                <li>Complex implementation</li>
+                                <li>Interrupt latency</li>
+                                <li>Potential for interrupt storms</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-around; margin: 30px 0;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 4rem;">🚨</div>
+                        <h3>Interrupt Request (IRQ)</h3>
+                        <p>Signal sent by device to request CPU attention</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 4rem;">🔍</div>
+                        <h3>Interrupt Service Routine (ISR)</h3>
+                        <p>Special code executed to handle the interrupt</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 4rem;">🔄</div>
+                        <h3>Return from Interrupt</h3>
+                        <p>CPU resumes original execution</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Buffering Section -->
+    <section class="section buffering" id="buffering">
+        <div class="container">
+            <h2 class="section-title fade-in">Buffering</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Temporarily stores data in buffers (memory) to accommodate speed mismatches between devices and CPU. Prevents data loss and optimizes data flow.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">📥</div>
+                        <div class="feature-content">
+                            <h3>Input Buffering</h3>
+                            <p>Stores incoming data until CPU can process it</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📤</div>
+                        <div class="feature-content">
+                            <h3>Output Buffering</h3>
+                            <p>Holds data ready for transmission to devices</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Double Buffering</h3>
+                            <p>Uses two buffers to allow continuous processing</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📊</div>
+                        <div class="feature-content">
+                            <h3>Circular Buffering</h3>
+                            <p>Efficiently manages sequential data streams</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">📦</div>
+                </div>
+                
+                <div class="code-block" style="margin-top: 30px;">
+                    // Buffering example<br>
+                    #define BUFFER_SIZE 1024<br>
+                    char input_buffer[BUFFER_SIZE];<br>
+                    int buffer_head = 0;<br>
+                    int buffer_tail = 0;<br>
+                    <br>
+                    // Add data to buffer<br>
+                    void add_to_buffer(char data) {<br>
+                        &nbsp;&nbsp;if ((buffer_head + 1) % BUFFER_SIZE != buffer_tail) {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;input_buffer[buffer_head] = data;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;buffer_head = (buffer_head + 1) % BUFFER_SIZE;<br>
+                        &nbsp;&nbsp;}<br>
+                    }<br>
+                    <br>
+                    // Get data from buffer<br>
+                    char get_from_buffer() {<br>
+                        &nbsp;&nbsp;if (buffer_tail != buffer_head) {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;char data = input_buffer[buffer_tail];<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;buffer_tail = (buffer_tail + 1) % BUFFER_SIZE;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;return data;<br>
+                        &nbsp;&nbsp;}<br>
+                        &nbsp;&nbsp;return 0; // No data available<br>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Importance Section -->
+    <section class="section importance" id="importance">
+        <div class="container">
+            <h2 class="section-title fade-in">Importance of I/O Organization</h2>
+            
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🔌</div>
+                    <div class="feature-content">
+                        <h3>System Connectivity</h3>
+                        <p>Facilitates interaction with diverse peripherals, expanding system capabilities. Without proper I/O organization, computers couldn't interact with external devices.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">⚡</div>
+                    <div class="feature-content">
+                        <h3>Performance Optimization</h3>
+                        <p>Efficient data transfer mechanisms improve overall system responsiveness and throughput. Good I/O organization minimizes bottlenecks.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🎛️</div>
+                    <div class="feature-content">
+                        <h3>Device Management</h3>
+                        <p>Ensures seamless integration and operation of peripherals within the computing environment. Proper management prevents conflicts and errors.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in" style="margin-top: 30px;">
+                <div style="display: flex; justify-content: center; margin: 20px 0;">
+                    <div style="font-size: 6rem;">💡</div>
+                </div>
+                <p style="text-align: center; font-size: 1.2rem;">
+                    Effective I/O organization is fundamental to creating versatile, high-performance computer systems that can interact with a wide range of devices.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Examples Section -->
+    <section class="section examples" id="examples">
+        <div class="container">
+            <h2 class="section-title fade-in">Examples of I/O Organization</h2>
+            
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🔌</div>
+                    <div class="feature-content">
+                        <h3>USB Interface</h3>
+                        <p>Standardized I/O interface for connecting peripherals like keyboards, mice, and storage devices. Provides plug-and-play functionality and high-speed data transfer.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🌐</div>
+                    <div class="feature-content">
+                        <h3>Network Interface Card (NIC)</h3>
+                        <p>Facilitates data exchange between computers over networks. Handles low-level network protocols and provides physical connection to network medium.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🎮</div>
+                    <div class="feature-content">
+                        <h3>Graphics Processing Unit (GPU)</h3>
+                        <p>Specialized device controller for rendering graphics and accelerating complex computations. Modern GPUs often include their own I/O management systems.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in" style="margin-top: 30px;">
+                <div style="display: flex; justify-content: center; margin: 20px 0;">
+                    <div style="font-size: 6rem;">🖥️</div>
+                </div>
+                <p style="text-align: center; font-size: 1.2rem;">
+                    These examples demonstrate how I/O organization principles are applied in real-world computer systems to enable interaction with external devices.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation dots functionality
+        const navDots = document.querySelectorAll('.nav-dot');
+        const sections = document.querySelectorAll('.section');
+        
+        // Update active nav dot based on scroll position
+        function updateActiveNavDot() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            sections.forEach((section, index) => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                
+                if (scrollPosition >= sectionTop - windowHeight / 2 && 
+                    scrollPosition < sectionTop + sectionHeight - windowHeight / 2) {
+                    navDots.forEach(dot => dot.classList.remove('active'));
+                    navDots[index].classList.add('active');
+                }
+            });
+        }
+        
+        // Scroll to section when nav dot is clicked
+        navDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                window.scrollTo({
+                    top: sections[index].offsetTop,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Add scroll event listener
+        window.addEventListener('scroll', updateActiveNavDot);
+        
+        // Fade-in animation on scroll
+        const fadeElements = document.querySelectorAll('.fade-in');
+        
+        function checkFade() {
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementBottom = element.getBoundingClientRect().bottom;
+                
+                if (elementTop < window.innerHeight && elementBottom > 0) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+        
+        // Initial check and add scroll event listener
+        checkFade();
+        window.addEventListener('scroll', checkFade);
+    </script>
+</body>
+</html>

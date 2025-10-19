@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Addressing Modes in Computer Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/addressing-modes/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .cpu-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .immediate { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .direct { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .indirect { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .register { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .indexed { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .relative { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .base { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .stack { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .auto { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 42, 152, 0.7)); }
+        .memory { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .emoji-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Code Block Styles */
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .code-block code {
+            color: #4fc3f7;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        /* Emoji Background Pattern */
+        .emoji-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.05;
+            font-size: 2rem;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .emoji-pattern span {
+            position: absolute;
+            animation: float 20s infinite linear;
+        }
+        @keyframes float {
+            from { transform: translateY(100vh) rotate(0deg); }
+            to { transform: translateY(-100vh) rotate(360deg); }
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <section class="header">
+        <div class="container">
+            <h1>Addressing Modes</h1>
+            <p>How processors access operands to perform operations in computer architecture</p>
+            <div class="cpu-character">📍🔍💻</div>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot" data-section="0"></div>
+        <div class="nav-dot" data-section="1"></div>
+        <div class="nav-dot" data-section="2"></div>
+        <div class="nav-dot" data-section="3"></div>
+        <div class="nav-dot" data-section="4"></div>
+        <div class="nav-dot" data-section="5"></div>
+        <div class="nav-dot" data-section="6"></div>
+        <div class="nav-dot" data-section="7"></div>
+        <div class="nav-dot" data-section="8"></div>
+        <div class="nav-dot" data-section="9"></div>
+        <div class="nav-dot" data-section="10"></div>
+        <div class="nav-dot" data-section="11"></div>
+    </div>
+
+    <!-- Introduction Section -->
+    <section class="section intro" id="section-1">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 0s;">📍</span>
+            <span style="left: 15%; animation-delay: 2s;">🔍</span>
+            <span style="left: 25%; animation-delay: 4s;">📍</span>
+            <span style="left: 35%; animation-delay: 6s;">🔍</span>
+            <span style="left: 45%; animation-delay: 8s;">📍</span>
+            <span style="left: 55%; animation-delay: 10s;">🔍</span>
+            <span style="left: 65%; animation-delay: 12s;">📍</span>
+            <span style="left: 75%; animation-delay: 14s;">🔍</span>
+            <span style="left: 85%; animation-delay: 16s;">📍</span>
+            <span style="left: 95%; animation-delay: 18s;">🔍</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to Addressing Modes</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    An addressing mode in computer architecture defines how a processor accesses operands to perform operations. It specifies the method or format by which the CPU identifies and retrieves data from memory or registers.
+                </p>
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🧩</div>
+                        <div class="feature-content">
+                            <h3>Fundamental Component</h3>
+                            <p>Addressing modes are essential in instruction set architecture (ISA)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Flexibility</h3>
+                            <p>Offer various ways to interact with data and instructions</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Performance</h3>
+                            <p>Crucial for optimizing computing tasks and memory management</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">📋</span>Types of Addressing Modes</h3>
+                    <ul style="font-size: 1.1rem; list-style-type: none; padding-left: 20px;">
+                        <li style="margin-bottom: 10px;">🔢 Immediate - Operand value within instruction</li>
+                        <li style="margin-bottom: 10px;">📍 Direct - Memory address directly specified</li>
+                        <li style="margin-bottom: 10px;">🔍 Indirect - Address points to operand location</li>
+                        <li style="margin-bottom: 10px;">💾 Register - Operand in CPU register</li>
+                        <li style="margin-bottom: 10px;">📊 Indexed - Offset added to base address</li>
+                        <li style="margin-bottom: 10px;">🧭 Relative - Address relative to program counter</li>
+                        <li style="margin-bottom: 10px;">🏗️ Base-Offset - Offset added to base register</li>
+                        <li style="margin-bottom: 10px;">📚 Stack - Implicit access from stack top</li>
+                        <li style="margin-bottom: 10px;">⬆️⬇️ Auto-increment/decrement - Address changes after access</li>
+                        <li>🗂️ Memory Indirect - Operand address in memory</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Immediate Addressing Section -->
+    <section class="section immediate" id="section-2">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 1s;">🔢</span>
+            <span style="left: 15%; animation-delay: 3s;">🔢</span>
+            <span style="left: 25%; animation-delay: 5s;">🔢</span>
+            <span style="left: 35%; animation-delay: 7s;">🔢</span>
+            <span style="left: 45%; animation-delay: 9s;">🔢</span>
+            <span style="left: 55%; animation-delay: 11s;">🔢</span>
+            <span style="left: 65%; animation-delay: 13s;">🔢</span>
+            <span style="left: 75%; animation-delay: 15s;">🔢</span>
+            <span style="left: 85%; animation-delay: 17s;">🔢</span>
+            <span style="left: 95%; animation-delay: 19s;">🔢</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Immediate Addressing Mode</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    In immediate addressing mode, the actual operand value is specified within the instruction itself rather than referencing a memory location.
+                </p>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Example</h3>
+                    <div class="code-block fade-in">
+                        <code>
+                            MOV A, #25<br>
+                            // This instruction moves the immediate value 25 directly into register A.
+                        </code>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">✅</span>Advantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔧</div>
+                            <div class="feature-content">
+                                <h3>Simplicity</h3>
+                                <p>Operands are directly specified, simplifying programming</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔒</div>
+                            <div class="feature-content">
+                                <h3>Constants</h3>
+                                <p>Useful for literal values that don't change</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">❌</span>Disadvantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">💾</div>
+                            <div class="feature-content">
+                                <h3>Memory Usage</h3>
+                                <p>Wasteful if the same constant is used multiple times</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Flexibility</h3>
+                                <p>Operands cannot be modified dynamically</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🌍</span>Real-World Example</h3>
+                    <p style="font-size: 1.1rem;">
+                        In graphics programming, immediate addressing is often used to set constant values like color codes or transformation parameters. For example, when setting a clear color for a screen in OpenGL:
+                    </p>
+                    <div class="code-block fade-in">
+                        <code>
+                            glClearColor(0.2f, 0.3f, 0.8f, 1.0f); // RGBA values as immediate operands<br>
+                            // These floating-point values are directly embedded in the instruction
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Direct Addressing Section -->
+    <section class="section direct" id="section-3">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 2s;">📍</span>
+            <span style="left: 15%; animation-delay: 4s;">📍</span>
+            <span style="left: 25%; animation-delay: 6s;">📍</span>
+            <span style="left: 35%; animation-delay: 8s;">📍</span>
+            <span style="left: 45%; animation-delay: 10s;">📍</span>
+            <span style="left: 55%; animation-delay: 12s;">📍</span>
+            <span style="left: 65%; animation-delay: 14s;">📍</span>
+            <span style="left: 75%; animation-delay: 16s;">📍</span>
+            <span style="left: 85%; animation-delay: 18s;">📍</span>
+            <span style="left: 95%; animation-delay: 20s;">📍</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Direct Addressing Mode</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    The operand's memory address is directly specified in the instruction.
+                </p>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Example</h3>
+                    <div class="code-block fade-in">
+                        <code>
+                            MOV A, 2000H<br>
+                            // This instruction moves the contents of memory location 2000H into register A.
+                        </code>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">✅</span>Advantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔧</div>
+                            <div class="feature-content">
+                                <h3>Simplicity</h3>
+                                <p>Simple and straightforward to implement</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>Efficiency</h3>
+                                <p>Efficient for accessing specific memory locations</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">❌</span>Disadvantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Flexibility</h3>
+                                <p>Limited flexibility as exact memory address must be known at compile-time</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📦</div>
+                            <div class="feature-content">
+                                <h3>Position-Dependent</h3>
+                                <p>Not suitable for position-independent code</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🌍</span>Real-World Example</h3>
+                    <p style="font-size: 1.1rem;">
+                        In embedded systems, direct addressing is often used to access memory-mapped I/O devices. For example, reading the status of a hardware switch connected to a specific memory address:
+                    </p>
+                    <div class="code-block fade-in">
+                        <code>
+                            #define SWITCH_STATUS 0x1000  // Memory address of switch status register<br><br>
+                            unsigned char read_switch_status() {<br>
+                            &nbsp;&nbsp;return *((volatile unsigned char*)SWITCH_STATUS);  // Direct memory access<br>
+                            }
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Indirect Addressing Section -->
+    <section class="section indirect" id="section-4">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 3s;">🔍</span>
+            <span style="left: 15%; animation-delay: 5s;">🔍</span>
+            <span style="left: 25%; animation-delay: 7s;">🔍</span>
+            <span style="left: 35%; animation-delay: 9s;">🔍</span>
+            <span style="left: 45%; animation-delay: 11s;">🔍</span>
+            <span style="left: 55%; animation-delay: 13s;">🔍</span>
+            <span style="left: 65%; animation-delay: 15s;">🔍</span>
+            <span style="left: 75%; animation-delay: 17s;">🔍</span>
+            <span style="left: 85%; animation-delay: 19s;">🔍</span>
+            <span style="left: 95%; animation-delay: 21s;">🔍</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Indirect Addressing Mode</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    The instruction specifies a memory address that holds the actual memory address of the operand.
+                </p>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Example</h3>
+                    <div class="code-block fade-in">
+                        <code>
+                            MOV A, @X<br>
+                            // If X contains 2000H, the contents of memory location 2000H are moved into register A.
+                        </code>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">✅</span>Advantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Flexibility</h3>
+                                <p>Allows for flexible memory referencing</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🧩</div>
+                            <div class="feature-content">
+                                <h3>Data Structures</h3>
+                                <p>Useful for accessing data structures with dynamic memory addresses</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">❌</span>Disadvantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⏱️</div>
+                            <div class="feature-content">
+                                <h3>Speed</h3>
+                                <p>Requires extra memory access to fetch actual operand address</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>Performance</h3>
+                                <p>Slower compared to direct addressing due to additional memory access</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🌍</span>Real-World Example</h3>
+                    <p style="font-size: 1.1rem;">
+                        Indirect addressing is commonly used with pointers in programming languages like C and C++. For example, when working with linked lists:
+                    </p>
+                    <div class="code-block fade-in">
+                        <code>
+                            struct Node {<br>
+                            &nbsp;&nbsp;int data;<br>
+                            &nbsp;&nbsp;struct Node* next;  // Pointer to next node<br>
+                            };<br><br>
+                            // Accessing data through a pointer (indirect addressing)<br>
+                            struct Node* current = head;<br>
+                            int value = current->data;  // Indirect access to data
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Register Addressing Section -->
+    <section class="section register" id="section-5">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 4s;">💾</span>
+            <span style="left: 15%; animation-delay: 6s;">💾</span>
+            <span style="left: 25%; animation-delay: 8s;">💾</span>
+            <span style="left: 35%; animation-delay: 10s;">💾</span>
+            <span style="left: 45%; animation-delay: 12s;">💾</span>
+            <span style="left: 55%; animation-delay: 14s;">💾</span>
+            <span style="left: 65%; animation-delay: 16s;">💾</span>
+            <span style="left: 75%; animation-delay: 18s;">💾</span>
+            <span style="left: 85%; animation-delay: 20s;">💾</span>
+            <span style="left: 95%; animation-delay: 22s;">💾</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Register Addressing Mode</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    The operand is located in a processor register.
+                </p>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Example</h3>
+                    <div class="code-block fade-in">
+                        <code>
+                            MOV A, B<br>
+                            // This instruction moves the contents of register B into register A.
+                        </code>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">✅</span>Advantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>Speed</h3>
+                                <p>Fastest access mode as it involves direct register-to-register transfer</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Frequent Access</h3>
+                                <p>Suitable for frequently accessed data and arithmetic operations</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">❌</span>Disadvantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Limited Number</h3>
+                                <p>Limited number of registers available</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Context Switching</h3>
+                                <p>Register content might need to be saved and restored during context switches</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🌍</span>Real-World Example</h3>
+                    <p style="font-size: 1.1rem;">
+                        Register addressing is extensively used in high-performance computing and graphics programming. For example, in x86 assembly language, function parameters are often passed in registers for faster execution:
+                    </p>
+                    <div class="code-block fade-in">
+                        <code>
+                            ; x86 assembly example - fast addition using registers<br>
+                            mov eax, 5     ; Move immediate value 5 into EAX register<br>
+                            mov ebx, 10    ; Move immediate value 10 into EBX register<br>
+                            add eax, ebx   ; Add EBX to EAX, result stored in EAX<br>
+                            ; Result (15) is now in EAX register
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Indexed Addressing Section -->
+    <section class="section indexed" id="section-6">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 5s;">📊</span>
+            <span style="left: 15%; animation-delay: 7s;">📊</span>
+            <span style="left: 25%; animation-delay: 9s;">📊</span>
+            <span style="left: 35%; animation-delay: 11s;">📊</span>
+            <span style="left: 45%; animation-delay: 13s;">📊</span>
+            <span style="left: 55%; animation-delay: 15s;">📊</span>
+            <span style="left: 65%; animation-delay: 17s;">📊</span>
+            <span style="left: 75%; animation-delay: 19s;">📊</span>
+            <span style="left: 85%; animation-delay: 21s;">📊</span>
+            <span style="left: 95%; animation-delay: 23s;">📊</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Indexed Addressing Mode</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    An offset is added to a base address to reach the operand.
+                </p>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Example</h3>
+                    <div class="code-block fade-in">
+                        <code>
+                            MOV A, [X + 2]<br>
+                            // This instruction moves the contents of memory location (X + 2) into register A.
+                        </code>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">✅</span>Advantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📋</div>
+                            <div class="feature-content">
+                                <h3>Arrays</h3>
+                                <p>Useful for accessing elements in arrays and data structures</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📦</div>
+                            <div class="feature-content">
+                                <h3>Position-Independent</h3>
+                                <p>Supports position-independent code</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">❌</span>Disadvantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🧮</div>
+                            <div class="feature-content">
+                                <h3>Arithmetic Overhead</h3>
+                                <p>Requires additional arithmetic operations to compute the effective address</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Register Management</h3>
+                                <p>Overhead in maintaining and updating the base register</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🌍</span>Real-World Example</h3>
+                    <p style="font-size: 1.1rem;">
+                        Indexed addressing is fundamental for array operations in programming. In C, when accessing array elements, the compiler typically generates code using indexed addressing:
+                    </p>
+                    <div class="code-block fade-in">
+                        <code>
+                            int array[10];<br>
+                            int sum = 0;<br><br>
+                            // Compiler generates indexed addressing for array access<br>
+                            for (int i = 0; i < 10; i++) {<br>
+                            &nbsp;&nbsp;sum += array[i];  // Accesses array[base + i*sizeof(int)]<br>
+                            }
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Relative Addressing Section -->
+    <section class="section relative" id="section-7">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 6s;">🧭</span>
+            <span style="left: 15%; animation-delay: 8s;">🧭</span>
+            <span style="left: 25%; animation-delay: 10s;">🧭</span>
+            <span style="left: 35%; animation-delay: 12s;">🧭</span>
+            <span style="left: 45%; animation-delay: 14s;">🧭</span>
+            <span style="left: 55%; animation-delay: 16s;">🧭</span>
+            <span style="left: 65%; animation-delay: 18s;">🧭</span>
+            <span style="left: 75%; animation-delay: 20s;">🧭</span>
+            <span style="left: 85%; animation-delay: 22s;">🧭</span>
+            <span style="left: 95%; animation-delay: 24s;">🧭</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Relative Addressing Mode</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    The operand's address is calculated relative to the program counter or instruction pointer.
+                </p>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Example</h3>
+                    <div class="code-block fade-in">
+                        <code>
+                            JMP LABEL<br>
+                            // This instruction jumps to the address specified by LABEL,<br>
+                            // which is a relative address from the current instruction.
+                        </code>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">✅</span>Advantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📦</div>
+                            <div class="feature-content">
+                                <h3>Position-Independent</h3>
+                                <p>Supports position-independent code</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Code Relocation</h3>
+                                <p>Simplifies code relocation and memory management</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">❌</span>Disadvantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📏</div>
+                            <div class="feature-content">
+                                <h3>Limited Range</h3>
+                                <p>Limited range of relative addressing depending on instruction format</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⚠️</div>
+                            <div class="feature-content">
+                                <h3>Calculation Errors</h3>
+                                <p>Risk of errors if the offset is not correctly calculated</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🌍</span>Real-World Example</h3>
+                    <p style="font-size: 1.1rem;">
+                        Relative addressing is crucial for creating position-independent code, which is essential for shared libraries and dynamic linking. In x86 assembly, branch instructions often use relative addressing:
+                    </p>
+                    <div class="code-block fade-in">
+                        <code>
+                            ; x86 assembly example - conditional jump using relative addressing<br>
+                            cmp eax, ebx    ; Compare EAX and EBX<br>
+                            jne not_equal  ; Jump if not equal (relative to current position)<br><br>
+                            ; Equal case<br>
+                            mov ecx, 1<br>
+                            jmp end_compare<br><br>
+                            not_equal:<br>
+                            mov ecx, 0<br><br>
+                            end_compare:<br>
+                            ; ECX now contains 1 if EAX == EBX, 0 otherwise
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Base or Base-Offset Addressing Section -->
+    <section class="section base" id="section-8">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 7s;">🏗️</span>
+            <span style="left: 15%; animation-delay: 9s;">🏗️</span>
+            <span style="left: 25%; animation-delay: 11s;">🏗️</span>
+            <span style="left: 35%; animation-delay: 13s;">🏗️</span>
+            <span style="left: 45%; animation-delay: 15s;">🏗️</span>
+            <span style="left: 55%; animation-delay: 17s;">🏗️</span>
+            <span style="left: 65%; animation-delay: 19s;">🏗️</span>
+            <span style="left: 75%; animation-delay: 21s;">🏗️</span>
+            <span style="left: 85%; animation-delay: 23s;">🏗️</span>
+            <span style="left: 95%; animation-delay: 25s;">🏗️</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Base or Base-Offset Addressing Mode</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    An offset added to a base address stored in a register or specified in the instruction.
+                </p>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Example</h3>
+                    <div class="code-block fade-in">
+                        <code>
+                            MOV A, [BASE + OFFSET]<br>
+                            // This instruction moves the contents of memory location<br>
+                            // (BASE + OFFSET) into register A.
+                        </code>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">✅</span>Advantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📋</div>
+                            <div class="feature-content">
+                                <h3>Data Structures</h3>
+                                <p>Supports efficient access to data structures and arrays</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🧩</div>
+                            <div class="feature-content">
+                                <h3>Modular Programming</h3>
+                                <p>Facilitates modular programming and data segmentation</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">❌</span>Disadvantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">💾</div>
+                            <div class="feature-content">
+                                <h3>Additional Storage</h3>
+                                <p>Requires additional registers or memory locations to store base addresses</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🧩</div>
+                            <div class="feature-content">
+                                <h3>Complexity</h3>
+                                <p>Complexity in managing multiple base registers in larger programs</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🌍</span>Real-World Example</h3>
+                    <p style="font-size: 1.1rem;">
+                        Base-offset addressing is commonly used in accessing fields within structures or objects. In C++, when accessing a member of a class or struct:
+                    </p>
+                    <div class="code-block fade-in">
+                        <code>
+                            struct Person {<br>
+                            &nbsp;&nbsp;char name[50];<br>
+                            &nbsp;&nbsp;int age;<br>
+                            &nbsp;&nbsp;float height;<br>
+                            };<br><br>
+                            void print_age(Person* person_ptr) {<br>
+                            &nbsp;&nbsp;// Base-offset addressing: base = person_ptr, offset = offsetof(Person, age)<br>
+                            &nbsp;&nbsp;std::cout << "Age: " << person_ptr->age << std::endl;<br>
+                            }
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stack Addressing Section -->
+    <section class="section stack" id="section-9">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 8s;">📚</span>
+            <span style="left: 15%; animation-delay: 10s;">📚</span>
+            <span style="left: 25%; animation-delay: 12s;">📚</span>
+            <span style="left: 35%; animation-delay: 14s;">📚</span>
+            <span style="left: 45%; animation-delay: 16s;">📚</span>
+            <span style="left: 55%; animation-delay: 18s;">📚</span>
+            <span style="left: 65%; animation-delay: 20s;">📚</span>
+            <span style="left: 75%; animation-delay: 22s;">📚</span>
+            <span style="left: 85%; animation-delay: 24s;">📚</span>
+            <span style="left: 95%; animation-delay: 26s;">📚</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Stack Addressing Mode</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    Operands are implicitly accessed from the top of the stack.
+                </p>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Example</h3>
+                    <div class="code-block fade-in">
+                        <code>
+                            PUSH A<br>
+                            // This instruction pushes the contents of register A onto the stack.
+                        </code>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">✅</span>Advantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📚</div>
+                            <div class="feature-content">
+                                <h3>LIFO Structure</h3>
+                                <p>Supports last-in-first-out (LIFO) data structures</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📞</div>
+                            <div class="feature-content">
+                                <h3>Function Calls</h3>
+                                <p>Facilitates function calls and parameter passing</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">❌</span>Disadvantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⏱️</div>
+                            <div class="feature-content">
+                                <h3>Slower Access</h3>
+                                <p>Slower access compared to register or direct addressing modes</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚠️</div>
+                            <div class="feature-content">
+                                <h3>Stack Limitations</h3>
+                                <p>Limited stack size and potential for stack overflow</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🌍</span>Real-World Example</h3>
+                    <p style="font-size: 1.1rem;">
+                        Stack addressing is fundamental for function calls in most programming languages. In x86 architecture, the CALL instruction uses stack addressing to save the return address:
+                    </p>
+                    <div class="code-block fade-in">
+                        <code>
+                            ; x86 assembly example - function call using stack<br>
+                            call my_function  ; Pushes return address onto stack and jumps to my_function<br><br>
+                            my_function:<br>
+                            &nbsp;&nbsp;push ebp       ; Save old base pointer<br>
+                            &nbsp;&nbsp;mov ebp, esp   ; Set new base pointer<br>
+                            &nbsp;&nbsp;sub esp, 8     ; Allocate 8 bytes for local variables<br><br>
+                            &nbsp;&nbsp;; Function body here<br><br>
+                            &nbsp;&nbsp;mov esp, ebp   ; Deallocate local variables<br>
+                            &nbsp;&nbsp;pop ebp        ; Restore old base pointer<br>
+                            &nbsp;&nbsp;ret           ; Pop return address and jump back
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Auto-increment and Auto-decrement Addressing Section -->
+    <section class="section auto" id="section-10">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 9s;">⬆️</span>
+            <span style="left: 15%; animation-delay: 11s;">⬇️</span>
+            <span style="left: 25%; animation-delay: 13s;">⬆️</span>
+            <span style="left: 35%; animation-delay: 15s;">⬇️</span>
+            <span style="left: 45%; animation-delay: 17s;">⬆️</span>
+            <span style="left: 55%; animation-delay: 19s;">⬇️</span>
+            <span style="left: 65%; animation-delay: 21s;">⬆️</span>
+            <span style="left: 75%; animation-delay: 23s;">⬇️</span>
+            <span style="left: 85%; animation-delay: 25s;">⬆️</span>
+            <span style="left: 95%; animation-delay: 27s;">⬇️</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Auto-increment and Auto-decrement Addressing Mode</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    The memory address automatically increments or decrements after each access.
+                </p>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Example</h3>
+                    <div class="code-block fade-in">
+                        <code>
+                            LDA [X+]<br>
+                            // This instruction loads the contents of memory at address X<br>
+                            // into the accumulator and increments X.
+                        </code>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">✅</span>Advantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Sequential Access</h3>
+                                <p>Simplifies sequential memory access operations</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔁</div>
+                            <div class="feature-content">
+                                <h3>Loop Optimization</h3>
+                                <p>Reduces the need for explicit address manipulation in loops</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">❌</span>Disadvantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🏗️</div>
+                            <div class="feature-content">
+                                <h3>Limited Support</h3>
+                                <p>Limited support in modern architectures</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚠️</div>
+                            <div class="feature-content">
+                                <h3>Side Effects</h3>
+                                <p>Requires careful management to avoid unintended side effects</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🌍</span>Real-World Example</h3>
+                    <p style="font-size: 1.1rem;">
+                        Auto-increment and auto-decrement addressing modes are particularly useful in array processing and string operations. In ARM assembly, these modes are commonly used:
+                    </p>
+                    <div class="code-block fade-in">
+                        <code>
+                            ; ARM assembly example - string copy using auto-increment<br>
+                            ; R0 = source address, R1 = destination address, R2 = length<br>
+                            
+                        copy_loop:<br>
+                            &nbsp;&nbsp;LDRB R3, [R0], #1   ; Load byte from source, auto-increment R0<br>
+                            &nbsp;&nbsp;STRB R3, [R1], #1   ; Store byte to destination, auto-increment R1<br>
+                            &nbsp;&nbsp;SUBS R2, R2, #1    ; Decrement counter<br>
+                            &nbsp;&nbsp;BNE copy_loop       ; Branch if not zero
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Memory Indirect Addressing Section -->
+    <section class="section memory" id="section-11">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 10s;">🗂️</span>
+            <span style="left: 15%; animation-delay: 12s;">🗂️</span>
+            <span style="left: 25%; animation-delay: 14s;">🗂️</span>
+            <span style="left: 35%; animation-delay: 16s;">🗂️</span>
+            <span style="left: 45%; animation-delay: 18s;">🗂️</span>
+            <span style="left: 55%; animation-delay: 20s;">🗂️</span>
+            <span style="left: 65%; animation-delay: 22s;">🗂️</span>
+            <span style="left: 75%; animation-delay: 24s;">🗂️</span>
+            <span style="left: 85%; animation-delay: 26s;">🗂️</span>
+            <span style="left: 95%; animation-delay: 28s;">🗂️</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Memory Indirect Addressing Mode</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    Similar to indirect addressing, but the operand address is located in memory.
+                </p>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Example</h3>
+                    <div class="code-block fade-in">
+                        <code>
+                            MOV A, @2000H<br>
+                            // This instruction moves the contents of the memory address<br>
+                            // stored at 2000H into register A.
+                        </code>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">✅</span>Advantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Dynamic Memory</h3>
+                                <p>Flexibility in accessing dynamically allocated memory</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🧩</div>
+                            <div class="feature-content">
+                                <h3>Complex Structures</h3>
+                                <p>Supports complex data structures and pointers</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">❌</span>Disadvantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⏱️</div>
+                            <div class="feature-content">
+                                <h3>Access Time</h3>
+                                <p>Increased memory access time due to additional indirection</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚠️</div>
+                            <div class="feature-content">
+                                <h3>Pointer Errors</h3>
+                                <p>Potential for pointer errors and memory leaks</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🌍</span>Real-World Example</h3>
+                    <p style="font-size: 1.1rem;">
+                        Memory indirect addressing is used in systems with virtual memory and paging. In operating systems, page tables often use multiple levels of indirection:
+                    </p>
+                    <div class="code-block fade-in">
+                        <code>
+                            // Simplified example of multi-level page table lookup<br>
+                            // In x86-64 with 4-level paging:<br><br>
+                            struct PageTableEntry {<br>
+                            &nbsp;&nbsp;uint64_t present : 1;<br>
+                            &nbsp;&nbsp;uint64_t writable : 1;<br>
+                            &nbsp;&nbsp;uint64_t user_accessible : 1;<br>
+                            &nbsp;&nbsp;uint64_t page_frame_number : 40;<br>
+                            &nbsp;&nbsp;// ... other flags<br>
+                            };<br><br>
+                            // Virtual address translation (simplified)<br>
+                            uint64_t translate_address(uint64_t virtual_address, PageTableEntry* pml4_table) {<br>
+                            &nbsp;&nbsp;// Extract indices from virtual address<br>
+                            &nbsp;&nbsp;uint16_t pml4_index = (virtual_address >> 39) & 0x1FF;<br>
+                            &nbsp;&nbsp;uint16_t pdpt_index = (virtual_address >> 30) & 0x1FF;<br>
+                            &nbsp;&nbsp;uint16_t pd_index = (virtual_address >> 21) & 0x1FF;<br>
+                            &nbsp;&nbsp;uint16_t pt_index = (virtual_address >> 12) & 0x1FF;<br><br>
+                            &nbsp;&nbsp;// Memory indirect addressing through multiple levels<br>
+                            &nbsp;&nbsp;PageTableEntry* pdpt = (PageTableEntry*)(pml4_table[pml4_index].page_frame_number << 12);<br>
+                            &nbsp;&nbsp;PageTableEntry* pd = (PageTableEntry*)(pdpt[pdpt_index].page_frame_number << 12);<br>
+                            &nbsp;&nbsp;PageTableEntry* pt = (PageTableEntry*)(pd[pd_index].page_frame_number << 12);<br><br>
+                            &nbsp;&nbsp;return (pt[pt_index].page_frame_number << 12) | (virtual_address & 0xFFF);<br>
+                            }
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            // Set first nav dot as active
+            navDots[0].classList.add('active');
+            
+            // Function to update active nav dot
+            function updateActiveNavDot() {
+                const scrollPosition = window.scrollY + window.innerHeight / 2;
+                
+                sections.forEach((section, index) => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.offsetHeight;
+                    
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                        navDots.forEach(dot => dot.classList.remove('active'));
+                        navDots[index].classList.add('active');
+                    }
+                });
+            }
+            
+            // Update active nav dot on scroll
+            window.addEventListener('scroll', updateActiveNavDot);
+            
+            // Scroll to section when nav dot is clicked
+            navDots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    // For the first dot (header section)
+                    if (index === 0) {
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    } else {
+                        // For other sections
+                        const targetSection = sections[index - 1];
+                        window.scrollTo({
+                            top: targetSection.offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // Fade-in animation on scroll
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            function checkFade() {
+                fadeElements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    
+                    if (elementTop < window.innerHeight - elementVisible) {
+                        element.classList.add('visible');
+                    }
+                });
+            }
+            
+            // Check fade elements on load and scroll
+            window.addEventListener('load', checkFade);
+            window.addEventListener('scroll', checkFade);
+            
+            // Initial check
+            checkFade();
+        });
+    </script>
+</body>
+</html>

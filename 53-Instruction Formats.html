@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instruction Formats in Computer Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/instruction-formats/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .cpu-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .components { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .formats { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .design { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .length { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .fields { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .fixed-variable { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .address-formats { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .encoding { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .machine { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 42, 152, 0.7)); }
+        .assembly { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .arithmetic { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .logical { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .data-transfer { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .emoji-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Code Block Styles */
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .code-block code {
+            color: #4fc3f7;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        /* Emoji Background Pattern */
+        .emoji-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.05;
+            font-size: 2rem;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .emoji-pattern span {
+            position: absolute;
+            animation: float 20s infinite linear;
+        }
+        @keyframes float {
+            from { transform: translateY(100vh) rotate(0deg); }
+            to { transform: translateY(-100vh) rotate(360deg); }
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <section class="header">
+        <div class="container">
+            <h1>Instruction Formats</h1>
+            <p>The structure and layout of machine instructions that the CPU executes</p>
+            <div class="cpu-character">💻📋⚙️</div>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot" data-section="0"></div>
+        <div class="nav-dot" data-section="1"></div>
+        <div class="nav-dot" data-section="2"></div>
+        <div class="nav-dot" data-section="3"></div>
+        <div class="nav-dot" data-section="4"></div>
+        <div class="nav-dot" data-section="5"></div>
+        <div class="nav-dot" data-section="6"></div>
+        <div class="nav-dot" data-section="7"></div>
+        <div class="nav-dot" data-section="8"></div>
+        <div class="nav-dot" data-section="9"></div>
+        <div class="nav-dot" data-section="10"></div>
+        <div class="nav-dot" data-section="11"></div>
+        <div class="nav-dot" data-section="12"></div>
+        <div class="nav-dot" data-section="13"></div>
+        <div class="nav-dot" data-section="14"></div>
+    </div>
+
+    <!-- Introduction Section -->
+    <section class="section intro" id="section-1">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 0s;">💻</span>
+            <span style="left: 15%; animation-delay: 2s;">📋</span>
+            <span style="left: 25%; animation-delay: 4s;">⚙️</span>
+            <span style="left: 35%; animation-delay: 6s;">💻</span>
+            <span style="left: 45%; animation-delay: 8s;">📋</span>
+            <span style="left: 55%; animation-delay: 10s;">⚙️</span>
+            <span style="left: 65%; animation-delay: 12s;">💻</span>
+            <span style="left: 75%; animation-delay: 14s;">📋</span>
+            <span style="left: 85%; animation-delay: 16s;">⚙️</span>
+            <span style="left: 95%; animation-delay: 18s;">💻</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to Instruction Formats</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    Instruction formats in computer architecture define the structure and layout of machine instructions that the CPU executes. They specify how operations and operands are encoded within the binary instructions, guiding the processor on how to fetch, decode, and execute each instruction.
+                </p>
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🧩</div>
+                        <div class="feature-content">
+                            <h3>Structure Definition</h3>
+                            <p>How instructions are laid out in binary</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📋</div>
+                        <div class="feature-content">
+                            <h3>Encoding Scheme</h3>
+                            <p>How operations and operands are represented</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⚙️</div>
+                        <div class="feature-content">
+                            <h3>CPU Guidance</h3>
+                            <p>Directs fetch, decode, and execute processes</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔑</span>Key Importance</h3>
+                    <p style="font-size: 1.1rem;">
+                        Instruction formats are crucial for defining the instruction set architecture (ISA) of a processor, determining its capabilities and compatibility with software. They form the foundation of how software communicates with hardware.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Components Section -->
+    <section class="section components" id="section-2">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 1s;">🧩</span>
+            <span style="left: 15%; animation-delay: 3s;">🔢</span>
+            <span style="left: 25%; animation-delay: 5s;">📍</span>
+            <span style="left: 35%; animation-delay: 7s;">🎛️</span>
+            <span style="left: 45%; animation-delay: 9s;">🧩</span>
+            <span style="left: 55%; animation-delay: 11s;">🔢</span>
+            <span style="left: 65%; animation-delay: 13s;">📍</span>
+            <span style="left: 75%; animation-delay: 15s;">🎛️</span>
+            <span style="left: 85%; animation-delay: 17s;">🧩</span>
+            <span style="left: 95%; animation-delay: 19s;">🔢</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Components of Instruction Formats</h2>
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>Opcode (Operation Code)</h3>
+                            <p>Defines the operation to be performed by the CPU. Typically occupies a fixed portion of the instruction word. Examples include arithmetic operations (add, subtract), data movement (load, store), and control flow (jump, branch).</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📊</div>
+                        <div class="feature-content">
+                            <h3>Operands</h3>
+                            <p>Data or addresses on which the operation acts. Can be specified in various ways depending on the addressing mode (immediate, direct, indirect, register, etc.). Operand fields may vary in size and position within the instruction format.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📍</div>
+                        <div class="feature-content">
+                            <h3>Addressing Mode Specification</h3>
+                            <p>Specifies how to interpret or compute the operand address. Directly impacts how operands are fetched from memory or registers. Can be part of the opcode or in a separate field within the instruction format.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🎛️</div>
+                        <div class="feature-content">
+                            <h3>Control Bits</h3>
+                            <p>Flags or control information that governs the execution behavior of the instruction. Includes condition codes, interrupt enable/disable, privilege levels, etc.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Common Formats Section -->
+    <section class="section formats" id="section-3">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 2s;">📏</span>
+            <span style="left: 15%; animation-delay: 4s;">🔄</span>
+            <span style="left: 25%; animation-delay: 6s;">📏</span>
+            <span style="left: 35%; animation-delay: 8s;">🔄</span>
+            <span style="left: 45%; animation-delay: 10s;">📏</span>
+            <span style="left: 55%; animation-delay: 12s;">🔄</span>
+            <span style="left: 65%; animation-delay: 14s;">📏</span>
+            <span style="left: 75%; animation-delay: 16s;">🔄</span>
+            <span style="left: 85%; animation-delay: 18s;">📏</span>
+            <span style="left: 95%; animation-delay: 20s;">🔄</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Common Instruction Formats</h2>
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📏</div>
+                        <div class="feature-content">
+                            <h3>Fixed-Length Format</h3>
+                            <p>All instructions have the same length in bits. Simplifies instruction fetching and decoding but may lead to inefficient use of space for simpler instructions.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Variable-Length Format</h3>
+                            <p>Instructions vary in length based on the complexity of the operation or addressing mode. Efficient for compact instruction sets but requires more complex decoding logic.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>Three-Address Format</h3>
+                            <p>Allows operations with three operands. Useful for complex arithmetic operations and scientific computing.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📊</div>
+                        <div class="feature-content">
+                            <h3>Two-Address Format</h3>
+                            <p>Typically used in older architectures where one operand serves as both a source and destination. Limited flexibility but efficient for certain operations.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">1️⃣</div>
+                        <div class="feature-content">
+                            <h3>One-Address Format</h3>
+                            <p>Operates on data stored in one register. Often used in stack-based or accumulator-based architectures.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Design Considerations Section -->
+    <section class="section design" id="section-4">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 3s;">⚖️</span>
+            <span style="left: 15%; animation-delay: 5s;">🔧</span>
+            <span style="left: 25%; animation-delay: 7s;">⚖️</span>
+            <span style="left: 35%; animation-delay: 9s;">🔧</span>
+            <span style="left: 45%; animation-delay: 11s;">⚖️</span>
+            <span style="left: 55%; animation-delay: 13s;">🔧</span>
+            <span style="left: 65%; animation-delay: 15s;">⚖️</span>
+            <span style="left: 75%; animation-delay: 17s;">🔧</span>
+            <span style="left: 85%; animation-delay: 19s;">⚖️</span>
+            <span style="left: 95%; animation-delay: 21s;">🔧</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Design Considerations</h2>
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Efficiency</h3>
+                            <p>Instruction formats aim to balance between compactness and flexibility, optimizing instruction decoding and execution.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔗</div>
+                        <div class="feature-content">
+                            <h3>Compatibility</h3>
+                            <p>Formats must support a wide range of operations and addressing modes specified by the ISA.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>Encoding Scheme</h3>
+                            <p>Instructions must be encoded efficiently to minimize memory usage and maximize execution speed.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instruction Length Section -->
+    <section class="section length" id="section-5">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 4s;">📏</span>
+            <span style="left: 15%; animation-delay: 6s;">📐</span>
+            <span style="left: 25%; animation-delay: 8s;">📏</span>
+            <span style="left: 35%; animation-delay: 10s;">📐</span>
+            <span style="left: 45%; animation-delay: 12s;">📏</span>
+            <span style="left: 55%; animation-delay: 14s;">📐</span>
+            <span style="left: 65%; animation-delay: 16s;">📏</span>
+            <span style="left: 75%; animation-delay: 18s;">📐</span>
+            <span style="left: 85%; animation-delay: 20s;">📏</span>
+            <span style="left: 95%; animation-delay: 22s;">📐</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Instruction Length and Format</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    Defines the size and structure of machine instructions. Determines how instructions are fetched, decoded, and executed by the CPU. Can be fixed-length or variable-length depending on the architecture.
+                </p>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Impact on CPU Operations</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📥</div>
+                            <div class="feature-content">
+                                <h3>Fetching</h3>
+                                <p>Instruction length determines how many bytes need to be fetched from memory</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔍</div>
+                            <div class="feature-content">
+                                <h3>Decoding</h3>
+                                <p>Format complexity affects the decoding logic and time required</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚙️</div>
+                            <div class="feature-content">
+                                <h3>Execution</h3>
+                                <p>Structure determines how operands are accessed and processed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Opcode and Operand Fields Section -->
+    <section class="section fields" id="section-6">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 5s;">🔢</span>
+            <span style="left: 15%; animation-delay: 7s;">📊</span>
+            <span style="left: 25%; animation-delay: 9s;">🔢</span>
+            <span style="left: 35%; animation-delay: 11s;">📊</span>
+            <span style="left: 45%; animation-delay: 13s;">🔢</span>
+            <span style="left: 55%; animation-delay: 15s;">📊</span>
+            <span style="left: 65%; animation-delay: 17s;">🔢</span>
+            <span style="left: 75%; animation-delay: 19s;">📊</span>
+            <span style="left: 85%; animation-delay: 21s;">🔢</span>
+            <span style="left: 95%; animation-delay: 23s;">📊</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Opcode and Operand Fields</h2>
+            <div class="card fade-in">
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔢</span>Opcode Field</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        Specifies the operation to be performed (addition, subtraction, load, store, etc.). The opcode is a fixed set of bits that tells the CPU what operation to execute.
+                    </p>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">📊</span>Operand Fields</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        Hold data or addresses required for the operation. Format includes fields for different addressing modes (immediate, direct, indirect, etc.).
+                    </p>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">📋</span>Format Structure</h3>
+                    <div class="code-block fade-in">
+                        <code>
+                            // Typical instruction format structure<br>
+                            |----------------|----------------|----------------|<br>
+                            |    Opcode     |  Operand 1    |  Operand 2    |<br>
+                            |----------------|----------------|----------------|<br>
+                            // Or with addressing mode field:<br>
+                            |----------------|----------------|----------------|----------------|<br>
+                            |    Opcode     | Addressing Mode|  Operand 1    |  Operand 2    |<br>
+                            |----------------|----------------|----------------|----------------|
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fixed vs Variable Length Section -->
+    <section class="section fixed-variable" id="section-7">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 6s;">📏</span>
+            <span style="left: 15%; animation-delay: 8s;">🔄</span>
+            <span style="left: 25%; animation-delay: 10s;">📏</span>
+            <span style="left: 35%; animation-delay: 12s;">🔄</span>
+            <span style="left: 45%; animation-delay: 14s;">📏</span>
+            <span style="left: 55%; animation-delay: 16s;">🔄</span>
+            <span style="left: 65%; animation-delay: 18s;">📏</span>
+            <span style="left: 75%; animation-delay: 20s;">🔄</span>
+            <span style="left: 85%; animation-delay: 22s;">📏</span>
+            <span style="left: 95%; animation-delay: 24s;">🔄</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Fixed-Length vs. Variable-Length Instructions</h2>
+            <div class="card fade-in">
+                <table>
+                    <tr>
+                        <th><span class="emoji-icon">📏</span>Aspect</th>
+                        <th><span class="emoji-icon">🔧</span>Fixed-Length Instructions</th>
+                        <th><span class="emoji-icon">🔄</span>Variable-Length Instructions</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Definition</strong></td>
+                        <td>All instructions are of the same size in bits</td>
+                        <td>Instructions vary in size based on complexity or addressing modes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Advantages</strong></td>
+                        <td>Simplifies instruction fetching and decoding</td>
+                        <td>Efficient use of memory for simpler instructions</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Disadvantages</strong></td>
+                        <td>May waste space for simpler instructions</td>
+                        <td>Requires more complex decoding logic</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Examples</strong></td>
+                        <td>RISC architectures (ARM, MIPS)</td>
+                        <td>CISC architectures (x86)</td>
+                    </tr>
+                </table>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">⚖️</span>Trade-offs</h3>
+                    <p style="font-size: 1.1rem;">
+                        The choice between fixed-length and variable-length instructions involves trade-offs between simplicity of decoding (fixed-length) and efficient use of memory (variable-length). Fixed-length instructions simplify processor design but may waste memory space, while variable-length instructions optimize memory usage but require more complex decoding mechanisms.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Address Formats Section -->
+    <section class="section address-formats" id="section-8">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 7s;">3️⃣</span>
+            <span style="left: 15%; animation-delay: 9s;">2️⃣</span>
+            <span style="left: 25%; animation-delay: 11s;">1️⃣</span>
+            <span style="left: 35%; animation-delay: 13s;">3️⃣</span>
+            <span style="left: 45%; animation-delay: 15s;">2️⃣</span>
+            <span style="left: 55%; animation-delay: 17s;">1️⃣</span>
+            <span style="left: 65%; animation-delay: 19s;">3️⃣</span>
+            <span style="left: 75%; animation-delay: 21s;">2️⃣</span>
+            <span style="left: 85%; animation-delay: 23s;">1️⃣</span>
+            <span style="left: 95%; animation-delay: 25s;">3️⃣</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Three-Address vs. Two-Address vs. One-Address Formats</h2>
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">3️⃣</div>
+                        <div class="feature-content">
+                            <h3>Three-Address Format</h3>
+                            <p>Operates on three operands. Useful for complex arithmetic operations and scientific computing. Example: ADD R1, R2, R3 means R1 ← R2 + R3.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">2️⃣</div>
+                        <div class="feature-content">
+                            <h3>Two-Address Format</h3>
+                            <p>Uses one operand for both source and destination. Limited flexibility but efficient for certain operations. Example: ADD R1, R2 means R1 ← R1 + R2.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">1️⃣</div>
+                        <div class="feature-content">
+                            <h3>One-Address Format</h3>
+                            <p>Operates on data stored in one register. Often used in stack-based or accumulator-based architectures. Example: ADD R1 means ACC ← ACC + R1.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💡</span>Usage Examples</h3>
+                    <div class="code-block fade-in">
+                        <code>
+                            // Three-address format (common in RISC)<br>
+                            ADD R1, R2, R3    // R1 = R2 + R3<br>
+                            SUB R4, R5, R6    // R4 = R5 - R6<br><br>
+                            // Two-address format (common in CISC)<br>
+                            ADD R1, R2       // R1 = R1 + R2<br>
+                            SUB R3, R4       // R3 = R3 - R4<br><br>
+                            // One-address format (accumulator-based)<br>
+                            LOAD R1          // ACC = R1<br>
+                            ADD R2           // ACC = ACC + R2<br>
+                            STORE R3         // R3 = ACC
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Encoding Section -->
+    <section class="section encoding" id="section-9">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 8s;">🔢</span>
+            <span style="left: 15%; animation-delay: 10s;">🔍</span>
+            <span style="left: 25%; animation-delay: 12s;">🔢</span>
+            <span style="left: 35%; animation-delay: 14s;">🔍</span>
+            <span style="left: 45%; animation-delay: 16s;">🔢</span>
+            <span style="left: 55%; animation-delay: 18s;">🔍</span>
+            <span style="left: 65%; animation-delay: 20s;">🔢</span>
+            <span style="left: 75%; animation-delay: 22s;">🔍</span>
+            <span style="left: 85%; animation-delay: 24s;">🔢</span>
+            <span style="left: 95%; animation-delay: 26s;">🔍</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Instruction Encoding and Decoding</h2>
+            <div class="card fade-in">
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔢</span>Encoding</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        Translating assembly language mnemonics into machine code. Involves mapping opcodes and operands to binary representations.
+                    </p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📝</div>
+                            <div class="feature-content">
+                                <h3>Assembly to Machine Code</h3>
+                                <p>Converting human-readable instructions to binary</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🗂️</div>
+                            <div class="feature-content">
+                                <h3>Opcode Mapping</h3>
+                                <p>Assigning binary values to operation codes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔍</span>Decoding</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        Process of interpreting machine code instructions for execution by the CPU. The control unit decodes the instruction to determine what operation to perform and where to find the operands.
+                    </p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🧩</div>
+                            <div class="feature-content">
+                                <h3>Instruction Fetch</h3>
+                                <p>Retrieving instruction from memory</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔍</div>
+                            <div class="feature-content">
+                                <h3>Operand Fetch</h3>
+                                <p>Retrieving operands based on addressing mode</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Machine Language Section -->
+    <section class="section machine" id="section-10">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 9s;">0️⃣</span>
+            <span style="left: 15%; animation-delay: 11s;">1️⃣</span>
+            <span style="left: 25%; animation-delay: 13s;">0️⃣</span>
+            <span style="left: 35%; animation-delay: 15s;">1️⃣</span>
+            <span style="left: 45%; animation-delay: 17s;">0️⃣</span>
+            <span style="left: 55%; animation-delay: 19s;">1️⃣</span>
+            <span style="left: 65%; animation-delay: 21s;">0️⃣</span>
+            <span style="left: 75%; animation-delay: 23s;">1️⃣</span>
+            <span style="left: 85%; animation-delay: 25s;">0️⃣</span>
+            <span style="left: 95%; animation-delay: 27s;">1️⃣</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Machine Language Instructions</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    Low-level instructions directly executable by the CPU. Binary representation of operations and data movements.
+                </p>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Characteristics</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">0️⃣1️⃣</div>
+                            <div class="feature-content">
+                                <h3>Binary Format</h3>
+                                <p>Composed of 0s and 1s that the CPU directly interprets</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>Direct Execution</h3>
+                                <p>No translation needed; CPU can execute directly</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔧</div>
+                            <div class="feature-content">
+                                <h3>Hardware-Specific</h3>
+                                <p>Unique to each processor architecture</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">📋</span>Example</h3>
+                    <div class="code-block fade-in">
+                        <code>
+                            // x86 machine language example<br>
+                            // Assembly: ADD AX, BX<br>
+                            // Machine code: 01 D8 (in hexadecimal)<br>
+                            // Binary: 00000001 11011000<br><br>
+                            // ARM machine language example<br>
+                            // Assembly: ADD R0, R1, R2<br>
+                            // Machine code: E0810001 (in hexadecimal)<br>
+                            // Binary: 11100000100000010000000000000001
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Assembly Language Section -->
+    <section class="section assembly" id="section-11">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 10s;">📝</span>
+            <span style="left: 15%; animation-delay: 12s;">🔤</span>
+            <span style="left: 25%; animation-delay: 14s;">📝</span>
+            <span style="left: 35%; animation-delay: 16s;">🔤</span>
+            <span style="left: 45%; animation-delay: 18s;">📝</span>
+            <span style="left: 55%; animation-delay: 20s;">🔤</span>
+            <span style="left: 65%; animation-delay: 22s;">📝</span>
+            <span style="left: 75%; animation-delay: 24s;">🔤</span>
+            <span style="left: 85%; animation-delay: 26s;">📝</span>
+            <span style="left: 95%; animation-delay: 28s;">🔤</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Assembly Language Instructions</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    Human-readable mnemonics representing machine instructions. Translated into machine code by an assembler.
+                </p>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">📝</span>Characteristics</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔤</div>
+                            <div class="feature-content">
+                                <h3>Mnemonics</h3>
+                                <p>Short, readable codes representing operations (ADD, SUB, MOV, etc.)</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔧</div>
+                            <div class="feature-content">
+                                <h3>Architecture-Specific</h3>
+                                <p>Different assembly languages for different processors</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Translation Required</h3>
+                                <p>Must be assembled into machine code before execution</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">📋</span>Example</h3>
+                    <div class="code-block fade-in">
+                        <code>
+                            // x86 assembly example<br>
+                            MOV AX, 5       ; Move immediate value 5 into AX register<br>
+                            ADD AX, BX      ; Add BX to AX<br>
+                            MOV [SI], AX    ; Store AX at memory location pointed to by SI<br><br>
+                            // ARM assembly example<br>
+                            LDR R0, =5      ; Load immediate value 5 into R0<br>
+                            ADD R1, R0, R2  ; R1 = R0 + R2<br>
+                            STR R1, [R3]    ; Store R1 at memory location pointed to by R3
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Arithmetic Operations Section -->
+    <section class="section arithmetic" id="section-12">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 11s;">➕</span>
+            <span style="left: 15%; animation-delay: 13s;">➖</span>
+            <span style="left: 25%; animation-delay: 15s;">✖️</span>
+            <span style="left: 35%; animation-delay: 17s;">➗</span>
+            <span style="left: 45%; animation-delay: 19s;">➕</span>
+            <span style="left: 55%; animation-delay: 21s;">➖</span>
+            <span style="left: 65%; animation-delay: 23s;">✖️</span>
+            <span style="left: 75%; animation-delay: 25s;">➗</span>
+            <span style="left: 85%; animation-delay: 27s;">➕</span>
+            <span style="left: 95%; animation-delay: 29s;">➖</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Format for Arithmetic Operations</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    Specifies how arithmetic instructions (addition, subtraction, multiplication, division) are structured. Includes opcode, operand fields for source and destination registers or memory locations.
+                </p>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🧮</span>Common Arithmetic Instructions</h3>
+                    <table>
+                        <tr>
+                            <th><span class="emoji-icon">🔢</span>Operation</th>
+                            <th><span class="emoji-icon">📝</span>Mnemonic</th>
+                            <th><span class="emoji-icon">📋</span>Description</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Addition</strong></td>
+                            <td>ADD</td>
+                            <td>Adds two operands and stores result</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Subtraction</strong></td>
+                            <td>SUB</td>
+                            <td>Subtracts second operand from first</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Multiplication</strong></td>
+                            <td>MUL</td>
+                            <td>Multiplies two operands</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Division</strong></td>
+                            <td>DIV</td>
+                            <td>Divides first operand by second</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">📋</span>Format Examples</h3>
+                    <div class="code-block fade-in">
+                        <code>
+                            // Three-address format<br>
+                            ADD R1, R2, R3    // R1 = R2 + R3<br>
+                            SUB R4, R5, R6    // R4 = R5 - R6<br><br>
+                            // Two-address format<br>
+                            ADD R1, R2       // R1 = R1 + R2<br>
+                            SUB R3, R4       // R3 = R3 - R4<br><br>
+                            // One-address format (accumulator-based)<br>
+                            ADD R2           // ACC = ACC + R2<br>
+                            SUB R3           // ACC = ACC - R3
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Logical Operations Section -->
+    <section class="section logical" id="section-13">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 12s;">🔗</span>
+            <span style="left: 15%; animation-delay: 14s;">🔗</span>
+            <span style="left: 25%; animation-delay: 16s;">🔗</span>
+            <span style="left: 35%; animation-delay: 18s;">🔗</span>
+            <span style="left: 45%; animation-delay: 20s;">🔗</span>
+            <span style="left: 55%; animation-delay: 22s;">🔗</span>
+            <span style="left: 65%; animation-delay: 24s;">🔗</span>
+            <span style="left: 75%; animation-delay: 26s;">🔗</span>
+            <span style="left: 85%; animation-delay: 28s;">🔗</span>
+            <span style="left: 95%; animation-delay: 30s;">🔗</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Format for Logical Operations</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    Defines structure for logical operations (AND, OR, XOR, NOT). Similar to arithmetic operations but with different opcodes.
+                </p>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔗</span>Common Logical Instructions</h3>
+                    <table>
+                        <tr>
+                            <th><span class="emoji-icon">🔢</span>Operation</th>
+                            <th><span class="emoji-icon">📝</span>Mnemonic</th>
+                            <th><span class="emoji-icon">📋</span>Description</th>
+                        </tr>
+                        <tr>
+                            <td><strong>AND</strong></td>
+                            <td>AND</td>
+                            <td>Bitwise AND operation between operands</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OR</strong></td>
+                            <td>OR</td>
+                            <td>Bitwise OR operation between operands</td>
+                        </tr>
+                        <tr>
+                            <td><strong>XOR</strong></td>
+                            <td>XOR</td>
+                            <td>Bitwise exclusive OR operation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>NOT</strong></td>
+                            <td>NOT</td>
+                            <td>Bitwise NOT operation (complement)</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">📋</span>Format Examples</h3>
+                    <div class="code-block fade-in">
+                        <code>
+                            // Three-address format<br>
+                            AND R1, R2, R3    // R1 = R2 AND R3<br>
+                            OR R4, R5, R6     // R4 = R5 OR R6<br>
+                            XOR R7, R8, R9    // R7 = R8 XOR R9<br><br>
+                            // Two-address format<br>
+                            AND R1, R2       // R1 = R1 AND R2<br>
+                            OR R3, R4        // R3 = R3 OR R4<br><br>
+                            // One-address format (accumulator-based)<br>
+                            AND R2           // ACC = ACC AND R2<br>
+                            OR R3            // ACC = ACC OR R3
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Transfer Operations Section -->
+    <section class="section data-transfer" id="section-14">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 13s;">🔄</span>
+            <span style="left: 15%; animation-delay: 15s;">📥</span>
+            <span style="left: 25%; animation-delay: 17s;">📤</span>
+            <span style="left: 35%; animation-delay: 19s;">🔄</span>
+            <span style="left: 45%; animation-delay: 21s;">📥</span>
+            <span style="left: 55%; animation-delay: 23s;">📤</span>
+            <span style="left: 65%; animation-delay: 25s;">🔄</span>
+            <span style="left: 75%; animation-delay: 27s;">📥</span>
+            <span style="left: 85%; animation-delay: 29s;">📤</span>
+            <span style="left: 95%; animation-delay: 31s;">🔄</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Format for Data Transfer Operations</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    How data is moved between registers, memory, and I/O devices. Includes opcodes for load (from memory to register) and store (from register to memory) operations.
+                </p>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Common Data Transfer Instructions</h3>
+                    <table>
+                        <tr>
+                            <th><span class="emoji-icon">🔢</span>Operation</th>
+                            <th><span class="emoji-icon">📝</span>Mnemonic</th>
+                            <th><span class="emoji-icon">📋</span>Description</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Load</strong></td>
+                            <td>LD, LDR, MOV</td>
+                            <td>Load data from memory to register</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Store</strong></td>
+                            <td>ST, STR, MOV</td>
+                            <td>Store data from register to memory</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Move</strong></td>
+                            <td>MOV, MV</td>
+                            <td>Move data between registers or memory</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Exchange</strong></td>
+                            <td>XCHG, SWP</td>
+                            <td>Exchange contents of two locations</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">📋</span>Format Examples</h3>
+                    <div class="code-block fade-in">
+                        <code>
+                            // Load operations<br>
+                            LDR R0, [R1]     // Load R0 with contents of memory at R1<br>
+                            MOV AX, [BX]      // Load AX with contents of memory at BX<br><br>
+                            // Store operations<br>
+                            STR R2, [R3]     // Store R2 to memory at R3<br>
+                            MOV [SI], CX      // Store CX to memory at SI<br><br>
+                            // Move operations<br>
+                            MOV R4, R5       // Move R5 to R4<br>
+                            MOV R6, #10      // Move immediate value 10 to R6
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            // Set first nav dot as active
+            navDots[0].classList.add('active');
+            
+            // Function to update active nav dot
+            function updateActiveNavDot() {
+                const scrollPosition = window.scrollY + window.innerHeight / 2;
+                
+                sections.forEach((section, index) => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.offsetHeight;
+                    
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                        navDots.forEach(dot => dot.classList.remove('active'));
+                        navDots[index].classList.add('active');
+                    }
+                });
+            }
+            
+            // Update active nav dot on scroll
+            window.addEventListener('scroll', updateActiveNavDot);
+            
+            // Scroll to section when nav dot is clicked
+            navDots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    // For the first dot (header section)
+                    if (index === 0) {
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    } else {
+                        // For other sections
+                        const targetSection = sections[index - 1];
+                        window.scrollTo({
+                            top: targetSection.offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // Fade-in animation on scroll
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            function checkFade() {
+                fadeElements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    
+                    if (elementTop < window.innerHeight - elementVisible) {
+                        element.classList.add('visible');
+                    }
+                });
+            }
+            
+            // Check fade elements on load and scroll
+            window.addEventListener('load', checkFade);
+            window.addEventListener('scroll', checkFade);
+            
+            // Initial check
+            checkFade();
+        });
+    </script>
+</body>
+</html>

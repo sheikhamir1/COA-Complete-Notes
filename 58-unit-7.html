@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU Operations: The Heart of Computer Organization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/cpu-operations/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .big-picture { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .addressing { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .instruction { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .data-transfer { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .io { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .bus { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .registers { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .hierarchy { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .real-world { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+        .summary { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 152, 80, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Hierarchy Styles */
+        .hierarchy-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .hierarchy-level {
+            width: 80%;
+            padding: 20px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hierarchy-level::after {
+            content: "↓";
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        .hierarchy-level:last-child::after {
+            display: none;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" data-section="header"></div>
+        <div class="nav-dot" data-section="big-picture"></div>
+        <div class="nav-dot" data-section="addressing"></div>
+        <div class="nav-dot" data-section="instruction"></div>
+        <div class="nav-dot" data-section="data-transfer"></div>
+        <div class="nav-dot" data-section="io"></div>
+        <div class="nav-dot" data-section="bus"></div>
+        <div class="nav-dot" data-section="registers"></div>
+        <div class="nav-dot" data-section="hierarchy"></div>
+        <div class="nav-dot" data-section="real-world"></div>
+        <div class="nav-dot" data-section="summary"></div>
+    </div>
+
+    <!-- Header Section -->
+    <header class="header" id="header">
+        <div class="container">
+            <h1>CPU Operations: The Heart of Computer Organization</h1>
+            <div class="metrics-character">⚙️</div>
+            <p>Exploring how processors find, interpret, and manipulate data in computer systems</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </header>
+
+    <!-- Big Picture Section -->
+    <section class="section big-picture" id="big-picture">
+        <div class="container">
+            <h2 class="section-title fade-in">Big Picture</h2>
+            <div class="card fade-in">
+                <p>This chapter lives squarely in <strong>Computer Organization & Architecture</strong>, zooming in on how a CPU finds data, interprets instructions, moves bits around, and talks to the outside world. It's the "how do we physically run code" toolkit:</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔍</div>
+                        <div class="metric-title">Finding Data</div>
+                        <p>Rules for locating operands</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">📖</div>
+                        <div class="metric-title">Interpreting Instructions</div>
+                        <p>Understanding binary commands</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔄</div>
+                        <div class="metric-title">Moving Bits</div>
+                        <p>Transferring data within the system</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🌐</div>
+                        <div class="metric-title">External Communication</div>
+                        <p>Connecting with peripherals</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🛣️</span>The Information Highway</h3>
+                    <p class="fade-in">All these operations rely on buses (highways) that ferry information between memory, CPU, and peripherals, forming the backbone of computer organization.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Addressing Modes Section -->
+    <section class="section addressing" id="addressing">
+        <div class="container">
+            <h2 class="section-title fade-in">1. Addressing Modes – How the CPU Finds Its Data</h2>
+            <div class="card fade-in">
+                <p>Addressing mode = the recipe for where to get an operand.</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>Immediate</h3>
+                            <p>Value is baked right into the instruction (`MOV A,#25`)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📍</div>
+                        <div class="feature-content">
+                            <h3>Direct</h3>
+                            <p>The instruction carries the exact memory address</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔗</div>
+                        <div class="feature-content">
+                            <h3>Indirect</h3>
+                            <p>The instruction points to a location that stores the real address</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Register</h3>
+                            <p>Operand is already in a CPU register, lightning fast</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📊</div>
+                        <div class="feature-content">
+                            <h3>Indexed / Base-offset / Relative</h3>
+                            <p>Use an offset plus a base (perfect for arrays, position-independent code)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📚</div>
+                        <div class="feature-content">
+                            <h3>Stack</h3>
+                            <p>Top-of-stack is the implicit address (function calls)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⬆️⬇️</div>
+                        <div class="feature-content">
+                            <h3>Auto-increment/decrement</h3>
+                            <p>The pointer moves automatically after access</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔄🔗</div>
+                        <div class="feature-content">
+                            <h3>Memory-indirect</h3>
+                            <p>A double hop through memory</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔧</span>Compiler Flexibility</h3>
+                    <p class="fade-in">These modes give compilers flexibility: fast register hits when possible, pointer gymnastics when needed. The choice of addressing mode significantly impacts program efficiency and complexity.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instruction Formats Section -->
+    <section class="section instruction" id="instruction">
+        <div class="container">
+            <h2 class="section-title fade-in">2. Instruction Formats – How Instructions Are Packed</h2>
+            <div class="card fade-in">
+                <p>Think of an instruction as a little binary sentence:</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔤</div>
+                        <div class="metric-title">Opcode</div>
+                        <p>The verb (ADD, JMP, MOV)</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🏷️</div>
+                        <div class="metric-title">Operands</div>
+                        <p>The nouns (registers or memory addresses)</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔧</div>
+                        <div class="metric-title">Addressing-mode bits</div>
+                        <p>Grammar of the instruction</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🚩</div>
+                        <div class="metric-title">Control flags</div>
+                        <p>Punctuation of the instruction</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">📏</span>Design Choices</h3>
+                    <p class="fade-in">Architectures choose between:</p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📐</div>
+                            <div class="feature-content">
+                                <h3>Fixed Length</h3>
+                                <p>Easy to decode but may waste space</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📏</div>
+                            <div class="feature-content">
+                                <h3>Variable Length</h3>
+                                <p>Compact but trickier to decode</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔢</span>Operand Layouts</h3>
+                    <p class="fade-in">Architectures also choose between three-address, two-address, or one-address layouts depending on how many operands each instruction can name.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Transfer & Manipulation Section -->
+    <section class="section data-transfer" id="data-transfer">
+        <div class="container">
+            <h2 class="section-title fade-in">3. Data Transfer & Manipulation – Moving and Shaping Bits</h2>
+            <div class="card fade-in">
+                <p>The daily grind inside the CPU:</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔄</div>
+                        <div class="metric-title">Transfer</div>
+                        <p>Load/store between memory and registers</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔀</div>
+                        <div class="metric-title">Move</div>
+                        <p>Between registers</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">📡</div>
+                        <div class="metric-title">Send/Receive</div>
+                        <p>From/to I/O devices</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🧮</div>
+                        <div class="metric-title">Arithmetic</div>
+                        <p>ADD, SUB, MUL, DIV operations</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔍</div>
+                        <div class="metric-title">Logical</div>
+                        <p>AND, OR, XOR, NOT operations</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">⬅️➡️</div>
+                        <div class="metric-title">Shifts and Rotates</div>
+                        <p>Bit movement operations</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">⚡</span>Performance Impact</h3>
+                    <p class="fade-in">Efficient transfer plus rich manipulation instructions decide how quickly a program can actually compute. The balance between these operations affects overall system performance.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔧</span>Bit Manipulation</h3>
+                    <p class="fade-in">Special instructions for bit masking and manipulation allow efficient handling of individual bits, which is crucial for systems programming, hardware control, and data compression algorithms.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- I/O Organization Section -->
+    <section class="section io" id="io">
+        <div class="container">
+            <h2 class="section-title fade-in">4. I/O Organization – Talking to the Outside World</h2>
+            <div class="card fade-in">
+                <p>The CPU must handshake with disks, screens, networks:</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔌</div>
+                        <div class="feature-content">
+                            <h3>Interfaces & Controllers</h3>
+                            <p>USB, NIC, GPU drivers in hardware</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Programmed I/O</h3>
+                            <p>CPU polls devices for status</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Interrupt-driven I/O</h3>
+                            <p>Device calls CPU when ready</p>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🚀</div>
+                        <div class="feature-content">
+                            <h3>DMA</h3>
+                            <p>Device moves data directly to memory without CPU</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔧</span>Techniques</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔍</div>
+                            <div class="feature-content">
+                                <h3>Polling</h3>
+                                <p>Regularly checking device status</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📦</div>
+                            <div class="feature-content">
+                                <h3>Buffering</h3>
+                                <p>Temporary storage for data transfers</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔔</div>
+                            <div class="feature-content">
+                                <h3>Interrupt Handling</h3>
+                                <p>Managing device notifications</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🎯</span>The Goal</h3>
+                    <p class="fade-in">The goal is fast, low-overhead data exchange without starving the processor. Efficient I/O organization is crucial for system responsiveness and performance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bus Architecture Section -->
+    <section class="section bus" id="bus">
+        <div class="container">
+            <h2 class="section-title fade-in">5. Bus Architecture – The Highway System</h2>
+            <div class="card fade-in">
+                <p>A bus is a shared communication road:</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔢</div>
+                        <div class="metric-title">Data Bus</div>
+                        <p>Moves the actual bits</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">📍</div>
+                        <div class="metric-title">Address Bus</div>
+                        <p>Carries the destination street address</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🚦</div>
+                        <div class="metric-title">Control Bus</div>
+                        <p>Holds the traffic lights (read/write, clock signals)</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔧</span>Design Choices</h3>
+                    <p class="fade-in">Key design decisions include:</p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📏</div>
+                            <div class="feature-content">
+                                <h3>Width</h3>
+                                <p>8/16/32/64 bits affects how much data can move at once</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>Speed</h3>
+                                <p>Determines transfer rate</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Clock Type</h3>
+                                <p>Synchronous vs asynchronous timing</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🤝</div>
+                            <div class="feature-content">
+                                <h3>Arbitration</div>
+                                <p>Protocols for bus access control</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">📊</span>System Impact</h3>
+                    <p class="fade-in">These design choices directly affect system bandwidth and latency, determining how quickly information can flow between components.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Programming Registers Section -->
+    <section class="section registers" id="registers">
+        <div class="container">
+            <h2 class="section-title fade-in">6. Programming Registers – The CPU's Workbench</h2>
+            <div class="card fade-in">
+                <p>Tiny, ultra-fast storage slots inside the CPU:</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>General-purpose</h3>
+                            <p>AX, R0, etc. hold operands and temporary results</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📍</div>
+                        <div class="feature-content">
+                            <h3>Program Counter</h3>
+                            <p>Points to the next instruction to execute</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📚</div>
+                        <div class="feature-content">
+                            <h3>Stack Pointer</h3>
+                            <p>Tracks the top of the stack</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🚩</div>
+                        <div class="feature-content">
+                            <h3>Flags Register</h3>
+                            <p>Stores status of operations (zero, carry, overflow, etc.)</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">⚡</span>Speed Advantage</h3>
+                    <p class="fade-in">Because registers sit inside the processor core, accessing them is far quicker than touching main memory. This speed difference is why compilers try to keep frequently used data in registers.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔧</span>Register Allocation</h3>
+                    <p class="fade-in">One of the most important tasks of a compiler is register allocation—deciding which variables to keep in registers at any point in the program to maximize performance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hierarchy Map Section -->
+    <section class="section hierarchy" id="hierarchy">
+        <div class="container">
+            <h2 class="section-title fade-in">Hierarchy Map</h2>
+            <div class="card fade-in">
+                <div class="hierarchy-container">
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🏗️</span>
+                            <strong>Computer Organization & Architecture</strong>
+                        </div>
+                        <div>Overall system design</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">⚙️</span>
+                            <strong>CPU Core</strong>
+                        </div>
+                        <div>Central processing unit</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">📖</span>
+                            <strong>Instruction Set Architecture</strong>
+                        </div>
+                        <div>CPU's language and capabilities</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🔍</span>
+                            <strong>Addressing Modes</strong>
+                        </div>
+                        <div>How operands are accessed</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">📝</span>
+                            <strong>Instruction Formats</strong>
+                        </div>
+                        <div>Binary layout of instructions</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🔄</span>
+                            <strong>Data Handling</strong>
+                        </div>
+                        <div>Transfer and manipulation operations</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🗄️</span>
+                            <strong>Programming Registers</strong>
+                        </div>
+                        <div>Fast internal storage</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🌐</span>
+                            <strong>System Interface</strong>
+                        </div>
+                        <div>Connection to external world</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">📡</span>
+                            <strong>I/O Organization</strong>
+                        </div>
+                        <div>Communication with peripherals</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🛣️</span>
+                            <strong>Bus Architecture</strong>
+                        </div>
+                        <div>Communication pathways</div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔗</span>How It All Connects</h3>
+                    <p class="fade-in">Everything nests: the ISA dictates addressing modes and instruction formats; those define how data flows through registers and buses; I/O and buses connect the CPU to memory and peripherals.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Real-World Touch Section -->
+    <section class="section real-world" id="real-world">
+        <div class="container">
+            <h2 class="section-title fade-in">Real-World Touch</h2>
+            <div class="card fade-in">
+                <p>Every time a smartphone plays a video, multiple levels of computer organization work together:</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔍</div>
+                        <div class="feature-content">
+                            <h3>Addressing Modes</h3>
+                            <p>Locate video frames in memory</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📖</div>
+                        <div class="feature-content">
+                            <h3>Instruction Formats</h3>
+                            <p>Tell the CPU how to decode and render frames</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🛣️</div>
+                        <div class="feature-content">
+                            <h3>Buses</h3>
+                            <p>Move pixel data to the GPU</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🗄️</div>
+                        <div class="feature-content">
+                            <h3>Registers</h3>
+                            <p>Buffer intermediate math operations</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">📱</span>From App to Silicon</h3>
+                    <p class="fade-in">This hierarchy of operations transforms high-level app instructions into the electrical signals that control device hardware, demonstrating the practical importance of computer organization principles.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">⚡</span>Performance Optimization</h3>
+                    <p class="fade-in">Understanding these components helps engineers optimize systems for better performance, power efficiency, and cost-effectiveness in real-world applications.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Summary Table Section -->
+    <section class="section summary" id="summary">
+        <div class="container">
+            <h2 class="section-title fade-in">Quick Summary Table</h2>
+            <div class="card fade-in">
+                <table>
+                    <tr>
+                        <th>Topic</th>
+                        <th>Core Idea</th>
+                        <th>Key Impact</th>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🔍</span> Addressing Modes</td>
+                        <td>Ways CPU finds operands</td>
+                        <td>Flexibility & efficient memory use</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">📝</span> Instruction Formats</td>
+                        <td>Binary layout of instructions</td>
+                        <td>Decoding speed & code density</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🔄</span> Data Transfer & Manip.</td>
+                        <td>Moving and transforming data</td>
+                        <td>Program execution efficiency</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">📡</span> I/O Organization</td>
+                        <td>CPU–peripheral communication methods</td>
+                        <td>Throughput & device management</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🛣️</span> Bus Architecture</td>
+                        <td>Shared pathways for data/address/control signals</td>
+                        <td>System bandwidth & scalability</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🗄️</span> Programming Registers</td>
+                        <td>Ultra-fast CPU storage for operands & control info</td>
+                        <td>Highest-speed data access</td>
+                    </tr>
+                </table>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">💡</span>The Big Picture</h3>
+                    <p class="fade-in">Master these and you can trace any high-level instruction—like saving a file or streaming a prayer recitation—down to electrons shuttling across silicon highways.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        const navDots = document.querySelectorAll('.nav-dot');
+        const sections = document.querySelectorAll('.section, .header');
+        
+        // Update active nav dot on scroll
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+                if (dot.getAttribute('data-section') === current) {
+                    dot.classList.add('active');
+                }
+            });
+            
+            // Fade in animation
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        });
+        
+        // Nav dot click functionality
+        navDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const targetId = dot.getAttribute('data-section');
+                const targetSection = document.getElementById(targetId);
+                
+                window.scrollTo({
+                    top: targetSection.offsetTop - 50,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Initial check for fade-in elements
+        const fadeElements = document.querySelectorAll('.fade-in');
+        fadeElements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top;
+            const elementVisible = 150;
+            
+            if (elementTop < window.innerHeight - elementVisible) {
+                element.classList.add('visible');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Associative Memory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/associative-memory/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .memory-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .definition { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .key-concepts { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .content-access { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .search-operation { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .applications { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .comparison-ram { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .access-method-ram { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .speed-ram { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+        .applications-ram { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 152, 80, 0.7)); }
+        .capacity-ram { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .comparison-rom { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .access-rom { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .speed-rom { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .flexibility-rom { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .cost-rom { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Chart Styles */
+        .chart-container {
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .memory-comparison {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .memory-box {
+            width: 200px;
+            height: 250px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+        }
+        .memory-box h3 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        .memory-box .emoji {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .memory-arrow {
+            font-size: 3rem;
+            margin: 0 20px;
+        }
+        .search-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .search-step {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            width: 100%;
+            justify-content: center;
+        }
+        .search-box {
+            width: 150px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 15px;
+        }
+        .search-arrow {
+            font-size: 2rem;
+        }
+        .comparison-table {
+            width: 100%;
+            margin-top: 30px;
+        }
+        .comparison-table th {
+            background: rgba(255, 255, 255, 0.3);
+            font-size: 1.1rem;
+        }
+        .comparison-table td {
+            vertical-align: top;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+            .memory-arrow {
+                display: none;
+            }
+            .memory-comparison {
+                flex-direction: column;
+            }
+            .memory-box {
+                margin: 20px 0;
+                width: 100%;
+            }
+            .search-step {
+                flex-direction: column;
+            }
+            .search-arrow {
+                transform: rotate(90deg);
+                margin: 15px 0;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <section class="header">
+        <div class="container">
+            <div class="memory-character">🔍</div>
+            <h1>Associative Memory</h1>
+            <p>Content-addressable memory that enables rapid search and retrieval of data based on its content</p>
+            <div class="scroll-indicator">↓</div>
+        </div>
+    </section>
+
+    <!-- Navigation -->
+    <div class="nav">
+        <div class="nav-dot" data-section="intro"></div>
+        <div class="nav-dot" data-section="definition"></div>
+        <div class="nav-dot" data-section="key-concepts"></div>
+        <div class="nav-dot" data-section="content-access"></div>
+        <div class="nav-dot" data-section="search-operation"></div>
+        <div class="nav-dot" data-section="applications"></div>
+        <div class="nav-dot" data-section="comparison-ram"></div>
+        <div class="nav-dot" data-section="access-method-ram"></div>
+        <div class="nav-dot" data-section="speed-ram"></div>
+        <div class="nav-dot" data-section="applications-ram"></div>
+        <div class="nav-dot" data-section="capacity-ram"></div>
+        <div class="nav-dot" data-section="comparison-rom"></div>
+        <div class="nav-dot" data-section="access-rom"></div>
+        <div class="nav-dot" data-section="speed-rom"></div>
+        <div class="nav-dot" data-section="flexibility-rom"></div>
+        <div class="nav-dot" data-section="cost-rom"></div>
+    </div>
+
+    <!-- Introduction Section -->
+    <section class="section intro" id="intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to Associative Memory</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Associative memory, also known as content-addressable memory (CAM), is a type of computer memory that enables rapid search and retrieval of data based on its content rather than its location in memory. Unlike conventional memory structures where data is accessed via an address, associative memory allows data retrieval based on its content, making it extremely efficient for certain types of operations.
+                </p>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔍</div>
+                </div>
+                
+                <p style="font-size: 1.1rem; text-align: center; font-style: italic;">
+                    Find data by what it contains, not where it's stored
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Definition and Function Section -->
+    <section class="section definition" id="definition">
+        <div class="container">
+            <h2 class="section-title fade-in">Definition and Function</h2>
+            
+            <div class="card fade-in">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <div style="font-size: 4rem; margin-right: 20px;">📝</div>
+                    <div>
+                        <h3 style="font-size: 1.8rem; margin-bottom: 10px;">Associative Memory</h3>
+                        <p style="font-size: 1.1rem;">Stores data as pairs of key-value or tag-data entries, where the key serves as a search argument</p>
+                    </div>
+                </div>
+                
+                <p style="font-size: 1.2rem; line-height: 1.6; margin-top: 20px;">
+                    When a search is performed in associative memory, the system compares the search key against all stored keys simultaneously. If a match is found, the associated data or value is retrieved. This parallel search capability makes associative memory extremely fast for certain types of operations, such as database queries or caching mechanisms.
+                </p>
+                
+                <div class="search-diagram fade-in">
+                    <div class="search-step">
+                        <div class="search-box">Search Key</div>
+                        <div class="search-arrow">→</div>
+                        <div class="search-box">Compare with all keys</div>
+                    </div>
+                    <div class="search-step">
+                        <div class="search-box">Match Found</div>
+                        <div class="search-arrow">→</div>
+                        <div class="search-box">Retrieve Data</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Concepts Section -->
+    <section class="section key-concepts" id="key-concepts">
+        <div class="container">
+            <h2 class="section-title fade-in">Key Concepts</h2>
+            
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔍</div>
+                        <div class="feature-content">
+                            <h3>Content-Based Access</h3>
+                            <p>Data retrieval is based on the content or value of the data rather than its memory address. This makes associative memory suitable for applications where quick access to specific information is critical.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Search Operation</h3>
+                            <p>Associative memory performs searches in parallel, comparing the search key against all stored keys simultaneously. This parallelism allows for rapid access times, often in constant time O(1), making it efficient for real-time applications.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">💻</div>
+                        <div class="feature-content">
+                            <h3>Applications</h3>
+                            <p>Associative memory is used in various fields, including cache memory, database systems, and pattern recognition in AI and image processing applications.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔑</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Content-Based Access Section -->
+    <section class="section content-access" id="content-access">
+        <div class="container">
+            <h2 class="section-title fade-in">Content-Based Access</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Unlike conventional memory where data is accessed via an address, associative memory allows data retrieval based on its content. This fundamental difference enables unique capabilities and use cases.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Parallel Search</h3>
+                            <p>Multiple comparisons happen simultaneously, not sequentially</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Constant Time</h3>
+                            <p>Access time remains consistent regardless of memory size</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🎯</div>
+                        <div class="feature-content">
+                            <h3>Direct Retrieval</h3>
+                            <p>Go directly to data without knowing its location</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔍</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Operation Section -->
+    <section class="section search-operation" id="search-operation">
+        <div class="container">
+            <h2 class="section-title fade-in">Search Operation</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    The search operation in associative memory is what sets it apart from conventional memory types. When a search is initiated, the system doesn't need to know where the data is stored - it only needs to know what it's looking for.
+                </p>
+                
+                <div class="search-diagram fade-in">
+                    <div class="search-step">
+                        <div class="search-box">Input Search Key</div>
+                        <div class="search-arrow">→</div>
+                        <div class="search-box">Parallel Comparison</div>
+                    </div>
+                    <div class="search-step">
+                        <div class="search-box">Match Detection</div>
+                        <div class="search-arrow">→</div>
+                        <div class="search-box">Data Retrieval</div>
+                    </div>
+                </div>
+                
+                <p style="font-size: 1.2rem; line-height: 1.6; margin-top: 20px;">
+                    This parallel search capability makes associative memory extremely fast for certain types of operations. The time required to find a match is constant, regardless of how many items are stored in the memory. This is in stark contrast to conventional memory, where search times increase with the size of the memory.
+                </p>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">⚡</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Applications Section -->
+    <section class="section applications" id="applications">
+        <div class="container">
+            <h2 class="section-title fade-in">Applications</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Associative memory is used in various fields where fast content-based retrieval is essential:
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">🧠</div>
+                        <div class="feature-content">
+                            <h3>Cache Memory</h3>
+                            <p>CPU caches often use associative memory to quickly retrieve recently accessed data. The cache stores data along with tags that identify the memory addresses, allowing for rapid lookup when the CPU needs data.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🗄️</div>
+                        <div class="feature-content">
+                            <h3>Database Systems</h3>
+                            <p>Associative memory accelerates search operations in databases, improving query response times. Indexing structures in databases often use associative memory principles to quickly locate records based on key values.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">👁️</div>
+                        <div class="feature-content">
+                            <h3>Pattern Recognition</h3>
+                            <p>Used in AI and image processing applications to match patterns quickly. Associative memory can store patterns and then rapidly identify matches or similarities in new input data.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">💻</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison with RAM Section -->
+    <section class="section comparison-ram" id="comparison-ram">
+        <div class="container">
+            <h2 class="section-title fade-in">Comparison with Conventional Memory (RAM)</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Associative memory differs from conventional Random Access Memory (RAM) in several key aspects:
+                </p>
+                
+                <div class="memory-comparison fade-in">
+                    <div class="memory-box">
+                        <div class="emoji">🔍</div>
+                        <h3>Associative Memory</h3>
+                        <p>Content-addressable</p>
+                    </div>
+                    <div class="memory-arrow">VS</div>
+                    <div class="memory-box">
+                        <div class="emoji">📍</div>
+                        <h3>RAM</h3>
+                        <p>Location-addressable</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Access Method RAM Section -->
+    <section class="section access-method-ram" id="access-method-ram">
+        <div class="container">
+            <h2 class="section-title fade-in">Access Method</h2>
+            
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔍</div>
+                        <div class="feature-content">
+                            <h3>Associative Memory</h3>
+                            <p>Access is based on content (data), allowing for parallel searches across all stored entries simultaneously.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📍</div>
+                        <div class="feature-content">
+                            <h3>RAM</h3>
+                            <p>Access is based on physical addresses assigned to each memory cell, requiring sequential access or direct addressing.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔄</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Speed RAM Section -->
+    <section class="section speed-ram" id="speed-ram">
+        <div class="container">
+            <h2 class="section-title fade-in">Speed</h2>
+            
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Associative Memory</h3>
+                            <p>Provides very fast access times, often in constant time (O(1)), due to parallel search capability.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⏱️</div>
+                        <div class="feature-content">
+                            <h3>RAM</h3>
+                            <p>Offers fast access times but depends on the memory address, leading to variable access times depending on the location of data in memory.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">⚡</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Applications RAM Section -->
+    <section class="section applications-ram" id="applications-ram">
+        <div class="container">
+            <h2 class="section-title fade-in">Applications</h2>
+            
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🎯</div>
+                        <div class="feature-content">
+                            <h3>Associative Memory</h3>
+                            <p>Ideal for applications requiring quick retrieval based on content, such as cache memories and database systems.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">💻</div>
+                        <div class="feature-content">
+                            <h3>RAM</h3>
+                            <p>Used for general-purpose computing tasks where sequential or direct access to specific memory locations is sufficient.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">📱</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Capacity and Cost RAM Section -->
+    <section class="section capacity-ram" id="capacity-ram">
+        <div class="container">
+            <h2 class="section-title fade-in">Capacity and Cost</h2>
+            
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">📊</div>
+                        <div class="feature-content">
+                            <h3>Associative Memory</h3>
+                            <p>Typically stores fewer entries compared to RAM due to its specialized search mechanism, which can increase costs.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">💰</div>
+                        <div class="feature-content">
+                            <h3>RAM</h3>
+                            <p>Offers larger storage capacity and is more cost-effective for storing large amounts of data.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">📏</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison with ROM Section -->
+    <section class="section comparison-rom" id="comparison-rom">
+        <div class="container">
+            <h2 class="section-title fade-in">Comparison with ROM (Read-Only Memory)</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Associative memory also differs from Read-Only Memory (ROM) in several key aspects:
+                </p>
+                
+                <div class="memory-comparison fade-in">
+                    <div class="memory-box">
+                        <div class="emoji">🔍</div>
+                        <h3>Associative Memory</h3>
+                        <p>Content-addressable, rewritable</p>
+                    </div>
+                    <div class="memory-arrow">VS</div>
+                    <div class="memory-box">
+                        <div class="emoji">🔒</div>
+                        <h3>ROM</h3>
+                        <p>Fixed data, non-volatile</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Access and Modification ROM Section -->
+    <section class="section access-rom" id="access-rom">
+        <div class="container">
+            <h2 class="section-title fade-in">Access and Modification</h2>
+            
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔍</div>
+                        <div class="feature-content">
+                            <h3>Associative Memory</h3>
+                            <p>Allows for both reading and writing of data based on content, making it versatile for dynamic applications.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔒</div>
+                        <div class="feature-content">
+                            <h3>ROM</h3>
+                            <p>Generally used for storing fixed data or firmware that cannot be easily modified or updated.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔄</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Speed and Usage ROM Section -->
+    <section class="section speed-rom" id="speed-rom">
+        <div class="container">
+            <h2 class="section-title fade-in">Speed and Usage</h2>
+            
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Associative Memory</h3>
+                            <p>Provides fast access times similar to RAM, making it suitable for applications requiring frequent data retrieval and updates.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🚀</div>
+                        <div class="feature-content">
+                            <h3>ROM</h3>
+                            <p>Offers fast read access times but limited or no write capability, suitable for storing programs, firmware, and essential system data.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">⚡</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Flexibility ROM Section -->
+    <section class="section flexibility-rom" id="flexibility-rom">
+        <div class="container">
+            <h2 class="section-title fade-in">Flexibility</h2>
+            
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Associative Memory</h3>
+                            <p>Offers flexibility in data retrieval and search operations, supporting complex search patterns and conditions.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📋</div>
+                        <div class="feature-content">
+                            <h3>ROM</h3>
+                            <p>Provides fixed data storage, limiting its flexibility compared to associative or random-access memory.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔧</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cost and Implementation ROM Section -->
+    <section class="section cost-rom" id="cost-rom">
+        <div class="container">
+            <h2 class="section-title fade-in">Cost and Implementation</h2>
+            
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">💰</div>
+                        <div class="feature-content">
+                            <h3>Associative Memory</h3>
+                            <p>Generally more expensive and complex to implement compared to ROM due to its specialized hardware requirements.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🏭</div>
+                        <div class="feature-content">
+                            <h3>ROM</h3>
+                            <p>Cost-effective for applications requiring permanent storage of data that does not change frequently.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">💰</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation dots functionality
+        const navDots = document.querySelectorAll('.nav-dot');
+        const sections = document.querySelectorAll('.section');
+        
+        // Update active nav dot based on scroll position
+        function updateActiveNavDot() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            sections.forEach((section, index) => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                
+                if (scrollPosition >= sectionTop - windowHeight / 2 && 
+                    scrollPosition < sectionTop + sectionHeight - windowHeight / 2) {
+                    navDots.forEach(dot => dot.classList.remove('active'));
+                    navDots[index].classList.add('active');
+                }
+            });
+        }
+        
+        // Scroll to section when nav dot is clicked
+        navDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                window.scrollTo({
+                    top: sections[index].offsetTop,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Add scroll event listener
+        window.addEventListener('scroll', updateActiveNavDot);
+        
+        // Fade-in animation on scroll
+        const fadeElements = document.querySelectorAll('.fade-in');
+        
+        function checkFade() {
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementBottom = element.getBoundingClientRect().bottom;
+                
+                if (elementTop < window.innerHeight && elementBottom > 0) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+        
+        // Initial check and add scroll event listener
+        checkFade();
+        window.addEventListener('scroll', checkFade);
+    </script>
+</body>
+</html>

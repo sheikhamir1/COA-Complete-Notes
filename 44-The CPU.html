@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The CPU and Its Control Unit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4cc9f0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background-color: var(--light-color);
+            overflow-x: hidden;
+        }
+
+        .slide {
+            min-height: 100vh;
+            padding: 80px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        .slide:nth-child(even) {
+            background-color: #f0f4ff;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            z-index: 2;
+        }
+
+        h1, h2, h3 {
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .intro-text {
+            font-size: 1.3rem;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 40px;
+        }
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            flex: 1;
+            min-width: 300px;
+            max-width: 350px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .card-text {
+            text-align: center;
+        }
+
+        .cpu-diagram {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0;
+            position: relative;
+        }
+
+        .cpu-block {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 550px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .cpu-block h3 {
+            color: white;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .sub-blocks {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .sub-block {
+            background: var(--secondary-color);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            width: 30%;
+            text-align: center;
+            font-size: 0.9rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sub-block.active {
+            background: var(--accent-color);
+            color: var(--dark-color);
+            transform: scale(1.05);
+        }
+
+        .feature-list {
+            list-style: none;
+            margin: 30px 0;
+        }
+
+        .feature-list li {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            position: relative;
+            font-size: 1.1rem;
+        }
+
+        .feature-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .interaction-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .component {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 200px;
+            position: relative;
+        }
+
+        .component.highlight {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .arrow {
+            width: 100px;
+            height: 2px;
+            background: var(--secondary-color);
+            position: relative;
+            margin: 0 10px;
+        }
+
+        .arrow::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid var(--secondary-color);
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+
+        .background-decoration {
+            position: absolute;
+            z-index: 1;
+            opacity: 0.1;
+        }
+
+        .bg-circle {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: var(--primary-color);
+        }
+
+        .bg-square {
+            width: 200px;
+            height: 200px;
+            background: var(--accent-color);
+            transform: rotate(45deg);
+        }
+
+        .top-left {
+            top: -100px;
+            left: -100px;
+        }
+
+        .bottom-right {
+            bottom: -100px;
+            right: -100px;
+        }
+
+        .navigation {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(67, 97, 238, 0.3);
+            margin: 15px 0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: var(--primary-color);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--dark-color);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .card-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .interaction-diagram {
+                flex-direction: column;
+            }
+
+            .arrow {
+                width: 2px;
+                height: 50px;
+                margin: 10px 0;
+            }
+
+            .arrow::after {
+                top: auto;
+                bottom: 0;
+                left: -4px;
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-top: 10px solid var(--secondary-color);
+            }
+        }
+
+        .cartoon-bg {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background-image: url('https://picsum.photos/seed/computer-cartoon/300/300.jpg');
+            background-size: cover;
+            opacity: 0.2;
+            border-radius: 50% 0 0 0;
+            z-index: 1;
+        }
+
+        .highlight-box {
+            background: rgba(76, 201, 240, 0.1);
+            border-left: 5px solid var(--accent-color);
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .step-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            flex: 1;
+            min-width: 200px;
+            margin: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            background: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 15px;
+            font-weight: bold;
+        }
+
+        .step:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 20px;
+            right: -15px;
+            width: 30px;
+            height: 2px;
+            background: var(--secondary-color);
+        }
+
+        @media (max-width: 768px) {
+            .step:not(:last-child)::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="navigation">
+        <div class="nav-dot active" onclick="scrollToSlide(0)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(1)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(2)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(3)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(4)"></div>
+    </div>
+
+    <!-- Slide 1: Introduction -->
+    <div class="slide" id="slide-0">
+        <div class="background-decoration bg-circle top-left"></div>
+        <div class="background-decoration bg-square bottom-right"></div>
+        <div class="cartoon-bg"></div>
+        
+        <div class="container">
+            <h1>The CPU: Brain of the Computer 🧠</h1>
+            <p class="intro-text">
+                The Central Processing Unit (CPU) is often referred to as the "brain" of a computer. 
+                It's responsible for executing instructions and processing data, making it one of the most important components in any computing device.
+            </p>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">🖥️</div>
+                    <h3 class="card-title">What is a CPU?</h3>
+                    <p class="card-text">
+                        The CPU is the primary component of a computer that performs most of the processing tasks.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">⚙️</div>
+                    <h3 class="card-title">Core Function</h3>
+                    <p class="card-text">
+                        It executes instructions from programs and performs arithmetic, logical, and input/output operations.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🔧</div>
+                    <h3 class="card-title">Main Components</h3>
+                    <p class="card-text">
+                        A CPU consists of three major sub-blocks that work together to process information.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: CPU Components -->
+    <div class="slide" id="slide-1">
+        <div class="background-decoration bg-square top-left"></div>
+        <div class="background-decoration bg-circle bottom-right"></div>
+        
+        <div class="container">
+            <h2>The Three Major Sub-blocks of CPU</h2>
+            <p class="intro-text">
+                Think of a CPU as three major sub-blocks that work together to perform all computing tasks.
+            </p>
+            
+            <div class="cpu-diagram">
+                <div class="cpu-block">
+                    <h3>CPU</h3>
+                    <div class="sub-blocks">
+                        <div class="sub-block">
+                            <i class="fas fa-microchip"></i>
+                            <p>Control Unit</p>
+                        </div>
+                        <div class="sub-block">
+                            <i class="fas fa-calculator"></i>
+                            <p>ALU</p>
+                        </div>
+                        <div class="sub-block">
+                            <i class="fas fa-memory"></i>
+                            <p>Registers</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">🎮</div>
+                    <h3 class="card-title">Control Unit (CU)</h3>
+                    <p class="card-text">
+                        Directs the operation of the processor. It tells the computer's memory, arithmetic/logic unit and input and output devices how to respond to a program's instructions.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🧮</div>
+                    <h3 class="card-title">Arithmetic Logic Unit (ALU)</h3>
+                    <p class="card-text">
+                        Performs all arithmetic calculations (addition, subtraction, multiplication, and division) and logical operations.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">📋</div>
+                    <h3 class="card-title">Registers</h3>
+                    <p class="card-text">
+                        Small, fast storage locations within the CPU that hold data and instructions currently being processed.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Control Unit Details -->
+    <div class="slide" id="slide-2">
+        <div class="background-decoration bg-circle top-left"></div>
+        <div class="background-decoration bg-square bottom-right"></div>
+        <div class="cartoon-bg"></div>
+        
+        <div class="container">
+            <h2>The Control Unit (CU) 🎮</h2>
+            <p class="intro-text">
+                The Control Unit acts as the "traffic cop" or "conductor" of the CPU, directing all operations and ensuring that data flows correctly between components.
+            </p>
+            
+            <div class="highlight-box">
+                <h3>Key Functions of the Control Unit:</h3>
+                <ul class="feature-list">
+                    <li>Directs the flow of data between CPU and other components</li>
+                    <li>Decodes instructions fetched from memory</li>
+                    <li>Controls and coordinates all hardware operations</li>
+                    <li>Manages the execution of instructions in the correct sequence</li>
+                    <li>Sends control signals to other components</li>
+                </ul>
+            </div>
+            
+            <div class="step-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Fetch</h3>
+                    <p>Retrieves instructions from memory</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Decode</h3>
+                    <p>Interprets the instruction</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Execute</h3>
+                    <p>Performs the operation</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Store</h3>
+                    <p>Saves the result</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Control Unit Interaction -->
+    <div class="slide" id="slide-3">
+        <div class="background-decoration bg-square top-left"></div>
+        <div class="background-decoration bg-circle bottom-right"></div>
+        
+        <div class="container">
+            <h2>How the Control Unit Interacts 🔄</h2>
+            <p class="intro-text">
+                The Control Unit communicates with various computer components to ensure proper execution of instructions.
+            </p>
+            
+            <div class="interaction-diagram">
+                <div class="component">
+                    <i class="fas fa-memory fa-2x"></i>
+                    <h3>Memory</h3>
+                </div>
+                <div class="arrow"></div>
+                <div class="component highlight">
+                    <i class="fas fa-microchip fa-2x"></i>
+                    <h3>Control Unit</h3>
+                </div>
+                <div class="arrow"></div>
+                <div class="component">
+                    <i class="fas fa-calculator fa-2x"></i>
+                    <h3>ALU</h3>
+                </div>
+            </div>
+            
+            <div class="interaction-diagram">
+                <div class="component">
+                    <i class="fas fa-keyboard fa-2x"></i>
+                    <h3>Input Devices</h3>
+                </div>
+                <div class="arrow"></div>
+                <div class="component">
+                    <i class="fas fa-microchip fa-2x"></i>
+                    <h3>Control Unit</h3>
+                </div>
+                <div class="arrow"></div>
+                <div class="component">
+                    <i class="fas fa-desktop fa-2x"></i>
+                    <h3>Output Devices</h3>
+                </div>
+            </div>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">📡</div>
+                    <h3 class="card-title">Communication</h3>
+                    <p class="card-text">
+                        The Control Unit uses control buses to send signals to other components, coordinating their activities.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">⏱️</div>
+                    <h3 class="card-title">Timing</h3>
+                    <p class="card-text">
+                        It uses the system clock to synchronize operations and ensure tasks happen in the correct sequence.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Summary -->
+    <div class="slide" id="slide-4">
+        <div class="background-decoration bg-circle top-left"></div>
+        <div class="background-decoration bg-square bottom-right"></div>
+        <div class="cartoon-bg"></div>
+        
+        <div class="container">
+            <h2>The Importance of the Control Unit 🌟</h2>
+            <p class="intro-text">
+                Without the Control Unit, the CPU would be unable to function effectively. It's the component that brings order to the complex operations within a computer.
+            </p>
+            
+            <div class="highlight-box">
+                <h3>Why the Control Unit Matters:</h3>
+                <ul class="feature-list">
+                    <li>Ensures instructions are executed in the correct sequence</li>
+                    <li>Coordinates all hardware components to work together harmoniously</li>
+                    <li>Manages data flow between different parts of the computer</li>
+                    <li>Enables the computer to respond to program instructions</li>
+                    <li>Acts as the central nervous system of the CPU</li>
+                </ul>
+            </div>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">💡</div>
+                    <h3 class="card-title">In Summary</h3>
+                    <p class="card-text">
+                        The Control Unit is a critical component of the CPU that directs operations and ensures the computer functions as intended.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🚀</div>
+                    <h3 class="card-title">Looking Forward</h3>
+                    <p class="card-text">
+                        As computing technology advances, the Control Unit continues to evolve, becoming more efficient and capable of handling complex tasks.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Created with ❤️ for educational purposes | The CPU and Its Control Unit</p>
+    </div>
+
+    <script>
+        // Function to scroll to a specific slide
+        function scrollToSlide(slideIndex) {
+            const slide = document.getElementById(`slide-${slideIndex}`);
+            slide.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update navigation dots based on scroll position
+        window.addEventListener('scroll', () => {
+            const slides = document.querySelectorAll('.slide');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let currentSlide = 0;
+            
+            slides.forEach((slide, index) => {
+                const rect = slide.getBoundingClientRect();
+                if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+                    currentSlide = index;
+                }
+            });
+            
+            navDots.forEach((dot, index) => {
+                if (index === currentSlide) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        });
+
+        // Add smooth scrolling for better user experience
+        document.documentElement.style.scrollBehavior = 'smooth';
+    </script>
+</body>
+</html>

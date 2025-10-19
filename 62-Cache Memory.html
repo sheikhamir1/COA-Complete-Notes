@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cache Memory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/cache-memory/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .cache-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .role { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .speed { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .hierarchy { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .coherency { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .management { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .types { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .l1 { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .l2 { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+        .l3 { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 152, 80, 0.7)); }
+        .importance { background: linear-gradient(135deg, rgba(114, 30, 60, 0.7), rgba(152, 42, 82, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Chart Styles */
+        .chart-container {
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .cache-hierarchy {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .cache-level {
+            width: 80%;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cache-level::after {
+            content: "↓";
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        .cache-level:last-child::after {
+            display: none;
+        }
+        .comparison-chart {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .chart-item {
+            text-align: center;
+            width: 200px;
+            margin: 15px;
+        }
+        .chart-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .performance-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 250px;
+            margin-top: 20px;
+        }
+        .bar {
+            width: 80px;
+            background: linear-gradient(to top, #ff9a9e, #fad0c4);
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            position: relative;
+        }
+        .bar-label {
+            position: absolute;
+            bottom: -30px;
+            text-align: center;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            font-weight: bold;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <section class="header">
+        <div class="container">
+            <div class="cache-character">🧠</div>
+            <h1>Cache Memory</h1>
+            <p>High-speed memory that stores frequently accessed data and instructions for the CPU</p>
+            <div class="scroll-indicator">↓</div>
+        </div>
+    </section>
+
+    <!-- Navigation -->
+    <div class="nav">
+        <div class="nav-dot" data-section="intro"></div>
+        <div class="nav-dot" data-section="role"></div>
+        <div class="nav-dot" data-section="speed"></div>
+        <div class="nav-dot" data-section="hierarchy"></div>
+        <div class="nav-dot" data-section="coherency"></div>
+        <div class="nav-dot" data-section="management"></div>
+        <div class="nav-dot" data-section="types"></div>
+        <div class="nav-dot" data-section="l1"></div>
+        <div class="nav-dot" data-section="l2"></div>
+        <div class="nav-dot" data-section="l3"></div>
+        <div class="nav-dot" data-section="importance"></div>
+    </div>
+
+    <!-- Introduction Section -->
+    <section class="section intro" id="intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to Cache Memory</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Cache memory is a type of high-speed volatile memory located directly within or very close to the CPU (Central Processing Unit) of a computer. Its primary role is to store frequently accessed data and instructions that are temporarily needed by the CPU, reducing the average time to access data from the main memory (RAM).
+                </p>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🧠</div>
+                </div>
+                
+                <p style="font-size: 1.1rem; text-align: center; font-style: italic;">
+                    Cache memory acts as a bridge between the high-speed CPU and slower main memory
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Role and Functionality Section -->
+    <section class="section role" id="role">
+        <div class="container">
+            <h2 class="section-title fade-in">Role and Functionality of Cache Memory</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Cache memory serves several critical functions in modern computer systems:
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Speed Enhancement</h3>
+                            <p>Operates at a much faster speed than main memory (RAM) and bridges the speed gap between the CPU and RAM</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>Hierarchy</h3>
+                            <p>Organized into multiple levels (L1, L2, L3) with each level providing progressively larger storage capacity but slower access speeds</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Cache Coherency</h3>
+                            <p>Implements mechanisms to ensure data consistency between different levels of cache and main memory</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🤖</div>
+                        <div class="feature-content">
+                            <h3>Automatic Management</h3>
+                            <p>Utilizes hardware and software algorithms to manage data placement and replacement based on access patterns</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Speed Enhancement Section -->
+    <section class="section speed" id="speed">
+        <div class="container">
+            <h2 class="section-title fade-in">Speed Enhancement</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Cache memory operates at a much faster speed than main memory (RAM) and is designed to bridge the speed gap between the CPU and RAM. By storing frequently accessed data and instructions closer to the CPU, cache memory helps to minimize the time it takes for the CPU to fetch data, thereby improving overall system performance.
+                </p>
+                
+                <div class="chart-container fade-in">
+                    <h3 style="text-align: center; margin-bottom: 20px;">Memory Access Time Comparison</h3>
+                    <div class="performance-chart">
+                        <div class="bar" style="height: 30px;">
+                            <span class="bar-value">1-2</span>
+                            <span class="bar-label">CPU Register</span>
+                        </div>
+                        <div class="bar" style="height: 60px;">
+                            <span class="bar-value">3-10</span>
+                            <span class="bar-label">L1 Cache</span>
+                        </div>
+                        <div class="bar" style="height: 100px;">
+                            <span class="bar-value">10-20</span>
+                            <span class="bar-label">L2 Cache</span>
+                        </div>
+                        <div class="bar" style="height: 140px;">
+                            <span class="bar-value">20-50</span>
+                            <span class="bar-label">L3 Cache</span>
+                        </div>
+                        <div class="bar" style="height: 200px;">
+                            <span class="bar-value">100-300</span>
+                            <span class="bar-label">Main Memory</span>
+                        </div>
+                    </div>
+                    <p style="text-align: center; margin-top: 40px; font-style: italic;">
+                        Access time in CPU cycles - Lower is better
+                    </p>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">⚡</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hierarchy Section -->
+    <section class="section hierarchy" id="hierarchy">
+        <div class="container">
+            <h2 class="section-title fade-in">Cache Hierarchy</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Cache memory is organized into multiple levels, typically L1, L2, and sometimes L3 caches, with each level providing progressively larger storage capacity but slower access speeds compared to the previous level. L1 cache is the fastest but smallest, located closest to the CPU, while L2 and L3 caches are larger and located further away.
+                </p>
+                
+                <div class="cache-hierarchy fade-in">
+                    <div class="cache-level" style="background: rgba(255, 154, 158, 0.7);">
+                        <div>L1 Cache</div>
+                        <div>Fastest, Smallest, Closest to CPU</div>
+                    </div>
+                    <div class="cache-level" style="background: rgba(250, 208, 196, 0.7);">
+                        <div>L2 Cache</div>
+                        <div>Medium Speed, Medium Size</div>
+                    </div>
+                    <div class="cache-level" style="background: rgba(161, 196, 253, 0.7);">
+                        <div>L3 Cache</div>
+                        <div>Slower, Largest, Farthest from CPU</div>
+                    </div>
+                    <div class="cache-level" style="background: rgba(142, 202, 230, 0.7);">
+                        <div>Main Memory (RAM)</div>
+                        <div>Slowest, Largest Capacity</div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔢</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cache Coherency Section -->
+    <section class="section coherency" id="coherency">
+        <div class="container">
+            <h2 class="section-title fade-in">Cache Coherency</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Cache memory implements mechanisms to ensure data consistency between different levels of cache and main memory. When data is updated in the CPU cache, these updates are eventually propagated to the main memory to maintain data integrity.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Data Consistency</h3>
+                            <p>Ensures that all copies of data remain consistent across different cache levels and main memory</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📡</div>
+                        <div class="feature-content">
+                            <h3>Update Propagation</h3>
+                            <p>When data is modified in one cache, the changes are communicated to other caches and main memory</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔍</div>
+                        <div class="feature-content">
+                            <h3>Protocols</h3>
+                            <p>Uses protocols like MESI (Modified, Exclusive, Shared, Invalid) to maintain coherency in multi-core systems</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔄</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Automatic Management Section -->
+    <section class="section management" id="management">
+        <div class="container">
+            <h2 class="section-title fade-in">Automatic Management</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Cache memory utilizes hardware and software algorithms to manage data placement and replacement based on access patterns. This includes prefetching data likely to be needed soon and evicting data that is least likely to be used.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">🔮</div>
+                        <div class="feature-content">
+                            <h3>Prefetching</h3>
+                            <p>Anticipates and loads data that is likely to be needed in the near future</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Replacement Policies</h3>
+                            <p>Algorithms like LRU (Least Recently Used) to determine which data to evict when cache is full</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📊</div>
+                        <div class="feature-content">
+                            <h3>Access Pattern Analysis</h3>
+                            <p>Monitors and adapts to the patterns of data access to optimize cache utilization</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🤖</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Types of Cache Memory Section -->
+    <section class="section types" id="types">
+        <div class="container">
+            <h2 class="section-title fade-in">Types of Cache Memory</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Cache memory is typically organized into multiple levels, each with specific characteristics:
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">1️⃣</div>
+                        <div class="feature-content">
+                            <h3>L1 Cache</h3>
+                            <p>The smallest and fastest cache directly integrated into the CPU. It typically stores instructions and data that are currently being executed by the CPU cores.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">2️⃣</div>
+                        <div class="feature-content">
+                            <h3>L2 Cache</h3>
+                            <p>Located between L1 cache and main memory, L2 cache is larger in size and provides additional storage for frequently accessed data. It serves as a buffer between L1 cache and main memory.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">3️⃣</div>
+                        <div class="feature-content">
+                            <h3>L3 Cache</h3>
+                            <p>Found in some multi-core processors, L3 cache is shared among multiple CPU cores within a processor. It offers larger storage capacity than L1 and L2 caches and helps improve overall system performance by reducing the need to access main memory.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔢</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- L1 Cache Section -->
+    <section class="section l1" id="l1">
+        <div class="container">
+            <h2 class="section-title fade-in">L1 Cache</h2>
+            
+            <div class="card fade-in">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <div style="font-size: 4rem; margin-right: 20px;">1️⃣</div>
+                    <div>
+                        <h3 style="font-size: 1.8rem; margin-bottom: 10px;">Level 1 Cache</h3>
+                        <p style="font-size: 1.1rem;">The smallest and fastest cache directly integrated into the CPU</p>
+                    </div>
+                </div>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Speed</h3>
+                            <p>Fastest access time, typically 1-4 CPU cycles</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📏</div>
+                        <div class="feature-content">
+                            <h3>Size</h3>
+                            <p>Smallest size, typically 16-64 KB per core</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📍</div>
+                        <div class="feature-content">
+                            <h3>Location</h3>
+                            <p>Located directly on the CPU core, closest to execution units</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔧</span>Characteristics</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Split Design</h3>
+                                <p>Often split into instruction cache (I-cache) and data cache (D-cache)</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Private</h3>
+                                <p>Each CPU core has its own dedicated L1 cache</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">1️⃣</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- L2 Cache Section -->
+    <section class="section l2" id="l2">
+        <div class="container">
+            <h2 class="section-title fade-in">L2 Cache</h2>
+            
+            <div class="card fade-in">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <div style="font-size: 4rem; margin-right: 20px;">2️⃣</div>
+                    <div>
+                        <h3 style="font-size: 1.8rem; margin-bottom: 10px;">Level 2 Cache</h3>
+                        <p style="font-size: 1.1rem;">Located between L1 cache and main memory, larger than L1</p>
+                    </div>
+                </div>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Speed</h3>
+                            <p>Faster than L3 but slower than L1, typically 10-20 CPU cycles</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📏</div>
+                        <div class="feature-content">
+                            <h3>Size</h3>
+                            <p>Larger than L1, typically 256KB-1MB per core</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📍</div>
+                        <div class="feature-content">
+                            <h3>Location</h3>
+                            <p>Located on the CPU die but not directly on the core</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔧</span>Characteristics</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Unified or Split</h3>
+                                <p>Can be unified (stores both instructions and data) or split into separate I-cache and D-cache</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Private or Shared</h3>
+                                <p>Can be private to each core or shared between cores in some designs</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">2️⃣</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- L3 Cache Section -->
+    <section class="section l3" id="l3">
+        <div class="container">
+            <h2 class="section-title fade-in">L3 Cache</h2>
+            
+            <div class="card fade-in">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <div style="font-size: 4rem; margin-right: 20px;">3️⃣</div>
+                    <div>
+                        <h3 style="font-size: 1.8rem; margin-bottom: 10px;">Level 3 Cache</h3>
+                        <p style="font-size: 1.1rem;">Found in multi-core processors, shared among CPU cores</p>
+                    </div>
+                </div>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Speed</h3>
+                            <p>Slower than L1 and L2 but faster than main memory, typically 20-50 CPU cycles</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📏</div>
+                        <div class="feature-content">
+                            <h3>Size</h3>
+                            <p>Largest cache level, typically 4-32MB shared across all cores</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📍</div>
+                        <div class="feature-content">
+                            <h3>Location</h3>
+                            <p>Located on the CPU die but further from cores than L2</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔧</span>Characteristics</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Shared</h3>
+                                <p>Shared among all CPU cores in a processor</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">💾</div>
+                            <div class="feature-content">
+                                <h3>Unified</h3>
+                                <p>Stores both instructions and data for all cores</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">3️⃣</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Importance Section -->
+    <section class="section importance" id="importance">
+        <div class="container">
+            <h2 class="section-title fade-in">Importance of Cache Memory</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Cache memory plays a crucial role in enhancing the speed and efficiency of modern computer systems by reducing latency in memory access. It optimizes the utilization of the CPU's processing power by ensuring that frequently accessed data and instructions are readily available, thereby minimizing the idle time of the CPU waiting for data from slower main memory.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Reduced Latency</h3>
+                            <p>Significantly reduces the time it takes for the CPU to access frequently needed data and instructions</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📈</div>
+                        <div class="feature-content">
+                            <h3>Improved Performance</h3>
+                            <p>Enhances overall system performance by minimizing CPU idle time and maximizing processing efficiency</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Better Resource Utilization</h3>
+                            <p>Optimizes the use of available processing power by keeping the CPU supplied with data</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🏆</div>
+                </div>
+                
+                <p style="font-size: 1.2rem; line-height: 1.6; margin-top: 20px;">
+                    This efficient data retrieval mechanism significantly improves the overall responsiveness and performance of computers, especially in tasks requiring rapid data processing and execution of complex software applications. Without cache memory, modern processors would spend a significant amount of time waiting for data from main memory, severely limiting their performance potential.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation dots functionality
+        const navDots = document.querySelectorAll('.nav-dot');
+        const sections = document.querySelectorAll('.section');
+        
+        // Update active nav dot based on scroll position
+        function updateActiveNavDot() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            sections.forEach((section, index) => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                
+                if (scrollPosition >= sectionTop - windowHeight / 2 && 
+                    scrollPosition < sectionTop + sectionHeight - windowHeight / 2) {
+                    navDots.forEach(dot => dot.classList.remove('active'));
+                    navDots[index].classList.add('active');
+                }
+            });
+        }
+        
+        // Scroll to section when nav dot is clicked
+        navDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                window.scrollTo({
+                    top: sections[index].offsetTop,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Add scroll event listener
+        window.addEventListener('scroll', updateActiveNavDot);
+        
+        // Fade-in animation on scroll
+        const fadeElements = document.querySelectorAll('.fade-in');
+        
+        function checkFade() {
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementBottom = element.getBoundingClientRect().bottom;
+                
+                if (elementTop < window.innerHeight && elementBottom > 0) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+        
+        // Initial check and add scroll event listener
+        checkFade();
+        window.addEventListener('scroll', checkFade);
+    </script>
+</body>
+</html>

@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Hierarchy: The Relay Race of Computer Performance</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/memory-hierarchy/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .big-picture { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .main-memory { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .cache { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .virtual { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .associative { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .management { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .measuring { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .why-coa { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Hierarchy Styles */
+        .hierarchy-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .hierarchy-level {
+            width: 80%;
+            padding: 20px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hierarchy-level::after {
+            content: "↓";
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        .hierarchy-level:last-child::after {
+            display: none;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" data-section="header"></div>
+        <div class="nav-dot" data-section="big-picture"></div>
+        <div class="nav-dot" data-section="main-memory"></div>
+        <div class="nav-dot" data-section="cache"></div>
+        <div class="nav-dot" data-section="virtual"></div>
+        <div class="nav-dot" data-section="associative"></div>
+        <div class="nav-dot" data-section="management"></div>
+        <div class="nav-dot" data-section="measuring"></div>
+        <div class="nav-dot" data-section="why-coa"></div>
+    </div>
+
+    <!-- Header Section -->
+    <header class="header" id="header">
+        <div class="container">
+            <h1>Memory Hierarchy: The Relay Race of Computer Performance</h1>
+            <div class="metrics-character">🏃</div>
+            <p>Understanding how different types of memory work together to keep data flowing efficiently in computer systems</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </header>
+
+    <!-- Big Picture Section -->
+    <section class="section big-picture" id="big-picture">
+        <div class="container">
+            <h2 class="section-title fade-in">The Big Picture</h2>
+            <div class="card fade-in">
+                <p>Imagine you're watching a relay race inside a computer. Data is the baton, and it needs to move from one runner to another as quickly as possible so the program finishes its lap without stumbling. The "runners" in this race are all the different kinds of memory, each with a unique speed and cost.</p>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🏗️</span>Memory Hierarchy in COA</h3>
+                    <p class="fade-in">Computer Organization & Architecture (COA) studies how these runners are trained, arranged, and managed so the baton never drops. That arrangement is called the <strong>memory hierarchy</strong>.</p>
+                </div>
+                
+                <div class="hierarchy-container">
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">⚡</span>
+                            <strong>Registers</strong>
+                        </div>
+                        <div>Tiny, lightning-fast, built into CPU</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">💨</span>
+                            <strong>Cache (L1, L2, L3)</strong>
+                        </div>
+                        <div>Fast but small, between CPU and RAM</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">💾</span>
+                            <strong>Main Memory (RAM)</strong>
+                        </div>
+                        <div>Larger but slower than cache</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">💿</span>
+                            <strong>Secondary Storage (SSD/HDD)</strong>
+                        </div>
+                        <div>Large capacity, slower than RAM</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">📼</span>
+                            <strong>Archival Storage</strong>
+                        </div>
+                        <div>Very large, very slow (tapes, etc.)</div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">⚖️</span>The Trade-Off</h3>
+                    <p class="fade-in">As you move downward, storage gets bigger and cheaper but slower. The art is to keep the hottest data close to the CPU so instructions flow without delay.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Memory Section -->
+    <section class="section main-memory" id="main-memory">
+        <div class="container">
+            <h2 class="section-title fade-in">Main Memory: The Workhorse</h2>
+            <div class="card fade-in">
+                <p>Main memory—your RAM—is like the busy backstage where actors wait for their cue. It holds everything the CPU needs <em>right now</em>.</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">💧</div>
+                        <div class="feature-content">
+                            <h3>DRAM</h3>
+                            <p>Dense but slightly forgetful worker that needs constant refreshing</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>SRAM</h3>
+                            <p>Quicker and more reliable but pricey, usually lives in cache</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔒</div>
+                        <div class="feature-content">
+                            <h3>ROM</h3>
+                            <p>Permanent instructions like the BIOS that boots your computer</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔄</span>DRAM vs SRAM</h3>
+                    <p class="fade-in">DRAM (Dynamic RAM) stores each bit in a separate capacitor that must be periodically refreshed. It's cheaper and denser, making it ideal for main memory.</p>
+                    <p class="fade-in">SRAM (Static RAM) uses flip-flops to store bits, so it doesn't need refreshing. It's faster but more expensive, making it perfect for cache memory.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔧</span>ROM Variants</h3>
+                    <p class="fade-in">ROM (Read-Only Memory) comes in several flavors:</p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📝</div>
+                            <div class="feature-content">
+                                <h3>PROM</h3>
+                                <p>Programmable once</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔁</div>
+                            <div class="feature-content">
+                                <h3>EPROM</h3>
+                                <p>Erasable with UV light</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>EEPROM</h3>
+                                <p>Electrically erasable</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔥</div>
+                            <div class="feature-content">
+                                <h3>Flash Memory</h3>
+                                <p>Modern rewritable non-volatile memory</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cache Section -->
+    <section class="section cache" id="cache">
+        <div class="container">
+            <h2 class="section-title fade-in">Cache: The Secret Sprint</h2>
+            <div class="card fade-in">
+                <p>Cache is the quick sprinter standing between RAM and the CPU. It guesses what data the CPU will need next and keeps it ready.</p>
+                
+                <div class="hierarchy-container">
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🥇</span>
+                            <strong>L1 Cache</strong>
+                        </div>
+                        <div>Smallest and fastest, inside CPU core</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🥈</span>
+                            <strong>L2 Cache</strong>
+                        </div>
+                        <div>Larger than L1, may be shared between cores</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🥉</span>
+                            <strong>L3 Cache</strong>
+                        </div>
+                        <div>Largest cache, shared by all CPU cores</div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🎯</span>Cache Hit vs. Miss</h3>
+                    <p class="fade-in">When the CPU finds data in cache (a "cache hit"), everything flies. A "miss" means a slower trip to RAM. The goal is to maximize the hit rate.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🧠</span>Cache Principles</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📍</div>
+                            <div class="feature-content">
+                                <h3>Temporal Locality</h3>
+                                <p>Recently accessed data will likely be accessed again soon</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔢</div>
+                            <div class="feature-content">
+                                <h3>Spatial Locality</h3>
+                                <p>Data near recently accessed data will likely be accessed soon</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Virtual Memory Section -->
+    <section class="section virtual" id="virtual">
+        <div class="container">
+            <h2 class="section-title fade-in">Virtual Memory: The Illusionist</h2>
+            <div class="card fade-in">
+                <p>What if programs need more memory than you physically have? Enter <strong>virtual memory</strong>, a clever trick where the operating system uses part of the hard drive as if it were RAM.</p>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">📄</span>How It Works</h3>
+                    <p class="fade-in">Virtual memory divides memory into pages, loading them on demand. When a needed page isn't in RAM, a "page fault" triggers a quick swap from disk.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔄</span>Page Fault Handling</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">❌</div>
+                            <div class="feature-content">
+                                <h3>Page Fault Occurs</h3>
+                                <p>CPU tries to access a page not in RAM</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🛑</div>
+                            <div class="feature-content">
+                                <h3>Trap to OS</h3>
+                                <p>Control transfers to operating system</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">💾</div>
+                            <div class="feature-content">
+                                <h3>Load Page</h3>
+                                <p>OS brings required page from disk to RAM</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">▶️</div>
+                            <div class="feature-content">
+                                <h3>Resume Execution</h3>
+                                <p>Program continues where it left off</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">⚖️</span>Performance Trade-off</h3>
+                    <p class="fade-in">You feel like you have endless memory, but too many swaps slow things down. Effective virtual memory systems balance the benefits of larger memory space with the performance cost of page faults.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Associative Memory Section -->
+    <section class="section associative" id="associative">
+        <div class="container">
+            <h2 class="section-title fade-in">Associative Memory: The Detective</h2>
+            <div class="card fade-in">
+                <p>While normal memory fetches data by address, <strong>associative memory</strong> (content-addressable memory) finds data by content—like asking a librarian for "the book with the red cover" instead of a shelf number.</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔍</div>
+                        <div class="metric-title">Content-Based Search</div>
+                        <p>Finds data by its content, not location</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">⚡</div>
+                        <div class="metric-title">Parallel Lookup</div>
+                        <p>Searches all locations simultaneously</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">💰</div>
+                        <div class="metric-title">Expensive</div>
+                        <p>More complex than regular memory</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🎯</span>Perfect Applications</h3>
+                    <p class="fade-in">This is perfect for things like cache lookups or rapid database searches where you need to find specific data quickly.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔧</span>Implementation in Cache</h3>
+                    <p class="fade-in">In cache systems, associative memory is used for tag comparison. When the CPU requests data, the cache checks all tags simultaneously to see if the requested data is present.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Memory Management Section -->
+    <section class="section management" id="management">
+        <div class="container">
+            <h2 class="section-title fade-in">Memory Management: The Organizer</h2>
+            <div class="card fade-in">
+                <p>The operating system plays stage manager, deciding who gets which memory seats and cleaning up when a program leaves.</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📦</div>
+                        <div class="feature-content">
+                            <h3>Contiguous Allocation</h3>
+                            <p>Gives each program one solid block—simple but prone to gaps</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🧩</div>
+                        <div class="feature-content">
+                            <h3>Paging</h3>
+                            <p>Breaks memory into fixed-size pages</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📊</div>
+                        <div class="feature-content">
+                            <h3>Segmentation</h3>
+                            <p>Divides memory into variable-sized segments</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🕳️</span>Battling Fragmentation</h3>
+                    <p class="fade-in">The OS must battle <strong>fragmentation</strong>, those pesky gaps inside or between blocks of memory that waste space.</p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔍</div>
+                            <div class="feature-content">
+                                <h3>Internal Fragmentation</h3>
+                                <p>Wasted space within allocated blocks</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔍</div>
+                            <div class="feature-content">
+                                <h3>External Fragmentation</h3>
+                                <p>Wasted space between allocated blocks</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🧹</div>
+                            <div class="feature-content">
+                                <h3>Compaction</h3>
+                                <p>Moving processes together to free larger blocks</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔄</span>Memory Allocation Strategies</h3>
+                    <p class="fade-in">Different strategies for finding free memory blocks:</p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🥇</div>
+                            <div class="feature-content">
+                                <h3>First-Fit</h3>
+                                <p>Allocate first suitable block found</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🎯</div>
+                            <div class="feature-content">
+                                <h3>Best-Fit</h3>
+                                <p>Allocate smallest suitable block</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🌟</div>
+                            <div class="feature-content">
+                                <h3>Worst-Fit</h3>
+                                <p>Allocate largest suitable block</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Measuring the Race Section -->
+    <section class="section measuring" id="measuring">
+        <div class="container">
+            <h2 class="section-title fade-in">Measuring the Race</h2>
+            <div class="card fade-in">
+                <p>To judge performance, engineers track metrics like:</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⏱️</div>
+                        <div class="feature-content">
+                            <h3>Latency</h3>
+                            <p>How long to fetch data</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📊</div>
+                        <div class="feature-content">
+                            <h3>Throughput</h3>
+                            <p>Tasks per second</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📈</div>
+                        <div class="feature-content">
+                            <h3>CPU and Memory Utilization</h3>
+                            <p>How efficiently resources are used</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🎯</div>
+                        <div class="feature-content">
+                            <h3>Cache Hit Rate</h3>
+                            <p>Percentage of memory accesses found in cache</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📏</div>
+                        <div class="feature-content">
+                            <h3>Scalability</h3>
+                            <p>How well the system grows with more workload</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">📊</span>Performance Analysis</h3>
+                    <p class="fade-in">These numbers tell designers if the hierarchy is balanced or needs tuning. High cache hit rates and low latency indicate good performance, while frequent page faults suggest memory pressure.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔧</span>Benchmarking</h3>
+                    <p class="fade-in">Standardized tests like SPEC benchmarks help compare different memory systems and configurations, providing objective measures of performance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why COA Cares Section -->
+    <section class="section why-coa" id="why-coa">
+        <div class="container">
+            <h2 class="section-title fade-in">Why COA Cares</h2>
+            <div class="card fade-in">
+                <p>Memory hierarchy is central to COA because it dictates how the CPU interacts with every other component. A slow memory system can cripple even the fastest processor.</p>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">⚖️</span>The Fundamental Trade-Off</h3>
+                    <p class="fade-in">From the registers inside the CPU down to magnetic tapes in a data center, every layer reflects a trade-off among <strong>speed, size, and cost</strong>.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🏗️</span>System Design Impact</h3>
+                    <p class="fade-in">Memory hierarchy design affects:</p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>Processor Performance</h3>
+                                <p>Fast memory prevents CPU stalls</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">💰</div>
+                            <div class="feature-content">
+                                <h3>System Cost</h3>
+                                <p>Balancing expensive fast memory with cheaper slow memory</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔋</div>
+                            <div class="feature-content">
+                                <h3>Power Consumption</h3>
+                                <p>Different memory types have different power requirements</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📱</div>
+                            <div class="feature-content">
+                                <h3>User Experience</h3>
+                                <p>Faster memory means more responsive applications</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔮</span>Future Computing</h3>
+                    <p class="fade-in">In short, the memory hierarchy is the grand choreography of computer performance. Understanding it reveals why your phone opens apps instantly, how servers juggle huge databases, and why future computing breakthroughs—quantum, neuromorphic, or otherwise—will still wrestle with where to keep the baton next.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        const navDots = document.querySelectorAll('.nav-dot');
+        const sections = document.querySelectorAll('.section, .header');
+        
+        // Update active nav dot on scroll
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+                if (dot.getAttribute('data-section') === current) {
+                    dot.classList.add('active');
+                }
+            });
+            
+            // Fade in animation
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        });
+        
+        // Nav dot click functionality
+        navDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const targetId = dot.getAttribute('data-section');
+                const targetSection = document.getElementById(targetId);
+                
+                window.scrollTo({
+                    top: targetSection.offsetTop - 50,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Initial check for fade-in elements
+        const fadeElements = document.querySelectorAll('.fade-in');
+        fadeElements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top;
+            const elementVisible = 150;
+            
+            if (elementTop < window.innerHeight - elementVisible) {
+                element.classList.add('visible');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Memory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/main-memory/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .memory-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .ram { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .dram { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .sram { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .rom { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .prom { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .eprom { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .eeprom { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .auxiliary { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+        .hdd { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 152, 80, 0.7)); }
+        .ssd { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .optical { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .tapes { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Comparison Chart Styles */
+        .comparison-chart {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .chart-item {
+            text-align: center;
+            width: 200px;
+            margin: 15px;
+        }
+        .chart-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <section class="header">
+        <div class="container">
+            <div class="memory-character">💾</div>
+            <h1>Main Memory</h1>
+            <p>The primary storage directly accessible by the CPU for storing data and instructions</p>
+            <div class="scroll-indicator">↓</div>
+        </div>
+    </section>
+
+    <!-- Navigation -->
+    <div class="nav">
+        <div class="nav-dot" data-section="intro"></div>
+        <div class="nav-dot" data-section="ram"></div>
+        <div class="nav-dot" data-section="dram"></div>
+        <div class="nav-dot" data-section="sram"></div>
+        <div class="nav-dot" data-section="rom"></div>
+        <div class="nav-dot" data-section="prom"></div>
+        <div class="nav-dot" data-section="eprom"></div>
+        <div class="nav-dot" data-section="eeprom"></div>
+        <div class="nav-dot" data-section="auxiliary"></div>
+        <div class="nav-dot" data-section="hdd"></div>
+        <div class="nav-dot" data-section="ssd"></div>
+        <div class="nav-dot" data-section="optical"></div>
+        <div class="nav-dot" data-section="tapes"></div>
+    </div>
+
+    <!-- Introduction Section -->
+    <section class="section intro" id="intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to Main Memory</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Main memory in computer systems refers to the primary storage that is directly accessible by the CPU for storing data and instructions required during program execution. It is essential for the operation of the system and comes in two primary types: RAM (Random Access Memory) and ROM (Read-Only Memory).
+                </p>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">💾</div>
+                </div>
+                
+                <div class="comparison-chart fade-in">
+                    <div class="chart-item">
+                        <div class="chart-circle" style="background: linear-gradient(135deg, #ff9a9e, #fad0c4);">RAM</div>
+                        <h3>Random Access</h3>
+                        <p>Volatile memory</p>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-circle" style="background: linear-gradient(135deg, #a1c4fd, #c2e9fb);">ROM</div>
+                        <h3>Read-Only</h3>
+                        <p>Non-volatile memory</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RAM Section -->
+    <section class="section ram" id="ram">
+        <div class="container">
+            <h2 class="section-title fade-in">RAM (Random Access Memory)</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    RAM, or Random Access Memory, is a crucial component in modern computer systems and digital devices. It serves as the primary memory where data and instructions are temporarily stored for quick access by the CPU (Central Processing Unit). RAM is volatile memory, meaning it requires a constant supply of power to retain stored data. When the power is turned off or the device is restarted, the data stored in RAM is lost, distinguishing it from non-volatile storage like ROM (Read-Only Memory).
+                </p>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔄</div>
+                </div>
+                
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    The main function of RAM is to provide fast read and write access to data that the CPU needs to operate on in real-time. It acts as a bridge between the CPU and storage devices, facilitating rapid data exchange. RAM comes in different types, such as DRAM (Dynamic RAM) and SRAM (Static RAM), each with unique characteristics in terms of speed, cost, and power consumption. This memory is crucial for multitasking, as it allows the system to store and retrieve data quickly, enhancing overall performance by reducing the need to access slower storage devices like hard drives or SSDs for frequently used information.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- DRAM Section -->
+    <section class="section dram" id="dram">
+        <div class="container">
+            <h2 class="section-title fade-in">Dynamic RAM (DRAM)</h2>
+            
+            <div class="card fade-in">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <div style="font-size: 4rem; margin-right: 20px;">⚡</div>
+                    <div>
+                        <h3 style="font-size: 1.8rem; margin-bottom: 10px;">Function</h3>
+                        <p style="font-size: 1.1rem;">Stores data and instructions temporarily for the CPU</p>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔧</span>Characteristics</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Refreshing</h3>
+                                <p>Requires refreshing at regular intervals to maintain data integrity</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔋</div>
+                            <div class="feature-content">
+                                <h3>Storage Mechanism</h3>
+                                <p>Uses capacitors to store bits of data as electrical charges</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">💰</div>
+                            <div class="feature-content">
+                                <h3>Cost</h3>
+                                <p>Slower and less expensive per bit compared to SRAM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Usage</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🖥️</div>
+                            <div class="feature-content">
+                                <h3>Main Memory</h3>
+                                <p>Mainly used as main memory (RAM) in computers and other digital devices</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">💾</div>
+                            <div class="feature-content">
+                                <h3>High-Density Storage</h3>
+                                <p>Provides high-density storage at a lower cost per bit</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">⚡</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SRAM Section -->
+    <section class="section sram" id="sram">
+        <div class="container">
+            <h2 class="section-title fade-in">Static RAM (SRAM)</h2>
+            
+            <div class="card fade-in">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <div style="font-size: 4rem; margin-right: 20px;">🚀</div>
+                    <div>
+                        <h3 style="font-size: 1.8rem; margin-bottom: 10px;">Function</h3>
+                        <p style="font-size: 1.1rem;">Provides high-speed data storage for faster access</p>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔧</span>Characteristics</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>No Refreshing</h3>
+                                <p>Does not require refreshing like DRAM</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔌</div>
+                            <div class="feature-content">
+                                <h3>Storage Mechanism</h3>
+                                <p>Uses flip-flops made of transistors to store data, which makes it faster but more expensive than DRAM</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>Performance</h3>
+                                <p>Faster access times and lower power consumption compared to DRAM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Usage</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🧠</div>
+                            <div class="feature-content">
+                                <h3>Cache Memory</h3>
+                                <p>Used in cache memory and other applications where speed and reliability are critical</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Buffer</h3>
+                                <p>Acts as a buffer between the CPU and slower main memory (DRAM)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🚀</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROM Section -->
+    <section class="section rom" id="rom">
+        <div class="container">
+            <h2 class="section-title fade-in">ROM (Read-Only Memory)</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    ROM, or Read-Only Memory, is a type of storage medium used in computers and electronic devices to store permanent data and instructions that are essential for the operation of the system. Unlike RAM (Random Access Memory), ROM is non-volatile memory, meaning it retains its contents even when the power is turned off. This characteristic makes ROM suitable for storing critical system software, firmware, and instructions that must not be altered or erased during normal operation.
+                </p>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔒</div>
+                </div>
+                
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    The primary function of ROM is to provide read-only access to data and instructions that are integral to the system's functionality. It typically contains firmware, boot loaders, basic input/output system (BIOS), and other essential software components that initialize the hardware and facilitate the startup process of the computer or device. ROM chips are manufactured with the data already stored during production, using methods that permanently encode the information into the memory cells. There are several types of ROM, including PROM (Programmable ROM), EPROM (Erasable Programmable ROM), and EEPROM (Electrically Erasable Programmable ROM), each offering varying degrees of programmability and permanence suited to different application needs in computing and electronics.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROM Section -->
+    <section class="section prom" id="prom">
+        <div class="container">
+            <h2 class="section-title fade-in">PROM (Programmable Read-Only Memory)</h2>
+            
+            <div class="card fade-in">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <div style="font-size: 4rem; margin-right: 20px;">🔧</div>
+                    <div>
+                        <h3 style="font-size: 1.8rem; margin-bottom: 10px;">Function</h3>
+                        <p style="font-size: 1.1rem;">Stores data and instructions that are permanently programmed during manufacturing</p>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔧</span>Characteristics</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>One-Time Programming</h3>
+                                <p>Can be programmed only once using a special device called a PROM programmer</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔒</div>
+                            <div class="feature-content">
+                                <h3>Permanence</h3>
+                                <p>Once programmed, the data cannot be changed or erased</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">💰</div>
+                            <div class="feature-content">
+                                <h3>Cost-Effectiveness</h3>
+                                <p>Cost-effective for small production runs of custom software or firmware</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Usage</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🚀</div>
+                            <div class="feature-content">
+                                <h3>Boot Firmware</h3>
+                                <p>Stores boot firmware, basic system instructions, and other critical data that must remain unchanged</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔧</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- EPROM Section -->
+    <section class="section eprom" id="eprom">
+        <div class="container">
+            <h2 class="section-title fade-in">EPROM (Erasable Programmable Read-Only Memory)</h2>
+            
+            <div class="card fade-in">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <div style="font-size: 4rem; margin-right: 20px;">🔆</div>
+                    <div>
+                        <h3 style="font-size: 1.8rem; margin-bottom: 10px;">Function</h3>
+                        <p style="font-size: 1.1rem;">Allows for erasing and reprogramming of the memory multiple times</p>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔧</span>Characteristics</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔆</div>
+                            <div class="feature-content">
+                                <h3>UV Erasure</h3>
+                                <p>Erased using ultraviolet (UV) light exposure, which clears the memory cells</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Reprogramming</h3>
+                                <p>Once erased, new data can be written using a PROM programmer</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">💻</div>
+                            <div class="feature-content">
+                                <h3>Applications</h3>
+                                <p>Commonly used for firmware updates and development purposes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Usage</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Updates</h3>
+                                <p>Ideal for applications where occasional updates or corrections are necessary without replacing the entire chip</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔆</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- EEPROM Section -->
+    <section class="section eeprom" id="eeprom">
+        <div class="container">
+            <h2 class="section-title fade-in">EEPROM (Electrically Erasable Programmable Read-Only Memory)</h2>
+            
+            <div class="card fade-in">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <div style="font-size: 4rem; margin-right: 20px;">⚡</div>
+                    <div>
+                        <h3 style="font-size: 1.8rem; margin-bottom: 10px;">Function</h3>
+                        <p style="font-size: 1.1rem;">Allows for electrical erasing and reprogramming of the memory</p>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔧</span>Characteristics</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>Electrical Erasure</h3>
+                                <p>Can be erased and reprogrammed electrically, which is faster and more convenient than EPROM</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔒</div>
+                            <div class="feature-content">
+                                <h3>Data Retention</h3>
+                                <p>Retains data without power, similar to other ROM types</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Flexibility</h3>
+                                <p>Used in devices where frequent updates or changes to the stored data are required, such as BIOS settings and configuration data</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Usage</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📱</div>
+                            <div class="feature-content">
+                                <h3>Consumer Electronics</h3>
+                                <p>Commonly found in consumer electronics, embedded systems, and devices requiring flexible storage of configuration settings</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">⚡</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Auxiliary Memory Section -->
+    <section class="section auxiliary" id="auxiliary">
+        <div class="container">
+            <h2 class="section-title fade-in">Auxiliary Memory</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Auxiliary memory, also known as secondary storage, refers to external storage devices used alongside the primary memory (RAM) of a computer system. Unlike RAM, which provides fast access to data but is volatile, auxiliary memory offers larger storage capacities at a lower cost per byte and retains data even when the power is turned off.
+                </p>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">💿</div>
+                </div>
+                
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    The primary role of auxiliary memory is to provide long-term storage for large volumes of data, programs, and files that are not currently in use by the CPU. This includes persistent storage solutions such as hard disk drives (HDDs), solid-state drives (SSDs), optical discs (CDs/DVDs), magnetic tapes, and cloud storage services. These devices typically have slower access speeds compared to RAM but offer much larger storage capacities, making them suitable for storing operating systems, applications, multimedia files, and user data.
+                </p>
+                
+                <p style="font-size: 1.2rem; line-height: 1.6; margin-top: 20px;">
+                    Auxiliary memory plays a critical role in enhancing the overall functionality and efficiency of computer systems by enabling data persistence, allowing users to store and access vast amounts of information beyond the immediate capabilities of RAM. It supports functions such as data backup, archiving, and data sharing across multiple platforms, ensuring that information remains accessible and secure over extended periods.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- HDD Section -->
+    <section class="section hdd" id="hdd">
+        <div class="container">
+            <h2 class="section-title fade-in">Hard Disk Drives (HDDs)</h2>
+            
+            <div class="card fade-in">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <div style="font-size: 4rem; margin-right: 20px;">💿</div>
+                    <div>
+                        <h3 style="font-size: 1.8rem; margin-bottom: 10px;">Characteristics</h3>
+                        <p style="font-size: 1.1rem;">Use spinning magnetic disks coated with a magnetic material to store data</p>
+                    </div>
+                </div>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">💾</div>
+                        <div class="feature-content">
+                            <h3>High Capacity</h3>
+                            <p>One of the most common types of auxiliary memory due to their relatively high storage capacity</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">💰</div>
+                        <div class="feature-content">
+                            <h3>Cost-Effectiveness</h3>
+                            <p>Cost-effective and widespread compatibility with computer systems</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🖥️</div>
+                        <div class="feature-content">
+                            <h3>Usage</h3>
+                            <p>Suitable for storing operating systems, applications, and large files like multimedia</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">💿</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SSD Section -->
+    <section class="section ssd" id="ssd">
+        <div class="container">
+            <h2 class="section-title fade-in">Solid State Drives (SSDs)</h2>
+            
+            <div class="card fade-in">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <div style="font-size: 4rem; margin-right: 20px;">🔲</div>
+                    <div>
+                        <h3 style="font-size: 1.8rem; margin-bottom: 10px;">Characteristics</h3>
+                        <p style="font-size: 1.1rem;">Use flash memory technology to store data electronically</p>
+                    </div>
+                </div>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Speed</h3>
+                            <p>Offer faster read and write speeds compared to HDDs, resulting in quicker access to data</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🛡️</div>
+                        <div class="feature-content">
+                            <h3>Reliability</h3>
+                            <p>Known for their reliability, energy efficiency, and resistance to physical shock</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">💻</div>
+                        <div class="feature-content">
+                            <h3>Usage</h3>
+                            <p>Ideal for high-performance computing tasks and portable devices</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔲</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Optical Discs Section -->
+    <section class="section optical" id="optical">
+        <div class="container">
+            <h2 class="section-title fade-in">Optical Discs (CDs, DVDs)</h2>
+            
+            <div class="card fade-in">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <div style="font-size: 4rem; margin-right: 20px;">💿</div>
+                    <div>
+                        <h3 style="font-size: 1.8rem; margin-bottom: 10px;">Characteristics</h3>
+                        <p style="font-size: 1.1rem;">Use laser technology to read and write data on a reflective surface</p>
+                    </div>
+                </div>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">💿</div>
+                        <div class="feature-content">
+                            <h3>Types</h3>
+                            <p>CDs (Compact Discs) and DVDs (Digital Versatile Discs) are examples of optical discs</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">💾</div>
+                        <div class="feature-content">
+                            <h3>Capacity</h3>
+                            <p>Offer relatively large storage capacities</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📀</div>
+                        <div class="feature-content">
+                            <h3>Usage</h3>
+                            <p>Commonly used for distributing software, music, movies, and archival data</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">💿</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Magnetic Tapes Section -->
+    <section class="section tapes" id="tapes">
+        <div class="container">
+            <h2 class="section-title fade-in">Magnetic Tapes</h2>
+            
+            <div class="card fade-in">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <div style="font-size: 4rem; margin-right: 20px;">📼</div>
+                    <div>
+                        <h3 style="font-size: 1.8rem; margin-bottom: 10px;">Characteristics</h3>
+                        <p style="font-size: 1.1rem;">Use magnetic storage to record data sequentially on a long strip of tape</p>
+                    </div>
+                </div>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">💾</div>
+                        <div class="feature-content">
+                            <h3>High Capacity</h3>
+                            <p>Offer high storage capacities at a low cost per byte</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📁</div>
+                        <div class="feature-content">
+                            <h3>Archival</h3>
+                            <p>Suitable for long-term archival storage and backup purposes</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🏢</div>
+                        <div class="feature-content">
+                            <h3>Enterprise</h3>
+                            <p>Often used in enterprise environments for data backup and disaster recovery due to their durability and cost-effectiveness</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">📼</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation dots functionality
+        const navDots = document.querySelectorAll('.nav-dot');
+        const sections = document.querySelectorAll('.section');
+        
+        // Update active nav dot based on scroll position
+        function updateActiveNavDot() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            sections.forEach((section, index) => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                
+                if (scrollPosition >= sectionTop - windowHeight / 2 && 
+                    scrollPosition < sectionTop + sectionHeight - windowHeight / 2) {
+                    navDots.forEach(dot => dot.classList.remove('active'));
+                    navDots[index].classList.add('active');
+                }
+            });
+        }
+        
+        // Scroll to section when nav dot is clicked
+        navDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                window.scrollTo({
+                    top: sections[index].offsetTop,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Add scroll event listener
+        window.addEventListener('scroll', updateActiveNavDot);
+        
+        // Fade-in animation on scroll
+        const fadeElements = document.querySelectorAll('.fade-in');
+        
+        function checkFade() {
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementBottom = element.getBoundingClientRect().bottom;
+                
+                if (elementTop < window.innerHeight && elementBottom > 0) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+        
+        // Initial check and add scroll event listener
+        checkFade();
+        window.addEventListener('scroll', checkFade);
+    </script>
+</body>
+</html>

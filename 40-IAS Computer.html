@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IAS Computer - Institute for Advanced Study Computer</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --success-color: #2ecc71;
+        --warning-color: #f39c12;
+        --info-color: #9b59b6;
+        --text-color: #333;
+        --light-bg: #f8f9fa;
+        --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        color: var(--text-color);
+        background-color: var(--light-bg);
+        overflow-x: hidden;
+      }
+
+      .slide-container {
+        width: 100%;
+        height: 100vh;
+        overflow-y: scroll;
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+      }
+
+      .slide {
+        min-height: 100vh;
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        scroll-snap-align: start;
+        position: relative;
+        background-color: white;
+      }
+
+      .slide:nth-child(even) {
+        background-color: var(--light-bg);
+      }
+
+      .slide-content {
+        max-width: 900px;
+        width: 100%;
+        text-align: center;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      h1 {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+        position: relative;
+        display: inline-block;
+      }
+
+      h1::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(
+          90deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        border-radius: 2px;
+      }
+
+      h2 {
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+        color: var(--primary-color);
+      }
+
+      h3 {
+        font-size: 1.8rem;
+        margin: 25px 0 15px;
+        color: var(--secondary-color);
+        position: relative;
+        display: inline-block;
+      }
+
+      p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .emoji {
+        font-size: 1.5rem;
+        vertical-align: middle;
+        margin: 0 5px;
+      }
+
+      .card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: left;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+
+      .component-card {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 8px;
+        background-color: var(--light-bg);
+        transition: all 0.3s ease;
+      }
+
+      .component-card:hover {
+        background-color: #e9ecef;
+        transform: translateX(10px);
+      }
+
+      .component-icon {
+        font-size: 2rem;
+        margin-right: 20px;
+        color: var(--secondary-color);
+      }
+
+      .component-details {
+        flex: 1;
+      }
+
+      .component-name {
+        font-weight: 600;
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+      }
+
+      .navigation {
+        position: fixed;
+        right: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+      }
+
+      .nav-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #ccc;
+        margin: 15px 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .nav-dot.active {
+        background-color: var(--primary-color);
+        transform: scale(1.3);
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .feature-card {
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        text-align: center;
+      }
+
+      .feature-card:hover {
+        transform: scale(1.05);
+      }
+
+      .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+      }
+
+      .timeline-box {
+        background-color: var(--light-bg);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 15px 0;
+        position: relative;
+      }
+
+      .timeline-year {
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: var(--secondary-color);
+        margin-bottom: 10px;
+      }
+
+      .summary-box {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        margin-top: 30px;
+        box-shadow: var(--card-shadow);
+      }
+
+      .highlight {
+        background-color: rgba(52, 152, 219, 0.2);
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      .floating {
+        animation: floating 3s ease-in-out infinite;
+      }
+
+      @keyframes floating {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+
+      .pulse {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .slide-number {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        font-size: 1rem;
+        color: #888;
+      }
+
+      .architecture-diagram {
+        width: 100%;
+        max-width: 600px;
+        height: 300px;
+        background-color: var(--light-bg);
+        border-radius: 10px;
+        margin: 20px auto;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 20px;
+        box-shadow: var(--card-shadow);
+      }
+
+      .cpu-box {
+        background-color: var(--secondary-color);
+        color: white;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        position: relative;
+        z-index: 2;
+      }
+
+      .memory-box {
+        background-color: var(--success-color);
+        color: white;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        position: relative;
+        z-index: 2;
+      }
+
+      .io-box {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .input-box,
+      .output-box {
+        background-color: var(--warning-color);
+        color: white;
+        border-radius: 8px;
+        padding: 15px;
+        width: 45%;
+        text-align: center;
+      }
+
+      .bus-line {
+        position: absolute;
+        background-color: var(--info-color);
+        z-index: 1;
+      }
+
+      .bus-horizontal {
+        height: 4px;
+        width: 80%;
+        left: 10%;
+      }
+
+      .bus-vertical {
+        width: 4px;
+        height: 60%;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .instruction-format {
+        font-family: "Courier New", monospace;
+        background-color: #f1f3f5;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        text-align: left;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .instruction-format::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.6),
+          transparent
+        );
+        animation: shine 3s infinite;
+      }
+
+      @keyframes shine {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+
+      .execution-step {
+        display: flex;
+        align-items: center;
+        margin: 15px 0;
+        padding: 15px;
+        background-color: var(--light-bg);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .execution-step:hover {
+        transform: translateX(10px);
+        background-color: #e9ecef;
+      }
+
+      .step-number {
+        width: 30px;
+        height: 30px;
+        background-color: var(--secondary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 15px;
+      }
+
+      .step-details {
+        flex: 1;
+        text-align: left;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2.5rem;
+        }
+        h2 {
+          font-size: 2rem;
+        }
+        h3 {
+          font-size: 1.5rem;
+        }
+        .slide {
+          padding: 40px 20px;
+        }
+        .navigation {
+          display: none;
+        }
+        .architecture-diagram {
+          height: 250px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide-container">
+      <!-- Slide 1: Title and Overview -->
+      <div class="slide" id="slide1">
+        <div class="slide-content">
+          <h1 class="floating">IAS Computer</h1>
+          <p class="emoji" style="font-size: 3rem">🖥️ ⚙️ 🧠</p>
+          <p style="font-size: 1.3rem; margin-top: 30px">
+            Institute for Advanced Study Computer
+          </p>
+          <div class="card pulse">
+            <h3><span class="emoji">🔹</span> Overview</h3>
+            <p>
+              The IAS Computer was one of the earliest stored-program computers,
+              designed between 1945–1951 at the Institute for Advanced Study
+              (IAS), Princeton University.
+            </p>
+            <p>
+              It was designed under the leadership of John von Neumann, who
+              applied his theoretical model (now called the Von Neumann
+              architecture) into a working machine.
+            </p>
+            <p>
+              The machine became a prototype — many later computers were modeled
+              on its design, known as the IAS architecture.
+            </p>
+          </div>
+        </div>
+        <div class="slide-number">1/11</div>
+      </div>
+
+      <!-- Slide 2: Historical Background -->
+      <div class="slide" id="slide2">
+        <div class="slide-content">
+          <h2><span class="emoji">🔹</span> Historical Background</h2>
+
+          <div class="grid-container">
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--info-color)">
+                📅
+              </div>
+              <h3>Period</h3>
+              <p>
+                Post–World War II (1940s–1950s), a time of rapid advances in
+                electronics and computing.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--warning-color)">
+                📍
+              </div>
+              <h3>Place</h3>
+              <p>Institute for Advanced Study (IAS), Princeton, New Jersey.</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--success-color)">
+                👤
+              </div>
+              <h3>Key Person</h3>
+              <p>
+                John von Neumann, a mathematician and physicist, famous for his
+                work in quantum mechanics, game theory, and computer science.
+              </p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3><span class="emoji">💡</span> Vision</h3>
+            <p>
+              Create a stored-program electronic computer → a machine that
+              stores data and instructions in the same memory.
+            </p>
+            <p>
+              This idea was revolutionary compared to earlier computers like
+              ENIAC, where programs were hardwired with switches and cables.
+            </p>
+          </div>
+        </div>
+        <div class="slide-number">2/11</div>
+      </div>
+
+      <!-- Slide 3: Development Timeline -->
+      <div class="slide" id="slide3">
+        <div class="slide-content">
+          <h2><span class="emoji">🔹</span> Development Timeline</h2>
+
+          <div class="timeline-box">
+            <div class="timeline-year">1946–1948</div>
+            <h3>Conceptualization</h3>
+            <p>
+              Von Neumann and his team conceptualized a machine based on the
+              stored-program principle.
+            </p>
+            <p>
+              The idea: a flexible computer where software could be changed
+              without rewiring.
+            </p>
+          </div>
+
+          <div class="timeline-box">
+            <div class="timeline-year">1948–1951</div>
+            <h3>Construction</h3>
+            <p>Work began in 1948.</p>
+            <p>Main challenges:</p>
+            <ul style="text-align: left; margin-left: 20px">
+              <li>
+                Designing fast and reliable electronic circuits (using vacuum
+                tubes).
+              </li>
+              <li>
+                Building a memory system capable of holding both instructions
+                and data.
+              </li>
+            </ul>
+          </div>
+
+          <div class="timeline-box">
+            <div class="timeline-year">1951</div>
+            <h3>Operational Phase</h3>
+            <p>By 1951, the IAS computer was working.</p>
+            <p>
+              It was one of the first stored-program computers in the world.
+            </p>
+          </div>
+        </div>
+        <div class="slide-number">3/11</div>
+      </div>
+
+      <!-- Slide 4: Architecture and Components (Part 1) -->
+      <div class="slide" id="slide4">
+        <div class="slide-content">
+          <h2>
+            <span class="emoji">🔹</span> Architecture and Components (Part 1)
+          </h2>
+          <p>
+            The IAS Computer directly embodied the Von Neumann Architecture:
+          </p>
+
+          <div class="component-card">
+            <div class="component-icon"><i class="fas fa-microchip"></i></div>
+            <div class="component-details">
+              <div class="component-name">Central Processing Unit (CPU)</div>
+              <p>
+                <strong>Arithmetic Unit (ALU):</strong> Performed addition,
+                subtraction, multiplication, division, and logical operations.
+              </p>
+              <p>
+                <strong>Control Unit (CU):</strong> Fetched instructions from
+                memory, decoded them, and executed them.
+              </p>
+            </div>
+          </div>
+
+          <div class="component-card">
+            <div class="component-icon"><i class="fas fa-memory"></i></div>
+            <div class="component-details">
+              <div class="component-name">Memory System</div>
+              <p><strong>Size:</strong> 1,024 words, each 40 bits long.</p>
+              <p>A word could hold:</p>
+              <ul style="text-align: left; margin-left: 20px">
+                <li>One 40-bit number, or</li>
+                <li>Two 20-bit instructions.</li>
+              </ul>
+              <p>
+                Memory stored both instructions and data → unified storage
+                system.
+              </p>
+            </div>
+          </div>
+
+          <div class="architecture-diagram">
+            <div class="cpu-box">CPU</div>
+            <div class="memory-box">Memory (Data + Instructions)</div>
+            <div class="io-box">
+              <div class="input-box">Input</div>
+              <div class="output-box">Output</div>
+            </div>
+            <div class="bus-line bus-horizontal" style="top: 33%"></div>
+            <div class="bus-line bus-horizontal" style="top: 66%"></div>
+            <div class="bus-line bus-vertical"></div>
+          </div>
+        </div>
+        <div class="slide-number">4/11</div>
+      </div>
+
+      <!-- Slide 5: Architecture and Components (Part 2) -->
+      <div class="slide" id="slide5">
+        <div class="slide-content">
+          <h2>
+            <span class="emoji">🔹</span> Architecture and Components (Part 2)
+          </h2>
+
+          <div class="component-card">
+            <div class="component-icon"><i class="fas fa-database"></i></div>
+            <div class="component-details">
+              <div class="component-name">Registers (inside CPU)</div>
+              <p>
+                <strong>Accumulator (AC):</strong> Stored arithmetic results.
+              </p>
+              <p>
+                <strong>Multiplier-Quotient (MQ):</strong> Helped with
+                multiplication/division.
+              </p>
+              <p>
+                <strong>Instruction Register (IR):</strong> Held the current
+                instruction.
+              </p>
+              <p>
+                <strong>Program Counter (PC):</strong> Tracked the next
+                instruction's address.
+              </p>
+            </div>
+          </div>
+
+          <div class="component-card">
+            <div class="component-icon">
+              <i class="fas fa-exchange-alt"></i>
+            </div>
+            <div class="component-details">
+              <div class="component-name">Input/Output (I/O) System</div>
+              <p>
+                Used punched card readers, printers, and other electromechanical
+                devices.
+              </p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3><span class="emoji">🔍</span> Memory Organization</h3>
+            <p>
+              The IAS computer's memory could store both instructions and data
+              in the same memory space, implementing the stored-program concept.
+            </p>
+            <p>
+              Each 40-bit word could hold either one data value or two
+              instructions, providing flexibility in how memory was used.
+            </p>
+          </div>
+        </div>
+        <div class="slide-number">5/11</div>
+      </div>
+
+      <!-- Slide 6: Instruction Format -->
+      <div class="slide" id="slide6">
+        <div class="slide-content">
+          <h2><span class="emoji">🔹</span> Instruction Format</h2>
+
+          <div class="card">
+            <p>Each instruction was 20 bits.</p>
+            <p>A 40-bit memory word could hold two instructions.</p>
+          </div>
+
+          <div class="instruction-format">
+            <p><strong>Format of an instruction:</strong></p>
+            <p>
+              Opcode (8 bits): Specifies the operation (e.g., add, subtract,
+              load).
+            </p>
+            <p>Address (12 bits): Specifies the memory location of data.</p>
+          </div>
+
+          <div class="card">
+            <h3><span class="emoji">👉</span> Example:</h3>
+            <p>Instruction = 00000101 000110101011</p>
+            <p>00000101 → Opcode for "ADD"</p>
+            <p>000110101011 → Address where operand is stored.</p>
+          </div>
+
+          <div class="grid-container">
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--secondary-color)">
+                🔢
+              </div>
+              <h3>8-bit Opcode</h3>
+              <p>256 possible operations</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--info-color)">
+                📍
+              </div>
+              <h3>12-bit Address</h3>
+              <p>4,096 memory locations</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-number">6/11</div>
+      </div>
+
+      <!-- Slide 7: Operation (Fetch-Decode-Execute Cycle) -->
+      <div class="slide" id="slide7">
+        <div class="slide-content">
+          <h2>
+            <span class="emoji">🔹</span> Operation (Fetch-Decode-Execute Cycle)
+          </h2>
+
+          <div class="execution-step">
+            <div class="step-number">1</div>
+            <div class="step-details">
+              <h4>Fetch</h4>
+              <p>
+                Instruction is fetched from memory into the Instruction Register
+                (IR).
+              </p>
+            </div>
+          </div>
+
+          <div class="execution-step">
+            <div class="step-number">2</div>
+            <div class="step-details">
+              <h4>Decode</h4>
+              <p>Control Unit decodes opcode → determines operation.</p>
+            </div>
+          </div>
+
+          <div class="execution-step">
+            <div class="step-number">3</div>
+            <div class="step-details">
+              <h4>Execute</h4>
+              <p>
+                Data is fetched (if needed), ALU executes operation, result
+                stored in AC or memory.
+              </p>
+            </div>
+          </div>
+
+          <div class="execution-step">
+            <div class="step-number">4</div>
+            <div class="step-details">
+              <h4>Repeat</h4>
+              <p>Program Counter moves to the next instruction.</p>
+            </div>
+          </div>
+
+          <div class="card pulse">
+            <p>
+              <span class="emoji">💡</span> This fetch-decode-execute cycle is
+              the foundation of how modern CPUs operate today.
+            </p>
+          </div>
+        </div>
+        <div class="slide-number">7/11</div>
+      </div>
+
+      <!-- Slide 8: How It Worked (Example) -->
+      <div class="slide" id="slide8">
+        <div class="slide-content">
+          <h2><span class="emoji">🔹</span> How It Worked (Example)</h2>
+
+          <div class="card">
+            <h3>Computing C = A + B</h3>
+            <p>Suppose we want to compute C = A + B.</p>
+          </div>
+
+          <div class="execution-step">
+            <div class="step-number">1</div>
+            <div class="step-details">
+              <h4>Store Values</h4>
+              <p>Store values of A and B in memory.</p>
+            </div>
+          </div>
+
+          <div class="execution-step">
+            <div class="step-number">2</div>
+            <div class="step-details">
+              <h4>Load Instruction</h4>
+              <p>LOAD A → puts A into AC.</p>
+            </div>
+          </div>
+
+          <div class="execution-step">
+            <div class="step-number">3</div>
+            <div class="step-details">
+              <h4>Add Instruction</h4>
+              <p>ADD B → adds B to AC.</p>
+            </div>
+          </div>
+
+          <div class="execution-step">
+            <div class="step-number">4</div>
+            <div class="step-details">
+              <h4>Store Instruction</h4>
+              <p>STORE C → writes result back to memory.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <p>
+              <span class="emoji">👉</span> This process in IAS was one of the
+              first times programs controlled operations stored in memory
+              instead of rewiring circuits.
+            </p>
+          </div>
+        </div>
+        <div class="slide-number">8/11</div>
+      </div>
+
+      <!-- Slide 9: Significance and Impact -->
+      <div class="slide" id="slide9">
+        <div class="slide-content">
+          <h2><span class="emoji">🔹</span> Significance and Impact</h2>
+
+          <div class="grid-container">
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--success-color)">
+                🏗️
+              </div>
+              <h3>Prototype for Future Computers</h3>
+              <p>
+                Most early computers (EDVAC, IBM 701, MANIAC, etc.) were based
+                on the IAS design.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--secondary-color)">
+                💾
+              </div>
+              <h3>Introduced Stored Program Concept</h3>
+              <p>
+                Before IAS, computers like ENIAC required rewiring to change
+                programs.
+              </p>
+              <p>
+                IAS allowed storing instructions in memory → flexible
+                programming.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--info-color)">
+                🧮
+              </div>
+              <h3>Scientific Computation</h3>
+              <p>
+                Allowed large-scale computations in physics, mathematics, and
+                engineering.
+              </p>
+              <p>
+                Example: simulations of nuclear processes, advanced math
+                calculations.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--warning-color)">
+                🏛️
+              </div>
+              <h3>Foundation of Modern Computers</h3>
+              <p>
+                The IAS (Von Neumann) architecture is still used today in CPUs
+                (with improvements).
+              </p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3><span class="emoji">🌐</span> Architectural Influence</h3>
+            <p>
+              Its design became the model for many early computers worldwide
+              (often called "IAS-type machines").
+            </p>
+            <p>Influenced machines like IBM 701, MANIAC, and others.</p>
+          </div>
+        </div>
+        <div class="slide-number">9/11</div>
+      </div>
+
+      <!-- Slide 10: Limitations -->
+      <div class="slide" id="slide10">
+        <div class="slide-content">
+          <h2><span class="emoji">🔹</span> Limitations</h2>
+
+          <div class="grid-container">
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--accent-color)">
+                🐢
+              </div>
+              <h3>Speed</h3>
+              <p>
+                Very slow by modern standards (performed thousands, not
+                billions, of operations per second).
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--warning-color)">
+                🚫
+              </div>
+              <h3>Von Neumann Bottleneck</h3>
+              <p>
+                Single memory for data and instructions caused the Von Neumann
+                bottleneck (CPU and memory could not work simultaneously).
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--info-color)">
+                💡
+              </div>
+              <h3>Hardware Issues</h3>
+              <p>
+                Required massive hardware (vacuum tubes) → unreliable and
+                power-hungry.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon" style="color: var(--secondary-color)">
+                📏
+              </div>
+              <h3>Memory Size</h3>
+              <p>
+                Memory size (1,024 words) was very limited by modern standards.
+              </p>
+            </div>
+          </div>
+
+          <div class="card pulse">
+            <p>
+              <span class="emoji">🔍</span> Despite these limitations, the IAS
+              Computer was revolutionary for its time and laid the groundwork
+              for modern computing.
+            </p>
+          </div>
+        </div>
+        <div class="slide-number">10/11</div>
+      </div>
+
+      <!-- Slide 11: Summary -->
+      <div class="slide" id="slide11">
+        <div class="slide-content">
+          <h2><span class="emoji">✅</span> Summary</h2>
+
+          <div class="summary-box">
+            <ul style="text-align: left; font-size: 1.1rem; line-height: 1.8">
+              <li>
+                The IAS Computer was the
+                <span class="highlight">first practical implementation</span> of
+                Von Neumann's stored program architecture.
+              </li>
+              <li>
+                It
+                <span class="highlight"
+                  >introduced the stored-program concept</span
+                >, influencing nearly every computer that followed.
+              </li>
+              <li>
+                Its <span class="highlight">architectural design</span> became
+                the model for many early computers worldwide.
+              </li>
+              <li>
+                It <span class="highlight">laid the groundwork</span> for modern
+                computing with the fetch-decode-execute cycle.
+              </li>
+              <li>
+                Despite limitations, it was
+                <span class="highlight">revolutionary</span> for its time and
+                demonstrated the potential of electronic computing.
+              </li>
+            </ul>
+          </div>
+
+          <div class="architecture-diagram" style="margin-top: 30px">
+            <div class="cpu-box">CPU</div>
+            <div class="memory-box">Memory (Data + Instructions)</div>
+            <div class="io-box">
+              <div class="input-box">Input</div>
+              <div class="output-box">Output</div>
+            </div>
+            <div class="bus-line bus-horizontal" style="top: 33%"></div>
+            <div class="bus-line bus-horizontal" style="top: 66%"></div>
+            <div class="bus-line bus-vertical"></div>
+          </div>
+
+          <p style="margin-top: 30px; font-size: 1.2rem">
+            The IAS Computer (1951) was a pioneering achievement that shaped the
+            future of computing.
+          </p>
+        </div>
+        <div class="slide-number">11/11</div>
+      </div>
+    </div>
+
+    <div class="navigation">
+      <div class="nav-dot active" onclick="scrollToSlide('slide1')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide2')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide3')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide4')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide5')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide6')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide7')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide8')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide9')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide10')"></div>
+      <div class="nav-dot" onclick="scrollToSlide('slide11')"></div>
+    </div>
+
+    <script>
+      // Function to scroll to a specific slide
+      function scrollToSlide(slideId) {
+        document.getElementById(slideId).scrollIntoView({ behavior: "smooth" });
+      }
+
+      // Update active navigation dot based on scroll position
+      window.addEventListener("scroll", () => {
+        const slides = document.querySelectorAll(".slide");
+        const navDots = document.querySelectorAll(".nav-dot");
+        const scrollPosition = window.scrollY + window.innerHeight / 2;
+
+        slides.forEach((slide, index) => {
+          const slideTop = slide.offsetTop;
+          const slideBottom = slideTop + slide.offsetHeight;
+
+          if (scrollPosition >= slideTop && scrollPosition < slideBottom) {
+            navDots.forEach((dot) => dot.classList.remove("active"));
+            navDots[index].classList.add("active");
+          }
+        });
+      });
+
+      // Add keyboard navigation
+      document.addEventListener("keydown", (e) => {
+        const slides = document.querySelectorAll(".slide");
+        const currentSlide = document.querySelector(".nav-dot.active");
+        const currentIndex = Array.from(
+          document.querySelectorAll(".nav-dot")
+        ).indexOf(currentSlide);
+
+        if (e.key === "ArrowDown" && currentIndex < slides.length - 1) {
+          scrollToSlide(`slide${currentIndex + 2}`);
+        } else if (e.key === "ArrowUp" && currentIndex > 0) {
+          scrollToSlide(`slide${currentIndex}`);
+        }
+      });
+
+      // Add touch/swipe support for mobile
+      let touchStartY = 0;
+      let touchEndY = 0;
+
+      document.addEventListener("touchstart", (e) => {
+        touchStartY = e.changedTouches[0].screenY;
+      });
+
+      document.addEventListener("touchend", (e) => {
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+      });
+
+      function handleSwipe() {
+        const slides = document.querySelectorAll(".slide");
+        const currentSlide = document.querySelector(".nav-dot.active");
+        const currentIndex = Array.from(
+          document.querySelectorAll(".nav-dot")
+        ).indexOf(currentSlide);
+
+        if (touchEndY < touchStartY - 50 && currentIndex < slides.length - 1) {
+          // Swipe up - go to next slide
+          scrollToSlide(`slide${currentIndex + 2}`);
+        } else if (touchEndY > touchStartY + 50 && currentIndex > 0) {
+          // Swipe down - go to previous slide
+          scrollToSlide(`slide${currentIndex}`);
+        }
+      }
+    </script>
+  </body>
+</html>

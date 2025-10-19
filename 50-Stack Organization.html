@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack Organization Slides</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/stack-memory/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .stack-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .components { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .operations { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .usage { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .design { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .benefits { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .instruction { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .advantages { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 152, 80, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .emoji-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Code Block Styles */
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .code-block code {
+            color: #4fc3f7;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        /* Emoji Background Pattern */
+        .emoji-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.05;
+            font-size: 2rem;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .emoji-pattern span {
+            position: absolute;
+            animation: float 20s infinite linear;
+        }
+        @keyframes float {
+            from { transform: translateY(100vh) rotate(0deg); }
+            to { transform: translateY(-100vh) rotate(360deg); }
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <section class="header">
+        <div class="container">
+            <h1>Stack Organization</h1>
+            <p>The structure and management of stack memory in computer systems</p>
+            <div class="stack-character">📚🔍📊</div>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot" data-section="0"></div>
+        <div class="nav-dot" data-section="1"></div>
+        <div class="nav-dot" data-section="2"></div>
+        <div class="nav-dot" data-section="3"></div>
+        <div class="nav-dot" data-section="4"></div>
+        <div class="nav-dot" data-section="5"></div>
+        <div class="nav-dot" data-section="6"></div>
+        <div class="nav-dot" data-section="7"></div>
+        <div class="nav-dot" data-section="8"></div>
+    </div>
+
+    <!-- Introduction Section -->
+    <section class="section intro" id="section-1">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 0s;">📚</span>
+            <span style="left: 15%; animation-delay: 2s;">🔍</span>
+            <span style="left: 25%; animation-delay: 4s;">📊</span>
+            <span style="left: 35%; animation-delay: 6s;">💾</span>
+            <span style="left: 45%; animation-delay: 8s;">🧠</span>
+            <span style="left: 55%; animation-delay: 10s;">💻</span>
+            <span style="left: 65%; animation-delay: 12s;">🔧</span>
+            <span style="left: 75%; animation-delay: 14s;">⚙️</span>
+            <span style="left: 85%; animation-delay: 16s;">📱</span>
+            <span style="left: 95%; animation-delay: 18s;">🖥️</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">What is Stack Organization?</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    <strong>Stack organization</strong> refers to the structure and management of the stack memory within a computer system. The stack is a special area of memory used for temporary storage of data, particularly during subroutine calls and returns, as well as for storing local variables and preserving execution context.
+                </p>
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📚</div>
+                        <div class="feature-content">
+                            <h3>Memory Structure</h3>
+                            <p>Organized as a Last-In-First-Out (LIFO) data structure</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Temporary Storage</h3>
+                            <p>Holds data temporarily during program execution</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔧</div>
+                        <div class="feature-content">
+                            <h3>Execution Context</h3>
+                            <p>Preserves program state during subroutine calls</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🌍</span>Real-World Example</h3>
+                    <p style="font-size: 1.1rem;">
+                        Think of a stack like a stack of plates in a cafeteria. When you need a plate, you take the top one (pop). When you clean a plate, you place it on top of the stack (push). You can't take a plate from the middle without removing all the plates above it first. This is exactly how computer stack memory works - the last item added is the first one removed.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Components Section -->
+    <section class="section components" id="section-2">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 1s;">🧩</span>
+            <span style="left: 15%; animation-delay: 3s;">🔧</span>
+            <span style="left: 25%; animation-delay: 5s;">⚙️</span>
+            <span style="left: 35%; animation-delay: 7s;">🧩</span>
+            <span style="left: 45%; animation-delay: 9s;">🔧</span>
+            <span style="left: 55%; animation-delay: 11s;">⚙️</span>
+            <span style="left: 65%; animation-delay: 13s;">🧩</span>
+            <span style="left: 75%; animation-delay: 15s;">🔧</span>
+            <span style="left: 85%; animation-delay: 17s;">⚙️</span>
+            <span style="left: 95%; animation-delay: 19s;">🧩</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Components of Stack Organization</h2>
+            <div class="card fade-in">
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">💾</span>Stack Memory</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        Reserved region of memory used for storing data temporarily, organized as a Last-In-First-Out (LIFO) structure.
+                    </p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🎯</div>
+                            <div class="feature-content">
+                                <h3>Purpose</h3>
+                                <p>Temporary storage during program execution</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Implementation</h3>
+                                <p>LIFO structure - last item pushed is first popped</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📋</div>
+                            <div class="feature-content">
+                                <h3>Usage</h3>
+                                <p>Subroutine calls, local variables, parameter passing</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">📍</span>Stack Pointer (SP)</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        Special-purpose register that points to the top of the stack, tracking the current position where the next push or pop operation will occur.
+                    </p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🎯</div>
+                            <div class="feature-content">
+                                <h3>Purpose</h3>
+                                <p>Points to the top of the stack</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Role</h3>
+                                <p>Tracks current position for push/pop operations</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📋</div>
+                            <div class="feature-content">
+                                <h3>Usage</h3>
+                                <p>Adjusts dynamically as items are pushed/popped</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🖼️</span>Frame Pointer (FP)</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        Optional register used in some architectures to point to the base of the current stack frame, facilitating efficient access to local variables and parameters.
+                    </p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🎯</div>
+                            <div class="feature-content">
+                                <h3>Purpose</h3>
+                                <p>Points to the base of the current stack frame</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Role</h3>
+                                <p>Enables efficient access to local variables</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📋</div>
+                            <div class="feature-content">
+                                <h3>Usage</h3>
+                                <p>Maintains stack frame structure during execution</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Operations Section -->
+    <section class="section operations" id="section-3">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 2s;">⬆️</span>
+            <span style="left: 15%; animation-delay: 4s;">⬇️</span>
+            <span style="left: 25%; animation-delay: 6s;">⬆️</span>
+            <span style="left: 35%; animation-delay: 8s;">⬇️</span>
+            <span style="left: 45%; animation-delay: 10s;">⬆️</span>
+            <span style="left: 55%; animation-delay: 12s;">⬇️</span>
+            <span style="left: 65%; animation-delay: 14s;">⬆️</span>
+            <span style="left: 75%; animation-delay: 16s;">⬇️</span>
+            <span style="left: 85%; animation-delay: 18s;">⬆️</span>
+            <span style="left: 95%; animation-delay: 20s;">⬇️</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Operations in Stack Organization</h2>
+            <div class="card fade-in">
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">⬆️</span>Push Operation</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        Adds a new item (data or address) onto the top of the stack.
+                    </p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔧</div>
+                            <div class="feature-content">
+                                <h3>Implementation</h3>
+                                <p>Decreases SP to reserve space and stores the item</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Process</h3>
+                                <p>SP = SP - size; memory[SP] = item</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="code-block fade-in">
+                        <code>
+                            // Push operation example<br>
+                            PUSH R1  // Push value in register R1 onto stack<br>
+                            // Steps:<br>
+                            // 1. SP = SP - 4 (assuming 4-byte data)<br>
+                            // 2. Memory[SP] = R1
+                        </code>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">⬇️</span>Pop Operation</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        Removes the top item from the stack and returns it for further processing.
+                    </p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔧</div>
+                            <div class="feature-content">
+                                <h3>Implementation</h3>
+                                <p>Retrieves item and increments SP to release space</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Process</h3>
+                                <p>item = memory[SP]; SP = SP + size</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="code-block fade-in">
+                        <code>
+                            // Pop operation example<br>
+                            POP R1  // Pop top value from stack into register R1<br>
+                            // Steps:<br>
+                            // 1. R1 = Memory[SP]<br>
+                            // 2. SP = SP + 4 (assuming 4-byte data)
+                        </code>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🌍</span>Real-World Example</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        Imagine you're working on a document and need to make temporary changes. You save your current work (push), make the changes, and then restore your original work (pop). This is similar to how programs save their state before calling a function and restore it afterward.
+                    </p>
+                    <p style="font-size: 1.1rem;">
+                        In web browsers, when you navigate to a new page, the previous page's state is often pushed onto a stack. When you click the back button, the browser pops the previous state from the stack to restore it.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Usage Section -->
+    <section class="section usage" id="section-4">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 3s;">📞</span>
+            <span style="left: 15%; animation-delay: 5s;">🔄</span>
+            <span style="left: 25%; animation-delay: 7s;">📞</span>
+            <span style="left: 35%; animation-delay: 9s;">🔄</span>
+            <span style="left: 45%; animation-delay: 11s;">📞</span>
+            <span style="left: 55%; animation-delay: 13s;">🔄</span>
+            <span style="left: 65%; animation-delay: 15s;">📞</span>
+            <span style="left: 75%; animation-delay: 17s;">🔄</span>
+            <span style="left: 85%; animation-delay: 19s;">📞</span>
+            <span style="left: 95%; animation-delay: 21s;">🔄</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Usage in Program Execution</h2>
+            <div class="card fade-in">
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">📞</span>Subroutine Calls</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        Before calling a subroutine, parameters and return addresses are typically pushed onto the stack. During subroutine execution, local variables and the frame pointer help manage data within the subroutine.
+                    </p>
+                    <div class="code-block fade-in">
+                        <code>
+                            // Function call example<br>
+                            int addNumbers(int a, int b) {<br>
+                            &nbsp;&nbsp;int result = a + b;<br>
+                            &nbsp;&nbsp;return result;<br>
+                            }<br><br>
+                            // Calling the function<br>
+                            int sum = addNumbers(5, 3);<br><br>
+                            // Stack operations:<br>
+                            // 1. Push parameter 3<br>
+                            // 2. Push parameter 5<br>
+                            // 3. Push return address<br>
+                            // 4. Jump to addNumbers function<br>
+                            // 5. Allocate space for local variables<br>
+                            // 6. Execute function<br>
+                            // 7. Push return value<br>
+                            // 8. Clean up stack and return
+                        </code>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Context Switching</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        Stack organization aids in saving and restoring the execution context of processes or tasks during context switches, ensuring seamless task management in multitasking environments.
+                    </p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">💾</div>
+                            <div class="feature-content">
+                                <h3>Saving Context</h3>
+                                <p>Push registers, program counter, and other state onto stack</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Restoring Context</h3>
+                                <p>Pop saved state from stack to resume execution</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🧠</span>Memory Management</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        Efficient use of stack memory helps conserve overall memory resources and supports nested subroutine calls and recursive function execution.
+                    </p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Automatic Allocation</h3>
+                                <p>Memory allocated when entering a function, freed when exiting</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Recursion Support</h3>
+                                <p>Each recursive call gets its own stack frame</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🌍</span>Real-World Example</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        When you're using a smartphone and switch between apps, the operating system performs context switching. It saves the current app's state (including register values and program counter) onto the stack, loads the new app's state from its stack, and switches execution. This happens so quickly that it feels seamless to the user.
+                    </p>
+                    <p style="font-size: 1.1rem;">
+                        In recursive algorithms like calculating factorials or traversing tree data structures, each recursive call pushes a new frame onto the stack with its own parameters and local variables. When the recursion unwinds, these frames are popped off the stack in reverse order.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Design Considerations Section -->
+    <section class="section design" id="section-5">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 4s;">📏</span>
+            <span style="left: 15%; animation-delay: 6s;">🏗️</span>
+            <span style="left: 25%; animation-delay: 8s;">📏</span>
+            <span style="left: 35%; animation-delay: 10s;">🏗️</span>
+            <span style="left: 45%; animation-delay: 12s;">📏</span>
+            <span style="left: 55%; animation-delay: 14s;">🏗️</span>
+            <span style="left: 65%; animation-delay: 16s;">📏</span>
+            <span style="left: 75%; animation-delay: 18s;">🏗️</span>
+            <span style="left: 85%; animation-delay: 20s;">📏</span>
+            <span style="left: 95%; animation-delay: 22s;">🏗️</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Design Considerations</h2>
+            <div class="card fade-in">
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">📏</span>Stack Size</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        Determined by hardware constraints and the needs of the software being executed.
+                    </p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚠️</div>
+                            <div class="feature-content">
+                                <h3>Too Small</h3>
+                                <p>Risk of stack overflow during deep recursion or complex function calls</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">💡</div>
+                            <div class="feature-content">
+                                <h3>Too Large</h3>
+                                <p>Wastes memory resources that could be used elsewhere</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🏗️</span>Stack Frame Structure</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        Defines how data is organized within each subroutine call, including parameters, return addresses, and local variables.
+                    </p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📋</div>
+                            <div class="feature-content">
+                                <h3>Components</h3>
+                                <p>Parameters, return address, frame pointer, local variables</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔧</div>
+                            <div class="feature-content">
+                                <h3>Layout</h3>
+                                <p>Varies by architecture and calling convention</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">⚙️</span>Stack Management</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        Requires careful handling to avoid stack overflow (exceeding available stack space) or underflow (attempting to pop from an empty stack).
+                    </p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚠️</div>
+                            <div class="feature-content">
+                                <h3>Stack Overflow</h3>
+                                <p>Occurs when stack exceeds allocated space, can crash program</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚠️</div>
+                            <div class="feature-content">
+                                <h3>Stack Underflow</h3>
+                                <p>Occurs when trying to pop from empty stack, indicates logic error</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🌍</span>Real-World Example</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        In embedded systems with limited memory, stack size must be carefully calculated. For example, in a smart thermostat, the stack might be sized to handle the deepest possible function call chain during temperature control algorithms.
+                    </p>
+                    <p style="font-size: 1.1rem;">
+                        Stack overflow is a common security vulnerability. The infamous "Stack Smashing" attack exploits insufficient stack bounds checking by overflowing the stack with malicious data, overwriting the return address, and redirecting program execution to attacker-controlled code.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="section benefits" id="section-6">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 5s;">✅</span>
+            <span style="left: 15%; animation-delay: 7s;">⭐</span>
+            <span style="left: 25%; animation-delay: 9s;">✅</span>
+            <span style="left: 35%; animation-delay: 11s;">⭐</span>
+            <span style="left: 45%; animation-delay: 13s;">✅</span>
+            <span style="left: 55%; animation-delay: 15s;">⭐</span>
+            <span style="left: 65%; animation-delay: 17s;">✅</span>
+            <span style="left: 75%; animation-delay: 19s;">⭐</span>
+            <span style="left: 85%; animation-delay: 21s;">✅</span>
+            <span style="left: 95%; animation-delay: 23s;">⭐</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Benefits of Stack Organization</h2>
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔧</div>
+                        <div class="feature-content">
+                            <h3>Simplicity</h3>
+                            <p>Provides a straightforward method for managing temporary data storage within a program. The LIFO structure is easy to understand and implement.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Efficiency</h3>
+                            <p>Facilitates rapid access and manipulation of data, crucial for subroutine execution and parameter passing. Stack operations are typically very fast.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔒</div>
+                        <div class="feature-content">
+                            <h3>Reliability</h3>
+                            <p>Ensures data integrity and orderly execution flow through well-defined push and pop operations. Reduces complexity in memory management.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🌍</span>Real-World Example</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        In web development, the call stack is essential for understanding how JavaScript executes code. When a function is called, it's pushed onto the call stack. When it returns, it's popped off. This simple mechanism allows developers to trace execution flow and debug issues effectively.
+                    </p>
+                    <p style="font-size: 1.1rem;">
+                        In operating systems, the stack is used for managing system calls. When an application makes a system call (like reading a file), the CPU switches to kernel mode, pushing the user context onto the stack and loading the kernel context. This ensures the system can safely service the request and return to the application without corruption.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instruction Set Section -->
+    <section class="section instruction" id="section-7">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 6s;">📝</span>
+            <span style="left: 15%; animation-delay: 8s;">🔧</span>
+            <span style="left: 25%; animation-delay: 10s;">📝</span>
+            <span style="left: 35%; animation-delay: 12s;">🔧</span>
+            <span style="left: 45%; animation-delay: 14s;">📝</span>
+            <span style="left: 55%; animation-delay: 16s;">🔧</span>
+            <span style="left: 65%; animation-delay: 18s;">📝</span>
+            <span style="left: 75%; animation-delay: 20s;">🔧</span>
+            <span style="left: 85%; animation-delay: 22s;">📝</span>
+            <span style="left: 95%; animation-delay: 24s;">🔧</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Instruction Set for Stack Organization</h2>
+            <div class="card fade-in">
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">📝</span>Basic Stack Operations</h3>
+                    <table>
+                        <tr>
+                            <th><span class="emoji-icon">⬆️</span>Instruction</th>
+                            <th><span class="emoji-icon">📝</span>Description</th>
+                            <th><span class="emoji-icon">🔧</span>Functionality</th>
+                        </tr>
+                        <tr>
+                            <td><strong>PUSH operand</strong></td>
+                            <td>Adds data onto the top of the stack</td>
+                            <td>Decrements SP, stores operand at memory[SP]</td>
+                        </tr>
+                        <tr>
+                            <td><strong>POP operand</strong></td>
+                            <td>Removes data from the top of the stack</td>
+                            <td>Retrieves data from memory[SP], increments SP</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">📍</span>Stack Pointer Management</h3>
+                    <table>
+                        <tr>
+                            <th><span class="emoji-icon">📝</span>Instruction</th>
+                            <th><span class="emoji-icon">📝</span>Description</th>
+                            <th><span class="emoji-icon">🔧</span>Functionality</th>
+                        </tr>
+                        <tr>
+                            <td><strong>INIT_SP value</strong></td>
+                            <td>Sets initial position of stack pointer</td>
+                            <td>Initializes SP to a specific memory location</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RESET_SP</strong></td>
+                            <td>Resets stack pointer to initial position</td>
+                            <td>Sets SP back to initial location, clearing stack</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔍</span>Additional Operations</h3>
+                    <table>
+                        <tr>
+                            <th><span class="emoji-icon">📝</span>Instruction</th>
+                            <th><span class="emoji-icon">📝</span>Description</th>
+                            <th><span class="emoji-icon">🔧</span>Functionality</th>
+                        </tr>
+                        <tr>
+                            <td><strong>PEEK operand</strong></td>
+                            <td>Retrieves top item without removing it</td>
+                            <td>Reads data from memory[SP] without modifying SP</td>
+                        </tr>
+                        <tr>
+                            <td><strong>STACK_EMPTY</strong></td>
+                            <td>Checks if stack is empty</td>
+                            <td>Sets status flag indicating if SP is at initial position</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Control Flow with Stack</h3>
+                    <table>
+                        <tr>
+                            <th><span class="emoji-icon">📝</span>Instruction</th>
+                            <th><span class="emoji-icon">📝</span>Description</th>
+                            <th><span class="emoji-icon">🔧</span>Functionality</th>
+                        </tr>
+                        <tr>
+                            <td><strong>CALL address</strong></td>
+                            <td>Initiates a subroutine call</td>
+                            <td>Pushes return address, jumps to subroutine</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RETURN</strong></td>
+                            <td>Returns from a subroutine call</td>
+                            <td>Pops return address, jumps to that address</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🌍</span>Real-World Example</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        In x86 assembly language, the PUSH and POP instructions are fundamental for stack operations. For example, when calling a Windows API function, you might push parameters onto the stack, call the function, and then clean up the stack afterward:
+                    </p>
+                    <div class="code-block fade-in">
+                        <code>
+                            ; x86 Assembly example<br>
+                            PUSH param3  ; Push third parameter<br>
+                            PUSH param2  ; Push second parameter<br>
+                            PUSH param1  ; Push first parameter<br>
+                            CALL FunctionName  ; Call the function<br>
+                            ADD ESP, 12  ; Clean up stack (3 parameters * 4 bytes each)
+                        </code>
+                    </div>
+                    <p style="font-size: 1.1rem;">
+                        In ARM processors, which use a load-store architecture, stack operations are performed with load and store instructions combined with the stack pointer register. The PUSH and POP mnemonics are actually aliases for multiple store/load instructions.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Advantages and Disadvantages Section -->
+    <section class="section advantages" id="section-8">
+        <div class="emoji-pattern">
+            <span style="left: 5%; animation-delay: 7s;">⚖️</span>
+            <span style="left: 15%; animation-delay: 9s;">⚖️</span>
+            <span style="left: 25%; animation-delay: 11s;">⚖️</span>
+            <span style="left: 35%; animation-delay: 13s;">⚖️</span>
+            <span style="left: 45%; animation-delay: 15s;">⚖️</span>
+            <span style="left: 55%; animation-delay: 17s;">⚖️</span>
+            <span style="left: 65%; animation-delay: 19s;">⚖️</span>
+            <span style="left: 75%; animation-delay: 21s;">⚖️</span>
+            <span style="left: 85%; animation-delay: 23s;">⚖️</span>
+            <span style="left: 95%; animation-delay: 25s;">⚖️</span>
+        </div>
+        <div class="container">
+            <h2 class="section-title fade-in">Advantages and Disadvantages</h2>
+            <div class="card fade-in">
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">✅</span>Advantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔧</div>
+                            <div class="feature-content">
+                                <h3>Simplicity and Efficiency</h3>
+                                <p>Push and Pop operations are simple and efficient, involving only a few instructions. Provides organized memory management for temporary data.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📞</div>
+                            <div class="feature-content">
+                                <h3>Support for Subroutines</h3>
+                                <p>Enables implementation of subroutine calls, supporting structured programming and modular code design. Facilitates parameter passing.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">💾</div>
+                            <div class="feature-content">
+                                <h3>Memory Optimization</h3>
+                                <p>Automatic memory allocation/deallocation as items are pushed and popped. Reuses stack space efficiently for different subroutine calls.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🧠</div>
+                            <div class="feature-content">
+                                <h3>Context Management</h3>
+                                <p>Helps preserve execution context during subroutine calls, ensuring seamless flow and easier debugging.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚙️</div>
+                            <div class="feature-content">
+                                <h3>Hardware Support</h3>
+                                <p>Many CPUs have dedicated instructions and hardware support for stack operations, optimizing performance.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">❌</span>Disadvantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📏</div>
+                            <div class="feature-content">
+                                <h3>Limited Size and Overflow</h3>
+                                <p>Stack size is typically fixed or limited, leading to potential stack overflow errors if too many items are pushed. Can cause program termination.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🧩</div>
+                            <div class="feature-content">
+                                <h3>Fragmentation</h3>
+                                <p>Continuous push and pop operations can lead to memory fragmentation, with small pockets of unused memory scattered throughout.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔍</div>
+                            <div class="feature-content">
+                                <h3>No Random Access</h3>
+                                <p>Access to stack elements is sequential, making random access inefficient compared to data structures like arrays.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🧵</div>
+                            <div class="feature-content">
+                                <h3>Complexity in Multithreading</h3>
+                                <p>In multithreaded environments, managing stacks across threads requires careful synchronization to prevent data corruption.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔭</div>
+                            <div class="feature-content">
+                                <h3>Limited Data Scope</h3>
+                                <p>Data stored on the stack is typically local to the subroutine where it was allocated, limiting its scope and visibility.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection fade-in">
+                    <h3 class="subsection-title"><span class="emoji">🌍</span>Real-World Examples</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        <strong>Advantage Example:</strong> In embedded systems like microcontrollers in cars or appliances, stack organization is preferred due to its simplicity and efficiency. The Arduino platform, for instance, uses a stack to manage function calls and local variables, making it accessible to hobbyists while maintaining reliable performance.
+                    </p>
+                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                        <strong>Disadvantage Example:</strong> The "Stack Overflow" error is infamous among programmers. In recursive algorithms without proper base cases, like a poorly implemented Fibonacci sequence calculator, the stack can grow indefinitely until it exhausts allocated memory, causing the program to crash. This is particularly problematic in environments with limited stack space, such as embedded systems or older operating systems.
+                    </p>
+                    <p style="font-size: 1.1rem;">
+                        In multithreaded applications like web servers, each thread typically has its own stack. If not properly managed, this can lead to excessive memory consumption. For example, a server handling thousands of concurrent connections might allocate a large stack for each thread, quickly depleting available memory. This has led to the development of alternative approaches like fiber-based concurrency or stackless coroutines in languages like Go and Python.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            // Set first nav dot as active
+            navDots[0].classList.add('active');
+            
+            // Function to update active nav dot
+            function updateActiveNavDot() {
+                const scrollPosition = window.scrollY + window.innerHeight / 2;
+                
+                sections.forEach((section, index) => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.offsetHeight;
+                    
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                        navDots.forEach(dot => dot.classList.remove('active'));
+                        navDots[index].classList.add('active');
+                    }
+                });
+            }
+            
+            // Update active nav dot on scroll
+            window.addEventListener('scroll', updateActiveNavDot);
+            
+            // Scroll to section when nav dot is clicked
+            navDots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    // For the first dot (header section)
+                    if (index === 0) {
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    } else {
+                        // For other sections
+                        const targetSection = sections[index - 1];
+                        window.scrollTo({
+                            top: targetSection.offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // Fade-in animation on scroll
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            function checkFade() {
+                fadeElements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    
+                    if (elementTop < window.innerHeight - elementVisible) {
+                        element.classList.add('visible');
+                    }
+                });
+            }
+            
+            // Check fade elements on load and scroll
+            window.addEventListener('load', checkFade);
+            window.addEventListener('scroll', checkFade);
+            
+            // Initial check
+            checkFade();
+        });
+    </script>
+</body>
+</html>

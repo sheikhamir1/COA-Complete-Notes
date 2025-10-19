@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Management Techniques</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/memory-management/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .memory-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .allocation { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .contiguous { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .non-contiguous { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .fragmentation { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .internal { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .internal-causes { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .internal-management { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .external { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+        .external-causes { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 152, 80, 0.7)); }
+        .external-management { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Diagram Styles */
+        .diagram-container {
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .memory-blocks {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .memory-block {
+            width: 120px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+        }
+        .memory-block.used {
+            background: rgba(255, 99, 71, 0.5);
+        }
+        .memory-block.free {
+            background: rgba(72, 201, 176, 0.5);
+        }
+        .memory-block.fragmented {
+            background: rgba(255, 206, 84, 0.5);
+        }
+        .memory-arrow {
+            font-size: 2rem;
+            margin: 0 10px;
+        }
+        .comparison {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .comparison-item {
+            width: 45%;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+        }
+        .comparison-item h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+            .memory-arrow {
+                display: none;
+            }
+            .comparison {
+                flex-direction: column;
+            }
+            .comparison-item {
+                width: 100%;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <section class="header">
+        <div class="container">
+            <div class="memory-character">🧩</div>
+            <h1>Memory Management Techniques</h1>
+            <p>Efficient allocation and management of memory resources in computer systems</p>
+            <div class="scroll-indicator">↓</div>
+        </div>
+    </section>
+
+    <!-- Navigation -->
+    <div class="nav">
+        <div class="nav-dot" data-section="intro"></div>
+        <div class="nav-dot" data-section="allocation"></div>
+        <div class="nav-dot" data-section="contiguous"></div>
+        <div class="nav-dot" data-section="non-contiguous"></div>
+        <div class="nav-dot" data-section="fragmentation"></div>
+        <div class="nav-dot" data-section="internal"></div>
+        <div class="nav-dot" data-section="internal-causes"></div>
+        <div class="nav-dot" data-section="internal-management"></div>
+        <div class="nav-dot" data-section="external"></div>
+        <div class="nav-dot" data-section="external-causes"></div>
+        <div class="nav-dot" data-section="external-management"></div>
+    </div>
+
+    <!-- Introduction Section -->
+    <section class="section intro" id="intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to Memory Management</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Memory management techniques are fundamental in computer systems to efficiently allocate and manage memory resources. These techniques ensure that processes have the memory they need to execute while maximizing the utilization of available memory.
+                </p>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🧩</div>
+                </div>
+                
+                <p style="font-size: 1.1rem; text-align: center; font-style: italic;">
+                    Effective memory management is crucial for system performance and stability
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Memory Allocation Strategies Section -->
+    <section class="section allocation" id="allocation">
+        <div class="container">
+            <h2 class="section-title fade-in">Memory Allocation Strategies</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Memory allocation strategies determine how memory is assigned to processes. The two main approaches are contiguous and non-contiguous allocation, each with its own advantages and disadvantages.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">🔗</div>
+                        <div class="feature-content">
+                            <h3>Contiguous Allocation</h3>
+                            <p>Allocates a single contiguous block of memory to a process</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔀</div>
+                        <div class="feature-content">
+                            <h3>Non-contiguous Allocation</h3>
+                            <p>Allocates memory to a process in multiple non-contiguous blocks</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">📊</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contiguous Allocation Section -->
+    <section class="section contiguous" id="contiguous">
+        <div class="container">
+            <h2 class="section-title fade-in">Contiguous Allocation</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Contiguous allocation assigns a single contiguous block of memory to a process. This approach is simple to implement but can lead to fragmentation issues.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">💡</div>
+                        <div class="feature-content">
+                            <h3>Concept</h3>
+                            <p>Allocates a contiguous block of memory to a process. Typically used in systems with fixed-size partitions or with dynamic partitioning where a large enough contiguous block is available.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔧</div>
+                        <div class="feature-content">
+                            <h3>Implementation</h3>
+                            <p>Requires finding a memory block large enough to accommodate the entire process. Memory manager keeps track of free and allocated blocks.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="comparison fade-in">
+                    <div class="comparison-item">
+                        <h3>Advantages</h3>
+                        <ul>
+                            <li>Simple implementation</li>
+                            <li>Minimal overhead</li>
+                            <li>Fast access to memory locations</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-item">
+                        <h3>Disadvantages</h3>
+                        <ul>
+                            <li>Can lead to external fragmentation</li>
+                            <li>May not find large enough contiguous blocks</li>
+                            <li>Memory utilization can be inefficient</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="diagram-container fade-in">
+                    <h3>Contiguous Memory Allocation</h3>
+                    <div class="memory-blocks">
+                        <div class="memory-block used">Process 1</div>
+                        <div class="memory-block used">Process 2</div>
+                        <div class="memory-block free">Free</div>
+                        <div class="memory-block used">Process 3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Non-contiguous Allocation Section -->
+    <section class="section non-contiguous" id="non-contiguous">
+        <div class="container">
+            <h2 class="section-title fade-in">Non-contiguous Allocation</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Non-contiguous allocation allows a process to be divided into multiple parts that can be placed in non-contiguous memory locations. This approach reduces fragmentation but requires more complex management.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">💡</div>
+                        <div class="feature-content">
+                            <h3>Concept</h3>
+                            <p>Allocates memory to a process in non-contiguous blocks. Includes paging and segmentation techniques.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔧</div>
+                        <div class="feature-content">
+                            <h3>Implementation</h3>
+                            <p>Requires paging or segmentation hardware support. Uses page tables or segment tables to keep track of memory locations.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="comparison fade-in">
+                    <div class="comparison-item">
+                        <h3>Advantages</h3>
+                        <ul>
+                            <li>Reduces external fragmentation</li>
+                            <li>Allows efficient memory usage</li>
+                            <li>Supports larger processes with fragmented memory</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-item">
+                        <h3>Disadvantages</h3>
+                        <ul>
+                            <li>Requires more complex management</li>
+                            <li>Additional overhead for page/segment tables</li>
+                            <li>Slower access due to address translation</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="diagram-container fade-in">
+                    <h3>Non-contiguous Memory Allocation</h3>
+                    <div class="memory-blocks">
+                        <div class="memory-block used">P1 Part 1</div>
+                        <div class="memory-block used">P2 Part 1</div>
+                        <div class="memory-block used">P1 Part 2</div>
+                        <div class="memory-block used">P3 Part 1</div>
+                        <div class="memory-block used">P2 Part 2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fragmentation Section -->
+    <section class="section fragmentation" id="fragmentation">
+        <div class="container">
+            <h2 class="section-title fade-in">Fragmentation Types and Management</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Fragmentation in memory management refers to the inefficient use of memory space, resulting in wastage or fragmentation of available memory. There are two main types of fragmentation: internal fragmentation and external fragmentation, each requiring specific management techniques.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">📦</div>
+                        <div class="feature-content">
+                            <h3>Internal Fragmentation</h3>
+                            <p>Occurs when allocated memory space is larger than what is actually needed by the process</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🧩</div>
+                        <div class="feature-content">
+                            <h3>External Fragmentation</h3>
+                            <p>Occurs when there is enough total memory space to satisfy a request, but it is fragmented into small, non-contiguous blocks</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🧩</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Internal Fragmentation Section -->
+    <section class="section internal" id="internal">
+        <div class="container">
+            <h2 class="section-title fade-in">Internal Fragmentation</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Internal fragmentation occurs when allocated memory space is larger than what is actually needed by the process. This results in wasted space within allocated memory blocks.
+                </p>
+                
+                <div class="diagram-container fade-in">
+                    <h3>Internal Fragmentation Example</h3>
+                    <div class="memory-blocks">
+                        <div class="memory-block used" style="position: relative;">
+                            Process Data
+                            <div style="position: absolute; bottom: 5px; right: 5px; font-size: 0.8rem; color: #ffcccc;">
+                                Wasted Space
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Internal Fragmentation Causes Section -->
+    <section class="section internal-causes" id="internal-causes">
+        <div class="container">
+            <h2 class="section-title fade-in">Causes of Internal Fragmentation</h2>
+            
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">📏</div>
+                        <div class="feature-content">
+                            <h3>Fixed-size Allocation</h3>
+                            <p>When memory is allocated in fixed-size blocks and a process does not fully utilize the entire block. For example, if a process needs 1KB but is allocated a 2KB block, 1KB is wasted.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📐</div>
+                        <div class="feature-content">
+                            <h3>Variable-size Allocation</h3>
+                            <p>When variable-sized allocations result in leftover space due to alignment requirements or memory allocation policies. Even with dynamic sizing, perfect matches are rare.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">📦</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Internal Fragmentation Management Section -->
+    <section class="section internal-management" id="internal-management">
+        <div class="container">
+            <h2 class="section-title fade-in">Internal Fragmentation Management</h2>
+            
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🎯</div>
+                        <div class="feature-content">
+                            <h3>Allocation Strategies</h3>
+                            <p>Best Fit, Worst Fit, First Fit: These allocation strategies aim to reduce internal fragmentation by matching process size closely to the available memory block size. For example, Best Fit allocates the smallest block that fits the process, minimizing leftover internal fragmentation.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Memory Compaction</h3>
+                            <p>In systems with dynamic partitioning, memory compaction involves rearranging memory contents to place all free memory together, allowing larger contiguous blocks to be allocated to processes.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="diagram-container fade-in">
+                    <h3>Allocation Strategies Comparison</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Strategy</th>
+                                <th>Description</th>
+                                <th>Effect on Fragmentation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>First Fit</td>
+                                <td>Allocates first available block that fits</td>
+                                <td>May create more fragmented memory</td>
+                            </tr>
+                            <tr>
+                                <td>Best Fit</td>
+                                <td>Allocates smallest block that fits</td>
+                                <td>Reduces internal fragmentation</td>
+                            </tr>
+                            <tr>
+                                <td>Worst Fit</td>
+                                <td>Allocates largest available block</td>
+                                <td>May create many small unusable blocks</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- External Fragmentation Section -->
+    <section class="section external" id="external">
+        <div class="container">
+            <h2 class="section-title fade-in">External Fragmentation</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    External fragmentation occurs when there is enough total memory space to satisfy a request, but it is fragmented into small, non-contiguous blocks, making it unusable for allocation.
+                </p>
+                
+                <div class="diagram-container fade-in">
+                    <h3>External Fragmentation Example</h3>
+                    <div class="memory-blocks">
+                        <div class="memory-block used">P1</div>
+                        <div class="memory-block free">Free</div>
+                        <div class="memory-block used">P2</div>
+                        <div class="memory-block free">Free</div>
+                        <div class="memory-block used">P3</div>
+                    </div>
+                    <p style="margin-top: 20px; text-align: center;">
+                        Total free memory might be sufficient, but no single contiguous block is large enough
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- External Fragmentation Causes Section -->
+    <section class="section external-causes" id="external-causes">
+        <div class="container">
+            <h2 class="section-title fade-in">Causes of External Fragmentation</h2>
+            
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Dynamic Allocation</h3>
+                            <p>Frequent allocation and deallocation of memory lead to small holes (free blocks) scattered throughout memory. As processes start and stop, memory becomes fragmented.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🗑️</div>
+                        <div class="feature-content">
+                            <h3>Memory Reclamation</h3>
+                            <p>As processes finish and free memory, the remaining memory may be fragmented into small pieces that cannot be used efficiently. The freed blocks are often smaller than new allocation requests.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🧩</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- External Fragmentation Management Section -->
+    <section class="section external-management" id="external-management">
+        <div class="container">
+            <h2 class="section-title fade-in">External Fragmentation Management</h2>
+            
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Memory Compaction</h3>
+                            <p>Similar to managing internal fragmentation, memory compaction involves rearranging memory to place all free blocks together, reducing external fragmentation and making larger contiguous blocks available for allocation.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">👯</div>
+                        <div class="feature-content">
+                            <h3>Buddy System</h3>
+                            <p>Allocates memory in powers of two sizes. When a block is freed, it checks if its buddy (adjacent free block of the same size) is also free. If so, it merges them into a larger block, reducing fragmentation.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📄</div>
+                        <div class="feature-content">
+                            <h3>Paging and Segmentation</h3>
+                            <p>Techniques used in virtual memory systems where memory is divided into fixed-size pages or variable-sized segments. Paging reduces external fragmentation by allocating memory in fixed-size pages, while segmentation allows for more flexible allocation but requires management of segment tables to handle fragmentation.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="diagram-container fade-in">
+                    <h3>Buddy System Example</h3>
+                    <div class="memory-blocks" style="justify-content: center;">
+                        <div class="memory-block free">4KB</div>
+                        <div class="memory-arrow">→</div>
+                        <div class="memory-block free">2KB</div>
+                        <div class="memory-block free">2KB</div>
+                        <div class="memory-arrow">→</div>
+                        <div class="memory-block free">1KB</div>
+                        <div class="memory-block free">1KB</div>
+                        <div class="memory-block free">1KB</div>
+                        <div class="memory-block free">1KB</div>
+                    </div>
+                    <p style="margin-top: 20px; text-align: center;">
+                        Memory is allocated in powers of two and can be split/merged as needed
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation dots functionality
+        const navDots = document.querySelectorAll('.nav-dot');
+        const sections = document.querySelectorAll('.section');
+        
+        // Update active nav dot based on scroll position
+        function updateActiveNavDot() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            sections.forEach((section, index) => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                
+                if (scrollPosition >= sectionTop - windowHeight / 2 && 
+                    scrollPosition < sectionTop + sectionHeight - windowHeight / 2) {
+                    navDots.forEach(dot => dot.classList.remove('active'));
+                    navDots[index].classList.add('active');
+                }
+            });
+        }
+        
+        // Scroll to section when nav dot is clicked
+        navDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                window.scrollTo({
+                    top: sections[index].offsetTop,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Add scroll event listener
+        window.addEventListener('scroll', updateActiveNavDot);
+        
+        // Fade-in animation on scroll
+        const fadeElements = document.querySelectorAll('.fade-in');
+        
+        function checkFade() {
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementBottom = element.getBoundingClientRect().bottom;
+                
+                if (elementTop < window.innerHeight && elementBottom > 0) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+        
+        // Initial check and add scroll event listener
+        checkFade();
+        window.addEventListener('scroll', checkFade);
+    </script>
+</body>
+</html>

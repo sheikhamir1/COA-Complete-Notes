@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Single-Organization CPU: The Sequential Processor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4cc9f0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --islamic-color: #128057;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background-color: var(--light-color);
+            overflow-x: hidden;
+        }
+
+        .slide {
+            min-height: 100vh;
+            padding: 80px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        .slide:nth-child(even) {
+            background-color: #f0f4ff;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            z-index: 2;
+        }
+
+        h1, h2, h3 {
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .intro-text {
+            font-size: 1.3rem;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 40px;
+        }
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            flex: 1;
+            min-width: 300px;
+            max-width: 350px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .card-text {
+            text-align: center;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin: 30px 0;
+        }
+
+        .feature-list li {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            position: relative;
+            font-size: 1.1rem;
+        }
+
+        .feature-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .background-decoration {
+            position: absolute;
+            z-index: 1;
+            opacity: 0.1;
+        }
+
+        .bg-circle {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: var(--primary-color);
+        }
+
+        .bg-square {
+            width: 200px;
+            height: 200px;
+            background: var(--accent-color);
+            transform: rotate(45deg);
+        }
+
+        .top-left {
+            top: -100px;
+            left: -100px;
+        }
+
+        .bottom-right {
+            bottom: -100px;
+            right: -100px;
+        }
+
+        .navigation {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(67, 97, 238, 0.3);
+            margin: 15px 0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: var(--primary-color);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--dark-color);
+            font-size: 0.9rem;
+        }
+
+        .cartoon-bg {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background-image: url('https://picsum.photos/seed/single-cpu/300/300.jpg');
+            background-size: cover;
+            opacity: 0.2;
+            border-radius: 50% 0 0 0;
+            z-index: 1;
+        }
+
+        .highlight-box {
+            background: rgba(76, 201, 240, 0.1);
+            border-left: 5px solid var(--accent-color);
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .islamic-box {
+            background: rgba(18, 128, 87, 0.1);
+            border-left: 5px solid var(--islamic-color);
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .step-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            flex: 1;
+            min-width: 200px;
+            margin: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            background: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 15px;
+            font-weight: bold;
+        }
+
+        .step:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 20px;
+            right: -15px;
+            width: 30px;
+            height: 2px;
+            background: var(--secondary-color);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th, .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: #f8f9ff;
+        }
+
+        .comparison-table .pros {
+            color: var(--success-color);
+        }
+
+        .comparison-table .cons {
+            color: var(--danger-color);
+        }
+
+        .cpu-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 40px 0;
+        }
+
+        .cpu-block {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin: 20px 0;
+        }
+
+        .cpu-block h3 {
+            color: white;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .sub-blocks {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .sub-block {
+            background: var(--secondary-color);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            width: 30%;
+            text-align: center;
+            font-size: 0.9rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sub-block.active {
+            background: var(--accent-color);
+            color: var(--dark-color);
+            transform: scale(1.05);
+        }
+
+        .arrow {
+            width: 2px;
+            height: 40px;
+            background: var(--secondary-color);
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .arrow::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: -4px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 10px solid var(--secondary-color);
+        }
+
+        .example-chip {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chip-icon {
+            font-size: 3rem;
+            margin-right: 20px;
+            color: var(--primary-color);
+        }
+
+        .chip-info h4 {
+            font-size: 1.3rem;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+
+        .chip-info p {
+            margin-bottom: 0;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-table th, .summary-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .summary-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .summary-table tr:nth-child(even) {
+            background-color: #f8f9ff;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .card-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .step:not(:last-child)::after {
+                display: none;
+            }
+
+            .comparison-table, .summary-table {
+                font-size: 0.9rem;
+            }
+
+            .example-chip {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .chip-icon {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="navigation">
+        <div class="nav-dot active" onclick="scrollToSlide(0)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(1)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(2)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(3)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(4)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(5)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(6)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(7)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(8)"></div>
+    </div>
+
+    <!-- Slide 1: Big Picture -->
+    <div class="slide" id="slide-0">
+        <div class="background-decoration bg-circle top-left"></div>
+        <div class="background-decoration bg-square bottom-right"></div>
+        <div class="cartoon-bg"></div>
+        
+        <div class="container">
+            <h1>Single-Organization CPU: The Sequential Processor 🛣️</h1>
+            <p class="intro-text">
+                Single organization means a CPU executes one instruction at a time, start to finish, before beginning the next.
+                Think of it as a one-lane road: fetch → decode → execute → store all happen in strict order, and nothing else enters the lane until the current car (instruction) exits.
+            </p>
+            
+            <div class="highlight-box">
+                <h3>What is a Single-Organization CPU?</h3>
+                <p>
+                    This is the opposite of pipelined or superscalar CPUs, where multiple instructions overlap in different stages (many lanes, many cars). 
+                    In a single-organization design, each instruction completes fully before the next one begins.
+                </p>
+            </div>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">🔄</div>
+                    <h3 class="card-title">Sequential Processing</h3>
+                    <p class="card-text">
+                        Instructions are executed one after another in a strict sequence.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">⏱️</div>
+                    <h3 class="card-title">Predictable Timing</h3>
+                    <p class="card-text">
+                        Each instruction takes a known number of cycles to complete.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🛠️</div>
+                    <h3 class="card-title">Simple Design</h3>
+                    <p class="card-text">
+                        Less complex than pipelined or superscalar architectures.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Key Components -->
+    <div class="slide" id="slide-1">
+        <div class="background-decoration bg-square top-left"></div>
+        <div class="background-decoration bg-circle bottom-right"></div>
+        
+        <div class="container">
+            <h2>Key Components in a Single-Organization CPU 🔧</h2>
+            <p class="intro-text">
+                A single-organization CPU consists of several essential components that work together to execute instructions sequentially.
+            </p>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">🎮</div>
+                    <h3 class="card-title">Control Unit (CU)</h3>
+                    <p class="card-text">
+                        Directs the instruction cycle step by step. It's the "brain" that controls the entire process.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">📋</div>
+                    <h3 class="card-title">Registers</h3>
+                    <p class="card-text">
+                        Program Counter (PC), Instruction Register (IR), and a small set of general-purpose registers to hold operands and results.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🧮</div>
+                    <h3 class="card-title">Arithmetic Logic Unit (ALU)</h3>
+                    <p class="card-text">
+                        Performs arithmetic/logic operations like addition, subtraction, and logical operations.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🚌</div>
+                    <h3 class="card-title">Internal Buses</h3>
+                    <p class="card-text">
+                        Move data between the above blocks and the memory interface, acting as the CPU's internal transportation system.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Operation Cycle -->
+    <div class="slide" id="slide-2">
+        <div class="background-decoration bg-circle top-left"></div>
+        <div class="background-decoration bg-square bottom-right"></div>
+        <div class="cartoon-bg"></div>
+        
+        <div class="container">
+            <h2>Operation Cycle 🔄</h2>
+            <p class="intro-text">
+                In a single-organization CPU, each instruction goes through a strict sequence of stages, with each stage completing before the next begins.
+            </p>
+            
+            <div class="step-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Fetch</h3>
+                    <p>CU places the PC address on the address bus, memory returns the instruction to the IR.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Decode</h3>
+                    <p>CU decodes opcode and decides which ALU operation or data move is required.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Execute</h3>
+                    <p>ALU performs the operation using operands from registers or memory.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Store</h3>
+                    <p>Results go back to a register or main memory.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <h3>Increment PC</h3>
+                    <p>CU readies the next instruction.</p>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>Sequential Execution</h3>
+                <p>
+                    Each stage completes before the next instruction starts—no overlap. This is the defining characteristic of single-organization CPUs.
+                </p>
+            </div>
+            
+            <div class="cpu-diagram">
+                <div class="cpu-block">
+                    <h3>Instruction 1</h3>
+                    <div class="sub-blocks">
+                        <div class="sub-block">Fetch</div>
+                        <div class="sub-block">Decode</div>
+                        <div class="sub-block">Execute</div>
+                    </div>
+                </div>
+                <div class="arrow"></div>
+                <div class="cpu-block">
+                    <h3>Instruction 2</h3>
+                    <div class="sub-blocks">
+                        <div class="sub-block">Fetch</div>
+                        <div class="sub-block">Decode</div>
+                        <div class="sub-block">Execute</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Advantages -->
+    <div class="slide" id="slide-3">
+        <div class="background-decoration bg-square top-left"></div>
+        <div class="background-decoration bg-circle bottom-right"></div>
+        
+        <div class="container">
+            <h2>Advantages ✅</h2>
+            <p class="intro-text">
+                Single-organization CPUs offer several benefits that make them suitable for specific applications.
+            </p>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">🧩</div>
+                    <h3 class="card-title">Simplicity</h3>
+                    <p class="card-text">
+                        Straightforward design and easy to verify. The lack of complex overlapping operations makes the design process much simpler.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">⏱️</div>
+                    <h3 class="card-title">Predictable Timing</h3>
+                    <p class="card-text">
+                        Helpful for embedded control where deterministic response matters. Each instruction takes a known number of cycles.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🔋</div>
+                    <h3 class="card-title">Lower Power & Cost</h3>
+                    <p class="card-text">
+                        Fewer pipeline registers and control logic mean lower power consumption and manufacturing costs.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="comparison-table">
+                <table width="100%">
+                    <tr>
+                        <th>Advantage</th>
+                        <th>Impact</th>
+                    </tr>
+                    <tr>
+                        <td class="pros">Design Simplicity</td>
+                        <td>Easier to design, verify, and manufacture</td>
+                    </tr>
+                    <tr>
+                        <td class="pros">Deterministic Behavior</td>
+                        <td>Predictable execution time for real-time systems</td>
+                    </tr>
+                    <tr>
+                        <td class="pros">Resource Efficiency</td>
+                        <td>Lower transistor count, power consumption, and cost</td>
+                    </tr>
+                    <tr>
+                        <td class="pros">Reliability</td>
+                        <td>Less complex design means fewer potential failure points</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Disadvantages -->
+    <div class="slide" id="slide-4">
+        <div class="background-decoration bg-circle top-left"></div>
+        <div class="background-decoration bg-square bottom-right"></div>
+        <div class="cartoon-bg"></div>
+        
+        <div class="container">
+            <h2>Disadvantages ⚠️</h2>
+            <p class="intro-text">
+                Despite their simplicity, single-organization CPUs have significant limitations compared to more advanced architectures.
+            </p>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">📉</div>
+                    <h3 class="card-title">Lower Throughput</h3>
+                    <p class="card-text">
+                        Only one instruction in flight at a time. This severely limits the number of instructions that can be processed per second.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">📏</div>
+                    <h3 class="card-title">Limited Scalability</h3>
+                    <p class="card-text">
+                        Cannot exploit instruction-level parallelism. This makes it difficult to increase performance without increasing clock speed.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="comparison-table">
+                <table width="100%">
+                    <tr>
+                        <th>Disadvantage</th>
+                        <th>Impact</th>
+                    </tr>
+                    <tr>
+                        <td class="cons">Performance Bottleneck</td>
+                        <td>Cannot match the throughput of pipelined or superscalar designs</td>
+                    </tr>
+                    <tr>
+                        <td class="cons">Resource Underutilization</td>
+                        <td>CPU components often sit idle while waiting for other stages to complete</td>
+                    </tr>
+                    <tr>
+                        <td class="cons">Clock Speed Limitations</td>
+                        <td>Performance gains require higher clock speeds, which increases power consumption</td>
+                    </tr>
+                    <tr>
+                        <td class="cons">Unsuitable for Complex Workloads</td>
+                        <td>Struggles with applications that require high computational throughput</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Real-World Examples -->
+    <div class="slide" id="slide-5">
+        <div class="background-decoration bg-square top-left"></div>
+        <div class="background-decoration bg-circle bottom-right"></div>
+        
+        <div class="container">
+            <h2>Real-World Examples 🖥️</h2>
+            <p class="intro-text">
+                Single-organization CPUs have been used in both historic systems and continue to be relevant in modern embedded applications.
+            </p>
+            
+            <h3>Historic CPUs</h3>
+            
+            <div class="example-chip">
+                <div class="chip-icon">
+                    <i class="fas fa-microchip"></i>
+                </div>
+                <div class="chip-info">
+                    <h4>Intel 8080 (1974)</h4>
+                    <p>Heart of the Altair 8800, the first commercial personal computer. It fetched, decoded, and executed instructions strictly one at a time.</p>
+                </div>
+            </div>
+            
+            <div class="example-chip">
+                <div class="chip-icon">
+                    <i class="fas fa-microchip"></i>
+                </div>
+                <div class="chip-info">
+                    <h4>Motorola 6800</h4>
+                    <p>Used in early automotive controllers and arcade games like the original "Space Invaders." These chips ran at a few megahertz and powered early PCs, calculators, and appliances.</p>
+                </div>
+            </div>
+            
+            <h3>Modern Embedded Use</h3>
+            
+            <div class="example-chip">
+                <div class="chip-icon">
+                    <i class="fas fa-microchip"></i>
+                </div>
+                <div class="chip-info">
+                    <h4>Atmel AVR ATmega328P</h4>
+                    <p>Popular in Arduino Uno boards, it internally uses a simple single-cycle fetch/execute design without deep pipelining.</p>
+                </div>
+            </div>
+            
+            <div class="example-chip">
+                <div class="chip-icon">
+                    <i class="fas fa-microchip"></i>
+                </div>
+                <div class="chip-info">
+                    <h4>8-bit PIC Microcontrollers</h4>
+                    <p>From Microchip, these keep a single-organization style for deterministic timing in industrial and automotive controls.</p>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>Where They Excel Today</h3>
+                <p>
+                    In environments like washing machines, thermostats, and medical pumps, predictable response and low cost matter more than raw speed.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Simple Processor Architecture -->
+    <div class="slide" id="slide-6">
+        <div class="background-decoration bg-circle top-left"></div>
+        <div class="background-decoration bg-square bottom-right"></div>
+        <div class="cartoon-bg"></div>
+        
+        <div class="container">
+            <h2>Simple Processor Architecture in Practice 🏗️</h2>
+            <p class="intro-text">
+                A "simple processor" usually means a minimal CPU built around the single-organization idea.
+            </p>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">🔍</div>
+                    <h3 class="card-title">Instruction Fetch/Decode Unit</h3>
+                    <p class="card-text">
+                        Grabs and decodes instructions from memory.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">⚙️</div>
+                    <h3 class="card-title">Execution Unit</h3>
+                    <p class="card-text">
+                        ALU + CU that performs math/logic and controls sequencing.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">📝</div>
+                    <h3 class="card-title">Registers</h3>
+                    <p class="card-text">
+                        PC, IR, and a few general-purpose registers.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🔌</div>
+                    <h3 class="card-title">Memory Interface</h3>
+                    <p class="card-text">
+                        Address bus + data bus for communication with memory.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>Operation Example</h3>
+                <p>
+                    Suppose an instruction ADD R1,R2 is at memory location 0x200.
+                </p>
+                <ul class="feature-list">
+                    <li><strong>Fetch:</strong> PC=0x200 → IR gets ADD R1,R2.</li>
+                    <li><strong>Decode:</strong> CU sees opcode for ADD.</li>
+                    <li><strong>Execute:</strong> ALU adds contents of R1 and R2.</li>
+                    <li><strong>Store:</strong> Result back to R1.</li>
+                </ul>
+                <p>All these steps happen strictly one after the other in a fixed number of cycles.</p>
+            </div>
+            
+            <div class="comparison-table">
+                <table width="100%">
+                    <tr>
+                        <th>Advantage of Simple Architecture</th>
+                        <th>Application</th>
+                    </tr>
+                    <tr>
+                        <td class="pros">Easy to teach and prototype</td>
+                        <td>Used in university courses and FPGA hobby projects</td>
+                    </tr>
+                    <tr>
+                        <td class="pros">Low transistor count</td>
+                        <td>Low cost and power for microcontrollers and IoT devices</td>
+                    </tr>
+                    <tr>
+                        <td class="pros">Deterministic behavior</td>
+                        <td>Well suited to sensors and industrial controls</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Islamic Reflection -->
+    <div class="slide" id="slide-7">
+        <div class="background-decoration bg-square top-left"></div>
+        <div class="background-decoration bg-circle bottom-right"></div>
+        
+        <div class="container">
+            
+          
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">📏</div>
+                    <h3 class="card-title">Order in Creation</h3>
+                    <p class="card-text">
+                        The sequential execution in CPUs mirrors the divine order in creation, where everything follows a precise measure and proportion.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🔄</div>
+                    <h3 class="card-title">Consistency in Action</h3>
+                    <p class="card-text">
+                        The reliability of single-organization CPUs reflects the Islamic value of consistency in worship and daily actions.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🎯</div>
+                    <h3 class="card-title">Purposeful Design</h3>
+                    <p class="card-text">
+                        Just as each instruction in a CPU has a specific purpose, Islamic teachings emphasize that every creation has a designated purpose.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>Reflection</h3>
+                <p>
+                    In our fast-paced world that often values speed above all, the single-organization CPU reminds us of the wisdom in measured, sequential progress. 
+                    It teaches us that reliability and predictability can be more valuable than raw speed in many aspects of life.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Quick Summary Table -->
+    <div class="slide" id="slide-8">
+        <div class="background-decoration bg-circle top-left"></div>
+        <div class="background-decoration bg-square bottom-right"></div>
+        <div class="cartoon-bg"></div>
+        
+        <div class="container">
+            <h2>Quick Summary Table 📊</h2>
+            <p class="intro-text">
+                A comprehensive overview of single-organization CPUs and their key characteristics.
+            </p>
+            
+            <div class="summary-table">
+                <table width="100%">
+                    <tr>
+                        <th>Feature</th>
+                        <th>Single-Organization CPU</th>
+                    </tr>
+                    <tr>
+                        <td>Instruction Handling</td>
+                        <td>One at a time, sequential</td>
+                    </tr>
+                    <tr>
+                        <td>Key Components</td>
+                        <td>CU, ALU, registers, buses</td>
+                    </tr>
+                    <tr>
+                        <td>Complexity</td>
+                        <td>Low</td>
+                    </tr>
+                    <tr>
+                        <td>Speed/Throughput</td>
+                        <td>Lower than pipelined</td>
+                    </tr>
+                    <tr>
+                        <td>Typical Uses</td>
+                        <td>Early PCs, microcontrollers, simple controllers</td>
+                    </tr>
+                    <tr>
+                        <td>Real Examples</td>
+                        <td>Intel 8080, Motorola 6800, Atmel AVR ATmega328P</td>
+                    </tr>
+                    <tr>
+                        <td>Power Consumption</td>
+                        <td>Low</td>
+                    </tr>
+                    <tr>
+                        <td>Design Complexity</td>
+                        <td>Simple</td>
+                    </tr>
+                    <tr>
+                        <td>Best Suited For</td>
+                        <td>Embedded systems, real-time controls, educational purposes</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>Final Thoughts</h3>
+                <p>
+                    While single-organization CPUs may not offer the raw performance of modern pipelined or superscalar processors, 
+                    their simplicity, predictability, and efficiency ensure they remain relevant in specific applications where these qualities are paramount.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Created with ❤️ for educational purposes | Single-Organization CPU</p>
+    </div>
+
+    <script>
+        // Function to scroll to a specific slide
+        function scrollToSlide(slideIndex) {
+            const slide = document.getElementById(`slide-${slideIndex}`);
+            slide.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update navigation dots based on scroll position
+        window.addEventListener('scroll', () => {
+            const slides = document.querySelectorAll('.slide');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let currentSlide = 0;
+            
+            slides.forEach((slide, index) => {
+                const rect = slide.getBoundingClientRect();
+                if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+                    currentSlide = index;
+                }
+            });
+            
+            navDots.forEach((dot, index) => {
+                if (index === currentSlide) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        });
+
+        // Add smooth scrolling for better user experience
+        document.documentElement.style.scrollBehavior = 'smooth';
+    </script>
+</body>
+</html>

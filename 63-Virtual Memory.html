@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Memory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/virtual-memory/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .virtual-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .concepts { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .address-space { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .demand-paging { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .page-faults { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .page-tables { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .memory-protection { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .benefits { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .implementation { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+        .paging { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 152, 80, 0.7)); }
+        .segmentation { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .comparison { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .combined { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Chart Styles */
+        .chart-container {
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .virtual-memory-diagram {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .memory-box {
+            width: 200px;
+            height: 250px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+        }
+        .memory-box h3 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        .memory-box .emoji {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .memory-arrow {
+            font-size: 3rem;
+            margin: 0 20px;
+        }
+        .flow-chart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .flow-step {
+            width: 80%;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+        }
+        .flow-step::after {
+            content: "↓";
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        .flow-step:last-child::after {
+            display: none;
+        }
+        .comparison-table {
+            width: 100%;
+            margin-top: 30px;
+        }
+        .comparison-table th {
+            background: rgba(255, 255, 255, 0.3);
+            font-size: 1.1rem;
+        }
+        .comparison-table td {
+            vertical-align: top;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+            .memory-arrow {
+                display: none;
+            }
+            .virtual-memory-diagram {
+                flex-direction: column;
+            }
+            .memory-box {
+                margin: 20px 0;
+                width: 100%;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <section class="header">
+        <div class="container">
+            <div class="virtual-character">🧠</div>
+            <h1>Virtual Memory</h1>
+            <p>A memory management technique that provides the illusion of larger memory space than physically available</p>
+            <div class="scroll-indicator">↓</div>
+        </div>
+    </section>
+
+    <!-- Navigation -->
+    <div class="nav">
+        <div class="nav-dot" data-section="intro"></div>
+        <div class="nav-dot" data-section="concepts"></div>
+        <div class="nav-dot" data-section="address-space"></div>
+        <div class="nav-dot" data-section="demand-paging"></div>
+        <div class="nav-dot" data-section="page-faults"></div>
+        <div class="nav-dot" data-section="page-tables"></div>
+        <div class="nav-dot" data-section="memory-protection"></div>
+        <div class="nav-dot" data-section="benefits"></div>
+        <div class="nav-dot" data-section="implementation"></div>
+        <div class="nav-dot" data-section="paging"></div>
+        <div class="nav-dot" data-section="segmentation"></div>
+        <div class="nav-dot" data-section="comparison"></div>
+        <div class="nav-dot" data-section="combined"></div>
+    </div>
+
+    <!-- Introduction Section -->
+    <section class="section intro" id="intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to Virtual Memory</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Virtual memory is a memory management technique used by operating systems to provide the illusion of a larger and contiguous memory space than physically available in the main memory (RAM). It allows programs to operate as if they have access to a large, continuous block of memory, even though physical memory may be limited or fragmented.
+                </p>
+                
+                <div class="virtual-memory-diagram fade-in">
+                    <div class="memory-box">
+                        <div class="emoji">📱</div>
+                        <h3>Application</h3>
+                        <p>Sees a large, contiguous virtual address space</p>
+                    </div>
+                    <div class="memory-arrow">→</div>
+                    <div class="memory-box">
+                        <div class="emoji">🧠</div>
+                        <h3>Virtual Memory</h3>
+                        <p>Maps virtual addresses to physical addresses</p>
+                    </div>
+                    <div class="memory-arrow">→</div>
+                    <div class="memory-box">
+                        <div class="emoji">💾</div>
+                        <h3>Physical Memory</h3>
+                        <p>Actual RAM installed in the system</p>
+                    </div>
+                </div>
+                
+                <p style="font-size: 1.1rem; text-align: center; font-style: italic; margin-top: 20px;">
+                    Virtual memory creates the illusion of more memory than physically exists
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Concepts Section -->
+    <section class="section concepts" id="concepts">
+        <div class="container">
+            <h2 class="section-title fade-in">Key Concepts and Functionality</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Virtual memory relies on several key concepts to function effectively:
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">📍</div>
+                        <div class="feature-content">
+                            <h3>Address Space</h3>
+                            <p>Extends the address space visible to a program beyond actual physical memory</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📄</div>
+                        <div class="feature-content">
+                            <h3>Demand Paging</h3>
+                            <p>Loads portions of a program only when actively needed</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⚠️</div>
+                        <div class="feature-content">
+                            <h3>Page Faults</h3>
+                            <p>Occurs when accessed memory is not in main memory</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📋</div>
+                        <div class="feature-content">
+                            <h3>Page Tables</h3>
+                            <p>Maps virtual addresses to physical addresses</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔒</div>
+                        <div class="feature-content">
+                            <h3>Memory Protection</h3>
+                            <p>Isolates memory space of different processes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Address Space Section -->
+    <section class="section address-space" id="address-space">
+        <div class="container">
+            <h2 class="section-title fade-in">Address Space</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Virtual memory extends the address space visible to a program beyond the actual physical memory installed on the computer. Each program sees a virtual address space that starts from zero and goes up to the maximum addressable limit, defined by the architecture and operating system.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">🔍</div>
+                        <div class="feature-content">
+                            <h3>Virtual Address Space</h3>
+                            <p>The range of virtual addresses that a process can use. Typically much larger than physical memory.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Address Translation</h3>
+                            <p>The process of converting virtual addresses to physical addresses using page tables.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📏</div>
+                        <div class="feature-content">
+                            <h3>Contiguous Appearance</h3>
+                            <p>Programs see a contiguous block of memory even if physical memory is fragmented.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">📍</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demand Paging Section -->
+    <section class="section demand-paging" id="demand-paging">
+        <div class="container">
+            <h2 class="section-title fade-in">Demand Paging</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Virtual memory uses demand paging, a strategy where portions of a program's code and data are loaded into the main memory only when they are actively needed. This minimizes the amount of physical memory required to run programs and optimizes the usage of available resources.
+                </p>
+                
+                <div class="flow-chart fade-in">
+                    <div class="flow-step">
+                        <h3>Program Execution</h3>
+                        <p>Program attempts to access memory</p>
+                    </div>
+                    <div class="flow-step">
+                        <h3>Page Check</h3>
+                        <p>System checks if required page is in memory</p>
+                    </div>
+                    <div class="flow-step">
+                        <h3>Page Load (if needed)</h3>
+                        <p>If not in memory, load from disk</p>
+                    </div>
+                    <div class="flow-step">
+                        <h3>Execution Continues</h3>
+                        <p>Program resumes with required data</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">📄</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Page Faults Section -->
+    <section class="section page-faults" id="page-faults">
+        <div class="container">
+            <h2 class="section-title fade-in">Page Faults</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    When a program accesses a portion of memory that is not currently in the main memory but resides in the virtual memory, a page fault occurs. The operating system then retrieves the required data from the secondary storage (usually the hard disk) into the main memory and updates the page tables to reflect this mapping.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">⚠️</div>
+                        <div class="feature-content">
+                            <h3>Detection</h3>
+                            <p>Hardware detects that a required page is not in physical memory</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>OS Intervention</h3>
+                            <p>Operating system takes control to handle the page fault</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">💾</div>
+                        <div class="feature-content">
+                            <h3>Page Retrieval</h3>
+                            <p>Required page is loaded from secondary storage</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📋</div>
+                        <div class="feature-content">
+                            <h3>Table Update</h3>
+                            <p>Page tables are updated to reflect the new mapping</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">⚠️</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Page Tables Section -->
+    <section class="section page-tables" id="page-tables">
+        <div class="container">
+            <h2 class="section-title fade-in">Page Tables</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Virtual memory relies on page tables to manage the mapping between virtual addresses used by programs and physical addresses in the main memory. These tables store information about which pages of memory are currently resident in physical memory and facilitate quick lookups during address translation.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">📋</div>
+                        <div class="feature-content">
+                            <h3>Structure</h3>
+                            <p>Page tables are data structures that map virtual page numbers to physical frame numbers</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔍</div>
+                        <div class="feature-content">
+                            <h3>Lookup Process</h3>
+                            <p>During address translation, the CPU uses the page table to find the physical location</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📊</div>
+                        <div class="feature-content">
+                            <h3>Multi-level Tables</h3>
+                            <p>Large systems use hierarchical page tables to reduce memory overhead</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">📋</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Memory Protection Section -->
+    <section class="section memory-protection" id="memory-protection">
+        <div class="container">
+            <h2 class="section-title fade-in">Memory Protection</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Virtual memory systems provide memory protection mechanisms to isolate and protect the memory space of different processes from unauthorized access. This ensures that each program operates within its designated memory boundaries, enhancing system security and stability.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">🔒</div>
+                        <div class="feature-content">
+                            <h3>Access Control</h3>
+                            <p>Page tables include permission bits that control read, write, and execute access</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🚫</div>
+                        <div class="feature-content">
+                            <h3>Isolation</h3>
+                            <p>Prevents one process from accessing another's memory without authorization</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🛡️</div>
+                        <div class="feature-content">
+                            <h3>Security</h3>
+                            <p>Protects system memory and critical data from malicious or accidental modification</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔒</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="section benefits" id="benefits">
+        <div class="container">
+            <h2 class="section-title fade-in">Benefits of Virtual Memory</h2>
+            
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Efficient Memory Management</h3>
+                            <p>Allows efficient utilization of physical memory by dynamically swapping data between main memory and secondary storage as needed, optimizing overall system performance.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📈</div>
+                        <div class="feature-content">
+                            <h3>Support for Large Applications</h3>
+                            <p>Enables the execution of large applications that require more memory than available physical RAM, enhancing the capabilities of modern software systems.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">💻</div>
+                        <div class="feature-content">
+                            <h3>Simplified Programming</h3>
+                            <p>Programmers can write code without worrying about physical memory limitations, as the operating system manages memory allocation and paging transparently.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">✅</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Implementation Section -->
+    <section class="section implementation" id="implementation">
+        <div class="container">
+            <h2 class="section-title fade-in">Implementation and Considerations</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Virtual memory is implemented by the operating system using a combination of hardware support (such as memory management units in CPUs) and software algorithms (like page replacement policies). Efficient management of virtual memory requires balancing factors such as page size, page replacement algorithms (e.g., LRU - Least Recently Used), and disk I/O performance to minimize overhead and maximize system responsiveness.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">🔧</div>
+                        <div class="feature-content">
+                            <h3>Hardware Support</h3>
+                            <p>Memory Management Units (MMUs) in CPUs handle address translation and page fault detection</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Page Replacement</h3>
+                            <p>Algorithms like LRU, FIFO, and Clock determine which pages to evict when memory is full</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">💿</div>
+                        <div class="feature-content">
+                            <h3>Disk I/O Optimization</h3>
+                            <p>Efficient disk access patterns and caching strategies to minimize page load times</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">⚙️</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Paging Section -->
+    <section class="section paging" id="paging">
+        <div class="container">
+            <h2 class="section-title fade-in">Paging</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Paging divides physical memory into fixed-size blocks called pages and logical memory into blocks of the same size called frames. Pages are the unit of data transfer between secondary storage and main memory.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">📋</div>
+                        <div class="feature-content">
+                            <h3>Page Table</h3>
+                            <p>Each process has a page table that maps virtual pages to physical frames. The page table typically resides in main memory and is managed by the operating system. It translates virtual addresses generated by the CPU into physical addresses.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⚠️</div>
+                        <div class="feature-content">
+                            <h3>Page Fault</h3>
+                            <p>When a program references a page not currently in main memory (a page fault occurs), the operating system loads the required page from secondary storage (e.g., disk) into a free frame in main memory. This process is known as demand paging.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Page Replacement</h3>
+                            <p>If all frames are occupied and a page fault occurs, the operating system must replace a page in main memory with the required page. Various algorithms like Least Recently Used (LRU), First-In-First-Out (FIFO), and Clock are used for page replacement decisions.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">✅</div>
+                        <div class="feature-content">
+                            <h3>Benefits</h3>
+                            <p>Paging allows efficient use of physical memory by allocating memory on-demand, supports memory protection through page-level permissions, and simplifies memory allocation by using fixed-size pages.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">📄</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Segmentation Section -->
+    <section class="section segmentation" id="segmentation">
+        <div class="container">
+            <h2 class="section-title fade-in">Segmentation</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Segmentation divides a program's address space into variable-sized logical segments (such as code, data, stack) rather than fixed-size pages.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">📋</div>
+                        <div class="feature-content">
+                            <h3>Segment Table</h3>
+                            <p>Each segment is mapped to a segment table entry that stores the base address and size of the segment in main memory. The segment table is typically stored in the CPU and is indexed by a segment number obtained from the virtual address.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Address Translation</h3>
+                            <p>When a virtual address is generated by the CPU, the segment number is used to index the segment table to retrieve the base address of the segment. The offset within the segment is then added to the base address to obtain the physical address.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⚠️</div>
+                        <div class="feature-content">
+                            <h3>Segmentation Fault</h3>
+                            <p>Similar to page faults, segmentation faults occur when a program attempts to access a segment that is not present in main memory or violates memory protection rules.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">✅</div>
+                        <div class="feature-content">
+                            <h3>Benefits</h3>
+                            <p>Segmentation allows for more flexible memory allocation than paging, as segments can vary in size and type (code, data, stack). It supports modular program design and simplifies memory management by providing a hierarchical view of memory.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">📦</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Section -->
+    <section class="section comparison" id="comparison">
+        <div class="container">
+            <h2 class="section-title fade-in">Comparison: Paging vs Segmentation</h2>
+            
+            <div class="card fade-in">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Paging</th>
+                            <th>Segmentation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="register-icon">📏</span> Granularity</td>
+                            <td>Uses fixed-size pages</td>
+                            <td>Uses variable-sized segments</td>
+                        </tr>
+                        <tr>
+                            <td><span class="register-icon">🔄</span> Address Translation</td>
+                            <td>Translates virtual addresses to physical addresses using page tables</td>
+                            <td>Uses segment tables to map segments to physical memory</td>
+                        </tr>
+                        <tr>
+                            <td><span class="register-icon">🔧</span> Flexibility</td>
+                            <td>Less flexible due to fixed page sizes</td>
+                            <td>More flexible memory allocation with variable segment sizes</td>
+                        </tr>
+                        <tr>
+                            <td><span class="register-icon">🗂️</span> Fragmentation</td>
+                            <td>Can cause internal fragmentation</td>
+                            <td>Can cause external fragmentation</td>
+                        </tr>
+                        <tr>
+                            <td><span class="register-icon">📊</span> Memory View</td>
+                            <td>Linear view of memory</td>
+                            <p>Hierarchical view with logical segments</p>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">⚖️</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Combined Approach Section -->
+    <section class="section combined" id="combined">
+        <div class="container">
+            <h2 class="section-title fade-in">Combined Approach: Paging and Segmentation</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    Modern virtual memory systems often combine paging and segmentation techniques to leverage their respective advantages. This hybrid approach, known as paged segmentation or segmented paging, allows for both flexible memory allocation and efficient use of physical memory.
+                </p>
+                
+                <div class="feature-list" style="margin-top: 30px;">
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Segmented Paging</h3>
+                            <p>First divides memory into logical segments, then each segment is divided into fixed-size pages</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📊</div>
+                        <div class="feature-content">
+                            <h3>Two-Level Translation</h3>
+                            <p>Virtual address is translated using both segment table and page table</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">✅</div>
+                        <div class="feature-content">
+                            <h3>Benefits</h3>
+                            <p>Combines logical organization of segmentation with efficient memory management of paging</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 30px 0;">
+                    <div style="font-size: 6rem;">🔀</div>
+                </div>
+                
+                <p style="font-size: 1.2rem; line-height: 1.6; margin-top: 20px;">
+                    This combined approach provides the best of both worlds: the logical organization and protection benefits of segmentation, along with the efficient memory utilization and simplified allocation benefits of paging. It is widely used in modern operating systems like Windows, Linux, and macOS to provide robust and efficient memory management.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation dots functionality
+        const navDots = document.querySelectorAll('.nav-dot');
+        const sections = document.querySelectorAll('.section');
+        
+        // Update active nav dot based on scroll position
+        function updateActiveNavDot() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            sections.forEach((section, index) => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                
+                if (scrollPosition >= sectionTop - windowHeight / 2 && 
+                    scrollPosition < sectionTop + sectionHeight - windowHeight / 2) {
+                    navDots.forEach(dot => dot.classList.remove('active'));
+                    navDots[index].classList.add('active');
+                }
+            });
+        }
+        
+        // Scroll to section when nav dot is clicked
+        navDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                window.scrollTo({
+                    top: sections[index].offsetTop,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Add scroll event listener
+        window.addEventListener('scroll', updateActiveNavDot);
+        
+        // Fade-in animation on scroll
+        const fadeElements = document.querySelectorAll('.fade-in');
+        
+        function checkFade() {
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementBottom = element.getBoundingClientRect().bottom;
+                
+                if (elementTop < window.innerHeight && elementBottom > 0) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+        
+        // Initial check and add scroll event listener
+        checkFade();
+        window.addEventListener('scroll', checkFade);
+    </script>
+</body>
+</html>

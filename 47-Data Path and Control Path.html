@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Path & Control Path: The Two Halves of a CPU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4cc9f0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --islamic-color: #128057;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background-color: var(--light-color);
+            overflow-x: hidden;
+        }
+
+        .slide {
+            min-height: 100vh;
+            padding: 80px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        .slide:nth-child(even) {
+            background-color: #f0f4ff;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            z-index: 2;
+        }
+
+        h1, h2, h3 {
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .intro-text {
+            font-size: 1.3rem;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 40px;
+        }
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            flex: 1;
+            min-width: 300px;
+            max-width: 350px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .card-text {
+            text-align: center;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin: 30px 0;
+        }
+
+        .feature-list li {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            position: relative;
+            font-size: 1.1rem;
+        }
+
+        .feature-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .background-decoration {
+            position: absolute;
+            z-index: 1;
+            opacity: 0.1;
+        }
+
+        .bg-circle {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: var(--primary-color);
+        }
+
+        .bg-square {
+            width: 200px;
+            height: 200px;
+            background: var(--accent-color);
+            transform: rotate(45deg);
+        }
+
+        .top-left {
+            top: -100px;
+            left: -100px;
+        }
+
+        .bottom-right {
+            bottom: -100px;
+            right: -100px;
+        }
+
+        .navigation {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(67, 97, 238, 0.3);
+            margin: 15px 0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: var(--primary-color);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--dark-color);
+            font-size: 0.9rem;
+        }
+
+        .cartoon-bg {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background-image: url('https://picsum.photos/seed/cpu-architecture/300/300.jpg');
+            background-size: cover;
+            opacity: 0.2;
+            border-radius: 50% 0 0 0;
+            z-index: 1;
+        }
+
+        .highlight-box {
+            background: rgba(76, 201, 240, 0.1);
+            border-left: 5px solid var(--accent-color);
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .islamic-box {
+            background: rgba(18, 128, 87, 0.1);
+            border-left: 5px solid var(--islamic-color);
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .step-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            flex: 1;
+            min-width: 200px;
+            margin: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            background: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 15px;
+            font-weight: bold;
+        }
+
+        .step:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 20px;
+            right: -15px;
+            width: 30px;
+            height: 2px;
+            background: var(--secondary-color);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th, .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: #f8f9ff;
+        }
+
+        .comparison-table .pros {
+            color: var(--success-color);
+        }
+
+        .comparison-table .cons {
+            color: var(--danger-color);
+        }
+
+        .diagram {
+            width: 100%;
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .diagram-title {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .diagram-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .diagram-component {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 10px;
+            padding: 15px 25px;
+            margin: 15px 0;
+            text-align: center;
+            width: 80%;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .diagram-component.highlight {
+            background: var(--accent-color);
+            color: var(--dark-color);
+        }
+
+        .diagram-arrow {
+            width: 2px;
+            height: 40px;
+            background: var(--secondary-color);
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .diagram-arrow::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: -4px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 10px solid var(--secondary-color);
+        }
+
+        .cpu-blocks {
+            display: flex;
+            justify-content: space-between;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .cpu-block {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 45%;
+            min-width: 300px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .cpu-block-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .cpu-block h3 {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .cpu-block p {
+            text-align: center;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-table th, .summary-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .summary-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .summary-table tr:nth-child(even) {
+            background-color: #f8f9ff;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .card-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .step:not(:last-child)::after {
+                display: none;
+            }
+
+            .comparison-table, .summary-table {
+                font-size: 0.9rem;
+            }
+
+            .cpu-blocks {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .cpu-block {
+                width: 90%;
+                margin-bottom: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="navigation">
+        <div class="nav-dot active" onclick="scrollToSlide(0)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(1)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(2)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(3)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(4)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(5)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(6)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(7)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(8)"></div>
+    </div>
+
+    <!-- Slide 1: Big Picture Context -->
+    <div class="slide" id="slide-0">
+        <div class="background-decoration bg-circle top-left"></div>
+        <div class="background-decoration bg-square bottom-right"></div>
+        <div class="cartoon-bg"></div>
+        
+        <div class="container">
+            <h1>Data Path & Control Path: The Two Halves of a CPU 🧠💪</h1>
+            <p class="intro-text">
+                Within computer architecture, the CPU's internal design splits into two complementary sections: 
+                Data Path – the muscle that actually moves and transforms data, and Control Path – the brain that decides what should happen and when.
+            </p>
+            
+            <div class="highlight-box">
+                <h3>Working Together</h3>
+                <p>
+                    Together, the Data Path and Control Path execute every instruction of a program. This division sits inside 
+                    the broader field of digital design → processor architecture → CPU microarchitecture.
+                </p>
+            </div>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">💪</div>
+                    <h3 class="card-title">Data Path</h3>
+                    <p class="card-text">
+                        The "muscle" that handles the actual computation and data movement within the CPU.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🧠</div>
+                    <h3 class="card-title">Control Path</h3>
+                    <p class="card-text">
+                        The "brain" that directs operations and ensures everything happens in the correct sequence.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Prerequisites -->
+    <div class="slide" id="slide-1">
+        <div class="background-decoration bg-square top-left"></div>
+        <div class="background-decoration bg-circle bottom-right"></div>
+        
+        <div class="container">
+            <h2>Prerequisites 📚</h2>
+            <p class="intro-text">
+                Before studying Data Path and Control Path, it helps to have a foundation in several key concepts.
+            </p>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">🔌</div>
+                    <h3 class="card-title">Basic Digital Logic</h3>
+                    <p class="card-text">
+                        Understanding logic gates, flip-flops, and registers is essential as these are the building blocks of CPU components.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🔄</div>
+                    <h3 class="card-title">CPU Basics</h3>
+                    <p class="card-text">
+                        Familiarity with the fetch–decode–execute cycle and ALU operations provides context for how CPUs process instructions.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🚌</div>
+                    <h3 class="card-title">Buses and Memory</h3>
+                    <p class="card-text">
+                        Knowledge of data, address, and control lines helps understand how information moves between CPU components.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>Recommended Learning Order</h3>
+                <p>
+                    Digital Logic → CPU instruction cycle → Data Path & Control Path
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Data Path -->
+    <div class="slide" id="slide-2">
+        <div class="background-decoration bg-circle top-left"></div>
+        <div class="background-decoration bg-square bottom-right"></div>
+        <div class="cartoon-bg"></div>
+        
+        <div class="container">
+            <h2>Data Path – "Where the data travels and is processed" 🛣️</h2>
+            <p class="intro-text">
+                The Data Path handles the actual computation and data movement within the CPU. Think of it as the "factory floor" where raw materials (data) are transformed.
+            </p>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">📝</div>
+                    <h3 class="card-title">Registers</h3>
+                    <p class="card-text">
+                        <strong>General-purpose:</strong> Store operands and intermediate results.<br>
+                        <strong>Special-purpose:</strong> PC, IR, status/flag registers.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🧮</div>
+                    <h3 class="card-title">ALU</h3>
+                    <p class="card-text">
+                        Arithmetic Logic Unit performs add, subtract, AND, OR, and other operations on data.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🔌</div>
+                    <h3 class="card-title">Buses/Connections</h3>
+                    <p class="card-text">
+                        <strong>Data Bus:</strong> Moves data between memory and CPU.<br>
+                        <strong>Address Bus:</strong> Specifies memory locations.<br>
+                        <strong>Internal CPU buses:</strong> Interconnect ALU and registers.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="diagram">
+                <div class="diagram-title">Data Path Components</div>
+                <div class="diagram-content">
+                    <div class="diagram-component">
+                        <i class="fas fa-memory fa-2x"></i>
+                        <h3>Registers</h3>
+                    </div>
+                    <div class="diagram-arrow"></div>
+                    <div class="diagram-component highlight">
+                        <i class="fas fa-calculator fa-2x"></i>
+                        <h3>ALU</h3>
+                    </div>
+                    <div class="diagram-arrow"></div>
+                    <div class="diagram-component">
+                        <i class="fas fa-exchange-alt fa-2x"></i>
+                        <h3>Buses</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Control Path -->
+    <div class="slide" id="slide-3">
+        <div class="background-decoration bg-square top-left"></div>
+        <div class="background-decoration bg-circle bottom-right"></div>
+        
+        <div class="container">
+            <h2>Control Path – "Who gives the orders" 🎮</h2>
+            <p class="intro-text">
+                The Control Path directs when and how the data path operates. It's like the factory supervisor ensuring every machine works at the correct time.
+            </p>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">🎛️</div>
+                    <h3 class="card-title">Control Unit (CU)</h3>
+                    <p class="card-text">
+                        Decodes each instruction's opcode to determine what operation needs to be performed.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🔍</div>
+                    <h3 class="card-title">Instruction Decoder</h3>
+                    <p class="card-text">
+                        Understands what operation is required based on the opcode and generates appropriate control signals.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <h3 class="card-title">Control Signals</h3>
+                    <p class="card-text">
+                        Enable/disable specific data path components (e.g., "load register A," "perform ALU add," "write back to memory").
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">⏱️</div>
+                    <h3 class="card-title">Clock/Timing</h3>
+                    <p class="card-text">
+                        Ensures steps happen in the right sequence and synchronizes all CPU operations.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>Control Path in Action</h3>
+                <p>
+                    Without the control path, the data path wouldn't know when or what to do. The control path provides the necessary signals to coordinate all operations.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: How They Interact -->
+    <div class="slide" id="slide-4">
+        <div class="background-decoration bg-circle top-left"></div>
+        <div class="background-decoration bg-square bottom-right"></div>
+        <div class="cartoon-bg"></div>
+        
+        <div class="container">
+            <h2>How They Interact: Fetch–Decode–Execute Example 🔄</h2>
+            <p class="intro-text">
+                Let's see how the Data Path and Control Path work together in a simplified fetch–decode–execute cycle.
+            </p>
+            
+            <div class="step-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Fetch</h3>
+                    <p>Control path tells memory to send the instruction to the Instruction Register.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Decode</h3>
+                    <p>Control path deciphers the opcode (e.g., ADD R1,R2).</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Execute</h3>
+                    <p>Control signals direct the data path: move R1 & R2 to ALU → perform addition → store result back to R1.</p>
+                </div>
+            </div>
+            
+            <div class="cpu-blocks">
+                <div class="cpu-block">
+                    <div class="cpu-block-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <h3>Data Path</h3>
+                    <p>
+                        <strong>Components:</strong> Registers, ALU, Buses<br>
+                        <strong>Role:</strong> Performs actual operations<br>
+                        <strong>Analogy:</strong> Factory floor (machines)
+                    </p>
+                </div>
+                
+                <div class="cpu-block">
+                    <div class="cpu-block-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3>Control Path</h3>
+                    <p>
+                        <strong>Components:</strong> Control Unit, Decoder, Clock<br>
+                        <strong>Role:</strong> Directs operations<br>
+                        <strong>Analogy:</strong> Factory supervisor (management)
+                    </p>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>Symbiotic Relationship</h3>
+                <p>
+                    The Data Path and Control Path are interdependent. Without the control path, the data path would be idle hardware. 
+                    Without the data path, the control path would be commands with no workers to execute them.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Real-World Connections -->
+    <div class="slide" id="slide-5">
+        <div class="background-decoration bg-square top-left"></div>
+        <div class="background-decoration bg-circle bottom-right"></div>
+        
+        <div class="container">
+            <h2>Real-World Connections 🌐</h2>
+            <p class="intro-text">
+                The concepts of Data Path and Control Path are fundamental to understanding real-world computing systems.
+            </p>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">🔧</div>
+                    <h3 class="card-title">Microcontrollers</h3>
+                    <p class="card-text">
+                        The AVR (Arduino) or ARM Cortex-M chips have well-defined data and control paths visible in block diagrams. 
+                        These clear separations help engineers understand and optimize performance.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <h3 class="card-title">Performance Tuning</h3>
+                    <p class="card-text">
+                        CPU designers optimize the data path width (32-bit vs 64-bit) and control logic (hardwired vs microprogrammed) 
+                        to balance speed, power, and cost for specific applications.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🔬</div>
+                    <h3 class="card-title">FPGA Projects</h3>
+                    <p class="card-text">
+                        Students often implement a simple data path + control unit as a classic hardware-design assignment, 
+                        providing hands-on experience with these fundamental concepts.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>Practical Applications</h3>
+                <p>
+                    Understanding data and control paths is crucial for:
+                </p>
+                <ul class="feature-list">
+                    <li>Designing efficient processors</li>
+                    <li>Optimizing software for specific hardware</li>
+                    <li>Debugging hardware-level issues</li>
+                    <li>Creating specialized computing systems</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- Slide 8: Deeper Exploration -->
+    <div class="slide" id="slide-7">
+        <div class="background-decoration bg-square top-left"></div>
+        <div class="background-decoration bg-circle bottom-right"></div>
+        
+        <div class="container">
+            <h2>Deeper Exploration 🔍</h2>
+            <p class="intro-text">
+                The concepts of Data Path and Control Path extend into more advanced topics in computer architecture.
+            </p>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">🔧</div>
+                    <h3 class="card-title">Hardwired vs. Microprogrammed Control</h3>
+                    <p class="card-text">
+                        Different ways to build the control unit. Hardwired control uses fixed logic circuits, while microprogrammed control uses a microprogram stored in control memory.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🔄</div>
+                    <h3 class="card-title">Pipelining</h3>
+                    <p class="card-text">
+                        How control and data paths are modified to allow overlapping instructions. This improves throughput by processing multiple instructions simultaneously in different stages.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <h3 class="card-title">Superscalar and Out-of-Order Execution</h3>
+                    <p class="card-text">
+                        Advanced control logic for modern CPUs that can execute multiple instructions per cycle and reorder instructions to maximize efficiency.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>Evolution of CPU Design</h3>
+                <p>
+                    As computing needs have evolved, so too have the designs of data and control paths. From simple single-cycle processors to complex out-of-order superscalar designs, 
+                    the fundamental concepts remain the same, but their implementations have become increasingly sophisticated.
+                </p>
+            </div>
+            
+            <div class="comparison-table">
+                <table width="100%">
+                    <tr>
+                        <th>Concept</th>
+                        <th>Impact on Data Path</th>
+                        <th>Impact on Control Path</th>
+                    </tr>
+                    <tr>
+                        <td>Pipelining</td>
+                        <td>Adds pipeline registers between stages</td>
+                        <td>More complex control signals and hazard detection</td>
+                    </tr>
+                    <tr>
+                        <td>Superscalar</td>
+                        <td>Multiple execution units</td>
+                        <td>Dynamic instruction scheduling and issue logic</td>
+                    </tr>
+                    <tr>
+                        <td>Out-of-Order</td>
+                        <td>Reorder buffer and reservation stations</td>
+                        <td>Register renaming and complex dependency tracking</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Summary Table -->
+    <div class="slide" id="slide-8">
+        <div class="background-decoration bg-circle top-left"></div>
+        <div class="background-decoration bg-square bottom-right"></div>
+        <div class="cartoon-bg"></div>
+        
+        <div class="container">
+            <h2>Summary Table 📊</h2>
+            <p class="intro-text">
+                A comprehensive comparison of Data Path and Control Path in CPU architecture.
+            </p>
+            
+            <div class="summary-table">
+                <table width="100%">
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Data Path</th>
+                        <th>Control Path</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Role</strong></td>
+                        <td>Performs actual computation & data movement</td>
+                        <td>Directs operations, sequencing, and timing</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Key Components</strong></td>
+                        <td>Registers, ALU, internal buses</td>
+                        <td>Control unit, instruction decoder, clock</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Main Function</strong></td>
+                        <td>Execute arithmetic/logic, transfer data</td>
+                        <td>Generate control signals, orchestrate steps</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Analogy</strong></td>
+                        <td>Factory floor (machines)</td>
+                        <td>Factory supervisor (management)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Without the other</strong></td>
+                        <td>Idle hardware</td>
+                        <td>Commands with no workers</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Design Focus</strong></td>
+                        <td>Speed, width, efficiency</td>
+                        <td>Correctness, timing, sequencing</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Advanced Topics</strong></td>
+                        <td>Multiple execution units, pipelining</td>
+                        <td>Branch prediction, out-of-order execution</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>Final Thoughts</h3>
+                <p>
+                    The Data Path and Control Path represent a fundamental duality in computer architecture: the doer and the director. 
+                    Understanding both is essential for grasping how CPUs function at the most basic level, and this knowledge forms 
+                    the foundation for exploring more advanced topics in computer architecture and design.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Created with ❤️ for educational purposes | Data Path & Control Path in CPU Architecture</p>
+    </div>
+
+    <script>
+        // Function to scroll to a specific slide
+        function scrollToSlide(slideIndex) {
+            const slide = document.getElementById(`slide-${slideIndex}`);
+            slide.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update navigation dots based on scroll position
+        window.addEventListener('scroll', () => {
+            const slides = document.querySelectorAll('.slide');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let currentSlide = 0;
+            
+            slides.forEach((slide, index) => {
+                const rect = slide.getBoundingClientRect();
+                if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+                    currentSlide = index;
+                }
+            });
+            
+            navDots.forEach((dot, index) => {
+                if (index === currentSlide) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        });
+
+        // Add smooth scrolling for better user experience
+        document.documentElement.style.scrollBehavior = 'smooth';
+    </script>
+</body>
+</html>

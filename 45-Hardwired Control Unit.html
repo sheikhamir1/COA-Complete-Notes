@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardwired Control Unit: The Traffic Director of CPU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4cc9f0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background-color: var(--light-color);
+            overflow-x: hidden;
+        }
+
+        .slide {
+            min-height: 100vh;
+            padding: 80px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        .slide:nth-child(even) {
+            background-color: #f0f4ff;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            z-index: 2;
+        }
+
+        h1, h2, h3 {
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .intro-text {
+            font-size: 1.3rem;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 40px;
+        }
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            flex: 1;
+            min-width: 300px;
+            max-width: 350px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .card-text {
+            text-align: center;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin: 30px 0;
+        }
+
+        .feature-list li {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            position: relative;
+            font-size: 1.1rem;
+        }
+
+        .feature-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .background-decoration {
+            position: absolute;
+            z-index: 1;
+            opacity: 0.1;
+        }
+
+        .bg-circle {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: var(--primary-color);
+        }
+
+        .bg-square {
+            width: 200px;
+            height: 200px;
+            background: var(--accent-color);
+            transform: rotate(45deg);
+        }
+
+        .top-left {
+            top: -100px;
+            left: -100px;
+        }
+
+        .bottom-right {
+            bottom: -100px;
+            right: -100px;
+        }
+
+        .navigation {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(67, 97, 238, 0.3);
+            margin: 15px 0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: var(--primary-color);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--dark-color);
+            font-size: 0.9rem;
+        }
+
+        .cartoon-bg {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background-image: url('https://picsum.photos/seed/cpu-circuit/300/300.jpg');
+            background-size: cover;
+            opacity: 0.2;
+            border-radius: 50% 0 0 0;
+            z-index: 1;
+        }
+
+        .highlight-box {
+            background: rgba(76, 201, 240, 0.1);
+            border-left: 5px solid var(--accent-color);
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .step-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            flex: 1;
+            min-width: 200px;
+            margin: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            background: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 15px;
+            font-weight: bold;
+        }
+
+        .step:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 20px;
+            right: -15px;
+            width: 30px;
+            height: 2px;
+            background: var(--secondary-color);
+        }
+
+        .opcode-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .opcode-table th, .opcode-table td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .opcode-table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .opcode-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .opcode-table tr:nth-child(even) {
+            background-color: #f8f9ff;
+        }
+
+        .cpu-diagram {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0;
+            position: relative;
+        }
+
+        .cpu-block {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 550px;
+            height: 380px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .cpu-block h3 {
+            color: white;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .sub-blocks {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .sub-block {
+            background: var(--secondary-color);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            width: 30%;
+            text-align: center;
+            font-size: 0.9rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sub-block.active {
+            background: var(--accent-color);
+            color: var(--dark-color);
+            transform: scale(1.05);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th, .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: #f8f9ff;
+        }
+
+        .comparison-table .pros {
+            color: var(--success-color);
+        }
+
+        .comparison-table .cons {
+            color: var(--danger-color);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .card-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .step:not(:last-child)::after {
+                display: none;
+            }
+
+            .opcode-table, .comparison-table {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="navigation">
+        <div class="nav-dot active" onclick="scrollToSlide(0)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(1)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(2)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(3)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(4)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(5)"></div>
+    </div>
+
+    <!-- Slide 1: Big Picture -->
+    <div class="slide" id="slide-0">
+        <div class="background-decoration bg-circle top-left"></div>
+        <div class="background-decoration bg-square bottom-right"></div>
+        <div class="cartoon-bg"></div>
+        
+        <div class="container">
+            <h1>Hardwired Control Unit: The Traffic Director 🚦</h1>
+            <p class="intro-text">
+                Inside a CPU, the control unit is the traffic director. A hardwired CU is the "old-school" approach: 
+                its brain is a network of digital logic gates—nothing is programmable after fabrication.
+            </p>
+            
+            <div class="highlight-box">
+                <h3>What is a Hardwired Control Unit?</h3>
+                <p>
+                    The logic is baked into silicon so every instruction opcode instantly triggers the right set of control signals. 
+                    It's a fixed circuit designed specifically for the instruction set architecture (ISA) it implements.
+                </p>
+            </div>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">🧠</div>
+                    <h3 class="card-title">Digital Logic Gates</h3>
+                    <p class="card-text">
+                        Built from interconnected logic gates (AND, OR, NOT) that form a fixed circuit.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <h3 class="card-title">Fixed Circuitry</h3>
+                    <p class="card-text">
+                        Nothing is programmable after fabrication - the design is permanent.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🔌</div>
+                    <h3 class="card-title">Direct Opcode Mapping</h3>
+                    <p class="card-text">
+                        Each instruction opcode directly triggers the appropriate control signals.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: How It Works -->
+    <div class="slide" id="slide-1">
+        <div class="background-decoration bg-square top-left"></div>
+        <div class="background-decoration bg-circle bottom-right"></div>
+        
+        <div class="container">
+            <h2>How It Works, Step by Step 🔄</h2>
+            <p class="intro-text">
+                The hardwired control unit operates through a precise sequence of steps to execute instructions.
+            </p>
+            
+            <div class="step-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Instruction Fetch</h3>
+                    <p>The CU asserts the memory‐read line, places the program counter (PC) address on the bus, and loads the fetched instruction into the Instruction Register (IR).</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Instruction Decode</h3>
+                    <p>The opcode bits in the IR feed directly into a decoder. For a 4-bit opcode, a 4-to-16 line decoder outputs one active line for each valid instruction.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Control Signal Generation</h3>
+                    <p>Each active decoder line is wired through AND/OR gates and sometimes status bits (like Zero flag) to produce pulses that enable registers, select ALU operations, and trigger memory read/write.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Execution</h3>
+                    <p>Those signals ripple to the ALU, memory interface, and register file in synchrony with the system clock to perform the actual operation.</p>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>Combinational Logic</h3>
+                <p>Because the outputs depend only on the current inputs (opcode + status), this is classic combinational logic - there's no memory or state between operations.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Real-World Hardware Example -->
+    <div class="slide" id="slide-2">
+        <div class="background-decoration bg-circle top-left"></div>
+        <div class="background-decoration bg-square bottom-right"></div>
+        <div class="cartoon-bg"></div>
+        
+        <div class="container">
+            <h2>Real-World Hardware Examples 🖥️</h2>
+            <p class="intro-text">
+                Hardwired control units are found in many practical computing systems where performance and predictability are critical.
+            </p>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">🏗️</div>
+                    <h3 class="card-title">MIPS R2000</h3>
+                    <p class="card-text">
+                        A classic RISC processor that uses a hardwired control unit. The ADD instruction has a 6-bit opcode 000000 that instantly asserts ALU control lines for addition.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🚗</div>
+                    <h3 class="card-title">Automotive Electronics</h3>
+                    <p class="card-text">
+                        Small RISC microcontrollers in cars use hardwired CUs for deterministic timing with minimal latency in engine control units (ECUs).
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">⌚</div>
+                    <h3 class="card-title">ARM Cortex-M</h3>
+                    <p class="card-text">
+                        Found in IoT sensors, digital watches, and medical devices where ultra-low power and predictable speed trump flexibility.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>Pipeline Timing</h3>
+                <p>Each pipeline stage (fetch, decode, execute) receives clocked signals from the hardwired CU, enabling efficient parallel processing of instructions.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Advantages -->
+    <div class="slide" id="slide-3">
+        <div class="background-decoration bg-square top-left"></div>
+        <div class="background-decoration bg-circle bottom-right"></div>
+        
+        <div class="container">
+            <h2>Why People Still Love It ❤️</h2>
+            <p class="intro-text">
+                Despite being an "old-school" approach, hardwired control units offer significant advantages in specific applications.
+            </p>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">🚀</div>
+                    <h3 class="card-title">Speed Demon</h3>
+                    <p class="card-text">
+                        No microcode ROM lookup. The control signal pops out of the logic as fast as gates propagate (a few nanoseconds).
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🔋</div>
+                    <h3 class="card-title">Low Power & Area</h3>
+                    <p class="card-text">
+                        Fewer transistors than a microprogrammed CU, making it ideal for embedded devices with strict power constraints.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="comparison-table">
+                <table width="100%">
+                    <tr>
+                        <th>Advantage</th>
+                        <th>Impact</th>
+                    </tr>
+                    <tr>
+                        <td class="pros">High Performance</td>
+                        <td>Minimal latency in control signal generation</td>
+                    </tr>
+                    <tr>
+                        <td class="pros">Deterministic Timing</td>
+                        <td>Predictable execution time for critical applications</td>
+                    </tr>
+                    <tr>
+                        <td class="pros">Simplicity</td>
+                        <td>Direct mapping from opcodes to control signals</td>
+                    </tr>
+                    <tr>
+                        <td class="pros">Power Efficiency</td>
+                        <td>Lower energy consumption per instruction</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Disadvantages -->
+    <div class="slide" id="slide-4">
+        <div class="background-decoration bg-circle top-left"></div>
+        <div class="background-decoration bg-square bottom-right"></div>
+        <div class="cartoon-bg"></div>
+        
+        <div class="container">
+            <h2>But There's a Catch ⚠️</h2>
+            <p class="intro-text">
+                While hardwired control units have their strengths, they also come with significant limitations.
+            </p>
+            
+            <div class="card-container">
+                <div class="card">
+                    <div class="card-icon">🔒</div>
+                    <h3 class="card-title">Inflexibility</h3>
+                    <p class="card-text">
+                        Want a new instruction? You're redesigning silicon masks. That's expensive and time-consuming.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">🧩</div>
+                    <h3 class="card-title">Complex ISAs Are Painful</h3>
+                    <p class="card-text">
+                        A giant instruction set means mountains of gates and potential timing headaches.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="comparison-table">
+                <table width="100%">
+                    <tr>
+                        <th>Disadvantage</th>
+                        <th>Impact</th>
+                    </tr>
+                    <tr>
+                        <td class="cons">Fixed Design</td>
+                        <td>Cannot be modified or updated after fabrication</td>
+                    </tr>
+                    <tr>
+                        <td class="cons">Design Complexity</td>
+                        <td>Difficult to design and verify for complex instruction sets</td>
+                    </tr>
+                    <tr>
+                        <td class="cons">High NRE Costs</td>
+                        <td>Expensive to redesign for new instructions or bug fixes</td>
+                    </tr>
+                    <tr>
+                        <td class="cons">Scalability Issues</td>
+                        <td>Not suitable for processors with large or evolving ISAs</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Opcode Example -->
+    <div class="slide" id="slide-5">
+        <div class="background-decoration bg-square top-left"></div>
+        <div class="background-decoration bg-circle bottom-right"></div>
+        
+        <div class="container">
+            <h2>Expanded Example with Simple Opcodes 🔢</h2>
+            <p class="intro-text">
+                Let's look at how a hardwired control unit maps simple opcodes to specific control signals.
+            </p>
+            
+            <div class="opcode-table">
+                <table width="100%">
+                    <tr>
+                        <th>Instruction</th>
+                        <th>Opcode</th>
+                        <th>Main Control Lines Activated</th>
+                    </tr>
+                    <tr>
+                        <td>ADD</td>
+                        <td>0001</td>
+                        <td>ALU_ADD=1, RegWrite=1</td>
+                    </tr>
+                    <tr>
+                        <td>SUB</td>
+                        <td>0010</td>
+                        <td>ALU_SUB=1, RegWrite=1</td>
+                    </tr>
+                    <tr>
+                        <td>LOAD</td>
+                        <td>0100</td>
+                        <td>MemRead=1, RegWrite=1</td>
+                    </tr>
+                    <tr>
+                        <td>STORE</td>
+                        <td>0101</td>
+                        <td>MemWrite=1, RegRead=1</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>How It Works in Practice</h3>
+                <p>
+                    When the CPU fetches an ADD instruction (opcode 0001), the hardwired decoder immediately activates the ALU_ADD and RegWrite control lines. 
+                    This direct mapping happens in hardware without any software interpretation, resulting in extremely fast execution.
+                </p>
+            </div>
+            
+            <div class="cpu-diagram">
+                <div class="cpu-block">
+                    <h3>4-bit Opcode Decoder</h3>
+                    <div class="sub-blocks">
+                        <div class="sub-block">
+                            <p>0000</p>
+                            <p>NOP</p>
+                        </div>
+                        <div class="sub-block active">
+                            <p>0001</p>
+                            <p>ADD</p>
+                        </div>
+                        <div class="sub-block">
+                            <p>0010</p>
+                            <p>SUB</p>
+                        </div>
+                    </div>
+                    <div class="sub-blocks" style="margin-top: 15px;">
+                        <div class="sub-block">
+                            <p>0011</p>
+                            <p>AND</p>
+                        </div>
+                        <div class="sub-block">
+                            <p>0100</p>
+                            <p>LOAD</p>
+                        </div>
+                        <div class="sub-block">
+                            <p>0101</p>
+                            <p>STORE</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Created with ❤️ for educational purposes | Hardwired Control Unit in CPUs</p>
+    </div>
+
+    <script>
+        // Function to scroll to a specific slide
+        function scrollToSlide(slideIndex) {
+            const slide = document.getElementById(`slide-${slideIndex}`);
+            slide.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update navigation dots based on scroll position
+        window.addEventListener('scroll', () => {
+            const slides = document.querySelectorAll('.slide');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let currentSlide = 0;
+            
+            slides.forEach((slide, index) => {
+                const rect = slide.getBoundingClientRect();
+                if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+                    currentSlide = index;
+                }
+            });
+            
+            navDots.forEach((dot, index) => {
+                if (index === currentSlide) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        });
+
+        // Add smooth scrolling for better user experience
+        document.documentElement.style.scrollBehavior = 'smooth';
+    </script>
+</body>
+</html>

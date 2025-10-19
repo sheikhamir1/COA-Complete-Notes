@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>General Register Organization - Complete Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/cpu-circuit/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+
+        .cpu-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .components { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .importance { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .examples { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .design { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .evolution { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .types { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .usage { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .final-design { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .header p {
+                font-size: 1.2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .nav {
+                display: none;
+            }
+        }
+
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <div class="nav">
+        <div class="nav-dot active" data-section="0"></div>
+        <div class="nav-dot" data-section="1"></div>
+        <div class="nav-dot" data-section="2"></div>
+        <div class="nav-dot" data-section="3"></div>
+        <div class="nav-dot" data-section="4"></div>
+        <div class="nav-dot" data-section="5"></div>
+        <div class="nav-dot" data-section="6"></div>
+        <div class="nav-dot" data-section="7"></div>
+        <div class="nav-dot" data-section="8"></div>
+        <div class="nav-dot" data-section="9"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section class="header">
+        <div class="container">
+            <h1>General Register Organization</h1>
+            <p>A comprehensive guide to the structure and management of registers within a central processing unit (CPU)</p>
+            <div class="cpu-character">🖥️</div>
+            <p>Scroll down to explore the fascinating world of CPU registers!</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section class="section intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to General Register Organization</h2>
+            <div class="card fade-in">
+                <p>General register organization refers to the structure and management of registers within a central processing unit (CPU). Registers are small, fast storage locations within the CPU that hold data temporarily during processing. They serve as the CPU's internal memory, providing rapid access to data and instructions that are currently being processed.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Components Section -->
+    <section class="section components">
+        <div class="container">
+            <h2 class="section-title fade-in">Components of General Register Organization</h2>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔧</span> Types of Registers</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">📊</div>
+                        <div class="feature-content">
+                            <h3>Data Registers</h3>
+                            <p>Hold data operands and intermediate results during arithmetic and logical operations.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📍</div>
+                        <div class="feature-content">
+                            <h3>Address Registers</h3>
+                            <p>Store memory addresses for data access.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🎛️</div>
+                        <div class="feature-content">
+                            <h3>Control Registers</h3>
+                            <p>Manage control and status information within the CPU.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">🎯</span> Role of Registers</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">💾</div>
+                        <div class="feature-content">
+                            <h3>Operand Storage</h3>
+                            <p>Data registers hold operands that are currently being processed by the arithmetic logic unit (ALU).</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🧮</div>
+                        <div class="feature-content">
+                            <h3>Address Calculation</h3>
+                            <p>Address registers compute memory addresses for fetching or storing data.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Program Control</h3>
+                            <p>Control registers manage program flow and execution status (e.g., program counter, status registers).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">🗂️</span> Register File</h3>
+                <div class="card">
+                    <p>Registers are typically organized into a register file, a set of storage locations directly accessible by the CPU. The size and organization of the register file vary based on the CPU architecture and design goals.</p>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔄</span> Register Transfer Operations</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">⬇️</div>
+                        <div class="feature-content">
+                            <h3>Load (L)</h3>
+                            <p>Transfer data from memory to a register.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⬆️</div>
+                        <div class="feature-content">
+                            <h3>Store (S)</h3>
+                            <p>Transfer data from a register to memory.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">↔️</div>
+                        <div class="feature-content">
+                            <h3>Move (M)</h3>
+                            <p>Transfer data between registers.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🧮</div>
+                        <div class="feature-content">
+                            <h3>Arithmetic and Logic Operations</h3>
+                            <p>Registers are operands for arithmetic (addition, subtraction, etc.) and logical (AND, OR, XOR) operations.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Importance Section -->
+    <section class="section importance">
+        <div class="container">
+            <h2 class="section-title fade-in">Importance of General Register Organization</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">⚡</div>
+                    <div class="feature-content">
+                        <h3>Speed</h3>
+                        <p>Registers are the fastest form of memory within the CPU, enabling rapid access and manipulation of data.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">⚙️</div>
+                    <div class="feature-content">
+                        <h3>Efficiency</h3>
+                        <p>Minimizes memory access times by storing frequently accessed data and operands.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🚀</div>
+                    <div class="feature-content">
+                        <h3>Program Execution</h3>
+                        <p>Facilitates efficient execution of instructions by providing storage for operands and results.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔄</div>
+                    <div class="feature-content">
+                        <h3>Context Management</h3>
+                        <p>Registers store critical information during context switches between different tasks or processes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Examples Section -->
+    <section class="section examples">
+        <div class="container">
+            <h2 class="section-title fade-in">Examples of Register Usage</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🔢</div>
+                    <div class="feature-content">
+                        <h3>Data Processing</h3>
+                        <p>Arithmetic and logical operations utilize data registers for storing operands and results.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">📍</div>
+                    <div class="feature-content">
+                        <h3>Address Calculation</h3>
+                        <p>Address registers compute memory addresses for load and store operations.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🎛️</div>
+                    <div class="feature-content">
+                        <h3>Control and Status Management</h3>
+                        <p>Control registers manage program flow and execution status, such as flags indicating arithmetic overflow or comparison results.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Design Considerations Section -->
+    <section class="section design">
+        <div class="container">
+            <h2 class="section-title fade-in">Design Considerations</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">📏</div>
+                    <div class="feature-content">
+                        <h3>Register Size</h3>
+                        <p>Determines the range and precision of numeric data that can be processed.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔢</div>
+                    <div class="feature-content">
+                        <h3>Number of Registers</h3>
+                        <p>Balances the need for fast access with the complexity and cost of CPU design.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🎯</div>
+                    <div class="feature-content">
+                        <h3>Special Purpose Registers</h3>
+                        <p>Includes program counters, stack pointers, and status registers tailored for specific functions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Evolution Section -->
+    <section class="section evolution">
+        <div class="container">
+            <h2 class="section-title fade-in">Evolution and Optimization</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🧩</div>
+                    <div class="feature-content">
+                        <h3>Multi-Core Processors</h3>
+                        <p>Each core typically has its own set of registers, enhancing parallel execution.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">📊</div>
+                    <div class="feature-content">
+                        <h3>Vector Processing</h3>
+                        <p>Special registers (vector registers) support SIMD (Single Instruction, Multiple Data) operations for efficient parallel processing.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔄</div>
+                    <div class="feature-content">
+                        <h3>Cache Coherency</h3>
+                        <p>Registers play a role in maintaining cache coherency across multi-level memory hierarchies.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Types of Registers Section -->
+    <section class="section types">
+        <div class="container">
+            <h2 class="section-title fade-in">Types of Registers</h2>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔄</span> General-Purpose Registers</h3>
+                <div class="card">
+                    <p>Registers in a CPU that can be used for various purposes, offering flexibility in data storage and manipulation.</p>
+                </div>
+                
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">📊</div>
+                        <div class="feature-content">
+                            <h3>Data Registers</h3>
+                            <p><strong>Purpose:</strong> Used to hold operands and intermediate results during arithmetic and logical operations.</p>
+                            <p><strong>Role:</strong> Facilitate data manipulation and computation within the CPU.</p>
+                            <p><strong>Examples:</strong> Accumulator (ACC), data registers in the ALU (Arithmetic Logic Unit).</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📍</div>
+                        <div class="feature-content">
+                            <h3>Address Registers</h3>
+                            <p><strong>Purpose:</strong> Store memory addresses for data access.</p>
+                            <p><strong>Role:</strong> Compute effective addresses during load and store operations.</p>
+                            <p><strong>Examples:</strong> Index registers, base registers.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔍</div>
+                        <div class="feature-content">
+                            <h3>Index Registers</h3>
+                            <p><strong>Purpose:</strong> Assist in indexed addressing modes for accessing elements in arrays or data structures.</p>
+                            <p><strong>Role:</strong> Store offsets or indices used in memory operations.</p>
+                            <p><strong>Examples:</strong> Index Register (IX), Index Register 1 (IX1), Index Register 2 (IX2).</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📚</div>
+                        <div class="feature-content">
+                            <h3>Stack Pointer (SP)</h3>
+                            <p><strong>Purpose:</strong> Manage the stack in memory, used in stack-based operations like subroutine calls and returns.</p>
+                            <p><strong>Role:</strong> Points to the top of the stack or the next available location.</p>
+                            <p><strong>Examples:</strong> Stack Pointer (SP), Stack Pointer 1 (SP1), Stack Pointer 2 (SP2).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">🎛️</span> Special-Purpose Registers</h3>
+                <div class="card">
+                    <p>Registers designed for specific functions within the CPU, each with a dedicated purpose in the execution process.</p>
+                </div>
+                
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>Program Counter (PC)</h3>
+                            <p><strong>Purpose:</strong> Holds the memory address of the next instruction to be fetched and executed.</p>
+                            <p><strong>Role:</strong> Controls the sequence of program execution.</p>
+                            <p><strong>Examples:</strong> Program Counter (PC), Instruction Pointer (IP).</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🚩</div>
+                        <div class="feature-content">
+                            <h3>Status Registers (Flags)</h3>
+                            <p><strong>Purpose:</strong> Hold status information about the result of the last operation performed by the CPU.</p>
+                            <p><strong>Role:</strong> Flag conditions such as zero, carry, overflow, and negative results.</p>
+                            <p><strong>Examples:</strong> Condition Code Register (CCR), Flag Register (FL), Status Register (SR).</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📋</div>
+                        <div class="feature-content">
+                            <h3>Instruction Register (IR)</h3>
+                            <p><strong>Purpose:</strong> Temporarily holds the current instruction being executed.</p>
+                            <p><strong>Role:</strong> Facilitates decoding and execution of the instruction.</p>
+                            <p><strong>Examples:</strong> Instruction Register (IR), Current Instruction Register (CIR).</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📍</div>
+                        <div class="feature-content">
+                            <h3>Memory Address Register (MAR)</h3>
+                            <p><strong>Purpose:</strong> Holds the memory address of data that needs to be fetched or stored.</p>
+                            <p><strong>Role:</strong> Interfaces with the memory unit to fetch or store data.</p>
+                            <p><strong>Examples:</strong> Memory Address Register (MAR), Memory Buffer Register (MBR).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Usage and Optimization Section -->
+    <section class="section usage">
+        <div class="container">
+            <h2 class="section-title fade-in">Usage and Optimization</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">⚡</div>
+                    <div class="feature-content">
+                        <h3>Efficiency</h3>
+                        <p>Registers are the fastest form of memory in the CPU, optimizing data access and computation.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔄</div>
+                    <div class="feature-content">
+                        <h3>Context Switching</h3>
+                        <p>Special-purpose registers assist in managing process and task states during context switches.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🚀</div>
+                    <div class="feature-content">
+                        <h3>Instruction Execution</h3>
+                        <p>General-purpose registers support efficient arithmetic and logical operations, while special-purpose registers manage control flow and status monitoring.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final Design Considerations Section -->
+    <section class="section final-design">
+        <div class="container">
+            <h2 class="section-title fade-in">Design Considerations</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">📏</div>
+                    <div class="feature-content">
+                        <h3>Register Size</h3>
+                        <p>Determines the range and precision of data that can be processed.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔢</div>
+                    <div class="feature-content">
+                        <h3>Number of Registers</h3>
+                        <p>Balances hardware complexity with performance requirements.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🎯</div>
+                    <div class="feature-content">
+                        <h3>Specialization</h3>
+                        <p>Tailors registers for specific functions like addressing, control, and status monitoring.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Fade-in animation on scroll
+        document.addEventListener('DOMContentLoaded', function() {
+            const fadeElements = document.querySelectorAll('.fade-in');
+            const sections = document.querySelectorAll('.section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            function checkFade() {
+                fadeElements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    
+                    if (elementTop < window.innerHeight - elementVisible) {
+                        element.classList.add('visible');
+                    }
+                });
+            }
+            
+            // Active navigation dot based on scroll position
+            function updateActiveNav() {
+                let current = '';
+                sections.forEach((section, index) => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (scrollY >= (sectionTop - 200)) {
+                        current = index;
+                    }
+                });
+                
+                navDots.forEach((dot, index) => {
+                    dot.classList.remove('active');
+                    if (index === current) {
+                        dot.classList.add('active');
+                    }
+                });
+            }
+            
+            // Navigation dot click
+            navDots.forEach(dot => {
+                dot.addEventListener('click', () => {
+                    const sectionIndex = dot.getAttribute('data-section');
+                    const targetSection = sections[sectionIndex];
+                    window.scrollTo({
+                        top: targetSection.offsetTop,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+            
+            window.addEventListener('scroll', () => {
+                checkFade();
+                updateActiveNav();
+            });
+            
+            checkFade(); // Check on initial load
+            updateActiveNav(); // Set initial active nav
+        });
+    </script>
+</body>
+</html>
