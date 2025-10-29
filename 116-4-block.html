@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Grand Tour of Computer Organization & Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/computer-architecture-journey/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .system-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .microprocessors { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .assembly { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .classification { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .parallel { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .system { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .coa-fit { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Timeline Styles */
+        .timeline {
+            position: relative;
+            margin: 30px 0;
+        }
+        .timeline::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 40px;
+            width: 50%;
+        }
+        .timeline-item:nth-child(odd) {
+            left: 0;
+            padding-right: 40px;
+            text-align: right;
+        }
+        .timeline-item:nth-child(even) {
+            left: 50%;
+            padding-left: 40px;
+        }
+        .timeline-dot {
+            position: absolute;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+        }
+        .timeline-item:nth-child(odd) .timeline-dot {
+            right: -10px;
+        }
+        .timeline-item:nth-child(even) .timeline-dot {
+            left: -10px;
+        }
+        .timeline-content {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+            .timeline::before {
+                left: 0;
+            }
+            .timeline-item {
+                width: 100%;
+                left: 0 !important;
+                padding-left: 40px !important;
+                padding-right: 0 !important;
+                text-align: left !important;
+            }
+            .timeline-dot {
+                left: -10px !important;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" data-section="header"></div>
+        <div class="nav-dot" data-section="microprocessors"></div>
+        <div class="nav-dot" data-section="assembly"></div>
+        <div class="nav-dot" data-section="classification"></div>
+        <div class="nav-dot" data-section="parallel"></div>
+        <div class="nav-dot" data-section="system"></div>
+        <div class="nav-dot" data-section="coa-fit"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section class="header" id="header">
+        <div class="container">
+            <h1>The Grand Tour of COA</h1>
+            <div class="system-character">🌐</div>
+            <p>A Journey Through Computer Organization & Architecture</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Microprocessors Section -->
+    <section class="section microprocessors" id="microprocessors">
+        <div class="container">
+            <h2 class="section-title fade-in">1️⃣ Dawn of the Digital City – Microprocessors</h2>
+            <div class="card fade-in">
+                <p>Imagine a tiny city whose mayor can think in pure electricity. That mayor is the <strong>microprocessor</strong>.</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🏗️</span>Why Start Here</h3>
+                    <p>COA begins with the CPU's internal design—registers, ALU, buses, control lines. <strong>8085 & 8086</strong> are our "training cities," small enough to study but complete enough to show how every modern CPU still works.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">👥</span>The Citizens of the CPU City</h3>
+                    <p>Inside the 8085 you meet all the citizens:</p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🧮</div>
+                            <div class="feature-content">
+                                <h3>Accumulator</h3>
+                                <p>Central desk for calculations</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🏭</div>
+                            <div class="feature-content">
+                                <h3>ALU</h3>
+                                <p>Math factory for arithmetic and logic operations</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📍</div>
+                            <div class="feature-content">
+                                <h3>Program Counter & Stack Pointer</h3>
+                                <p>City map & elevator for tracking instructions</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🛣️</div>
+                            <div class="feature-content">
+                                <h3>Buses</h3>
+                                <p>Roads carrying addresses and data throughout the city</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">💓</span>The City's Heartbeat</h3>
+                    <p>The city breathes through the <strong>Fetch → Decode → Execute</strong> cycle: fetch an instruction from memory, decode it, perform it—millions of times per second. This fundamental rhythm is the heartbeat of all computing, from the simplest microcontroller to the most powerful supercomputer.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Assembly Programming Section -->
+    <section class="section assembly" id="assembly">
+        <div class="container">
+            <h2 class="section-title fade-in">2️⃣ Learning the Mayor's Language – Assembly Programming</h2>
+            <div class="card fade-in">
+                <p>To give orders we need the mayor's native tongue: <strong>assembly language</strong>.</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔤</span>The Language of the CPU</h3>
+                    <p>Mnemonics like <code>MOV A,B</code> or <code>ADD M</code> are short, human-readable codes that directly correspond to machine instructions. An <strong>assembler</strong> translates them into binary so the CPU can act.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🌉</span>Bridge Between Software and Hardware</h3>
+                    <p>Writing assembly shows how <em>software becomes hardware activity</em>: each high-level statement you write in C or Python is ultimately broken into these tiny instructions. This direct control allows programmers to optimize performance at the most fundamental level.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🛠️</span>Practical Applications</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>Performance Optimization</h3>
+                                <p>Critical for time-sensitive operations like device drivers</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔍</div>
+                            <div class="feature-content">
+                                <h3>Reverse Engineering</h3>
+                                <p>Understanding how software interacts with hardware</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🧩</div>
+                            <div class="feature-content">
+                                <h3>Embedded Systems</h3>
+                                <p>Programming microcontrollers with limited resources</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architectural Classification Section -->
+    <section class="section classification" id="classification">
+        <div class="container">
+            <h2 class="section-title fade-in">3️⃣ Mapping the Whole City – Architectural Classification</h2>
+            <div class="card fade-in">
+                <p>Once we know how one city runs, COA zooms out to compare <strong>different city plans</strong>—how many instruction "streets" and data "highways" flow:</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🗺️</span>Flynn's Taxonomy</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">1️⃣</div>
+                            <div class="feature-content">
+                                <h3>SISD</h3>
+                                <p>Single road, one mayor - Classic sequential processing</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>SIMD</h3>
+                                <p>One traffic signal controlling many lanes - GPUs and vector processors</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🏙️</div>
+                            <div class="feature-content">
+                                <h3>MIMD</h3>
+                                <p>Many independent roads and mayors - Modern servers and multiprocessors</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📏</span>Additional Classification Schemes</h3>
+                    <p><strong>Feng & Handler</strong> add details about how wide or deep those roads and pipelines are, providing more nuanced ways to categorize computer architectures based on parallelism at different levels.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🎯</span>Why Classification Matters</h3>
+                    <p>These classification schemes teach the <em>patterns of movement</em> before we actually build multi-mayor cities. Understanding these patterns helps architects design more efficient systems and programmers write better code for specific architectures.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Parallel Processing Section -->
+    <section class="section parallel" id="parallel">
+        <div class="container">
+            <h2 class="section-title fade-in">4️⃣ Hiring More Workers – Parallel Processing</h2>
+            <div class="card fade-in">
+                <p>Now we scale up. Engineers overlap work inside one CPU (<strong>pipelining</strong>), then add more CPUs (<strong>multiprocessors, clusters, arrays</strong>).</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">⚡</span>Forms of Parallelism</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Instruction-level Parallelism</h3>
+                                <p>One mayor juggling stages so several instructions overlap</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📋</div>
+                            <div class="feature-content">
+                                <h3>Task Parallelism</h3>
+                                <p>Many mayors, each with their own jobs</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Data Parallelism</h3>
+                                <p>Many mayors working on different data chunks</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">⚖️</span>Managing the Workforce</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📈</div>
+                            <div class="feature-content">
+                                <h3>Load Balancing</h3>
+                                <p>Rules so no worker is idle and work is distributed evenly</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📏</div>
+                            <div class="feature-content">
+                                <h3>Scalability</h3>
+                                <p>The city can keep growing by adding more workers</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🌉</span>The Bridge to Multiple Processors</h3>
+                    <p>Parallelism is the bridge from a single brain to a team of cooperating brains. It transforms computing from a sequential process to a collaborative effort, dramatically increasing performance and enabling new applications that were previously impossible.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- System-Level Organization Section -->
+    <section class="section system" id="system">
+        <div class="container">
+            <h2 class="section-title fade-in">5️⃣ Expanding to a Federation – System-Level Organization</h2>
+            <div class="card fade-in">
+                <p>Finally the city becomes a <strong>nation of cities</strong>:</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🏙️</span>System Architectures</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🏢</div>
+                            <div class="feature-content">
+                                <h3>Single-processor Systems</h3>
+                                <p>One mayor town - Classic PCs, small devices</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">👥</div>
+                            <div class="feature-content">
+                                <h3>Multiprocessor Systems</h3>
+                                <p>Several mayors sharing one big memory</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🌐</div>
+                            <div class="feature-content">
+                                <h3>Distributed Systems</h3>
+                                <p>Many independent towns connected by high-speed roads</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🛡️</span>Design Goals for the Digital Nation</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📈</div>
+                            <div class="feature-content">
+                                <h3>Scalability</h3>
+                                <p>Grow smoothly as demand increases</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Reliability</h3>
+                                <p>Keep running despite failures</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔗</div>
+                            <div class="feature-content">
+                                <h3>Transparency</h3>
+                                <p>Appear as one unified system to users</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">☁️</span>Real-World Implementations</h3>
+                    <p>These principles power today's cloud computing platforms, global data centers, and large-scale scientific computing. The digital nation never sleeps, with systems operating 24/7 across the globe, providing services to billions of users.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- COA Fit Section -->
+    <section class="section coa-fit" id="coa-fit">
+        <div class="container">
+            <h2 class="section-title fade-in">How It All Fits in COA</h2>
+            <div class="card fade-in">
+                <p>Follow these five acts and you've traveled the full journey of <strong>Computer Organization & Architecture</strong>—from the tiniest switch to the worldwide cloud:</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📚</span>The Complete Picture</h3>
+                    <table>
+                        <tr>
+                            <th><span class="register-icon">🎭</span>Layer (Story Stage)</th>
+                            <th><span class="register-icon">🎯</span>COA Focus</th>
+                            <th><span class="register-icon">💡</span>Key Takeaway</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Microprocessor (8085)</strong></td>
+                            <td>CPU internals</td>
+                            <td>Registers, ALU, buses, control signals</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Assembly Programming</strong></td>
+                            <td>Hardware–software bridge</td>
+                            <td>How high-level code becomes machine instructions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Architectural Classes</strong></td>
+                            <td>Instruction/data-flow patterns</td>
+                            <td>SISD, SIMD, MIMD, etc.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Parallel Processing</strong></td>
+                            <td>Multiple instructions & CPUs in real time</td>
+                            <td>Pipelining, task/data parallelism, load balancing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>System Organization</strong></td>
+                            <td>Entire computer/network as one big system</td>
+                            <td>Single-CPU, multiprocessor, distributed, scalability</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>One Continuous Flow</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h4>Foundation</h4>
+                                <p>A single 8085 shows the core CPU heartbeat</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h4>Language</h4>
+                                <p>Assembly gives us direct control of that heartbeat</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h4>Patterns</h4>
+                                <p>Architectural classification explains possible instruction/data flows</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h4>Growth</h4>
+                                <p>Parallel processing multiplies those flows for speed and scale</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h4>Nation-Scale</h4>
+                                <p>System-level organization designs global, fault-tolerant networks</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🧠</span>Key Takeaway</h3>
+                    <p>Computer Organization & Architecture is the study of how to build efficient computing systems at every scale, from a single processor to global networks. By understanding each layer and how they connect, we gain the knowledge to design better systems and write more effective software.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔮</span>Future Directions</h3>
+                    <p>As technology continues to evolve, these fundamental principles will remain essential. Emerging technologies like quantum computing, neuromorphic systems, and specialized AI accelerators will build upon these foundations, creating new challenges and opportunities for computer architects.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const navDots = document.querySelectorAll('.nav-dot');
+            const sections = document.querySelectorAll('section');
+            
+            // Function to update active navigation dot
+            function updateActiveNav() {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (scrollY >= (sectionTop - 200)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                
+                navDots.forEach(dot => {
+                    dot.classList.remove('active');
+                    if (dot.getAttribute('data-section') === current) {
+                        dot.classList.add('active');
+                    }
+                });
+            }
+            
+            // Add click event to navigation dots
+            navDots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-section');
+                    const targetSection = document.getElementById(targetId);
+                    window.scrollTo({
+                        top: targetSection.offsetTop,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+            
+            // Update active navigation on scroll
+            window.addEventListener('scroll', updateActiveNav);
+            
+            // Fade-in animation on scroll
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            function checkFade() {
+                fadeElements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    
+                    if (elementTop < window.innerHeight - elementVisible) {
+                        element.classList.add('visible');
+                    }
+                });
+            }
+            
+            // Initial check and add scroll event listener
+            checkFade();
+            window.addEventListener('scroll', checkFade);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Day in the Life of an Instruction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/computer-circuit/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .actors { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .fetch { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .execute { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .memory { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .disk { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .writeback { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .io { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .signaling { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+        .return { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 152, 80, 0.7)); }
+        .performance { background: linear-gradient(135deg, rgba(114, 30, 60, 0.7), rgba(152, 42, 82, 0.7)); }
+        .mapping { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .checklist { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(30, 114, 114, 0.7)); }
+        .recap { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 152, 80, 0.7)); }
+        .final { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Hierarchy Styles */
+        .hierarchy-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .hierarchy-level {
+            width: 80%;
+            padding: 20px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hierarchy-level::after {
+            content: "↓";
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        .hierarchy-level:last-child::after {
+            display: none;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('actors-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('fetch-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('execute-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('memory-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('disk-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('writeback-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('io-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('signaling-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('return-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('performance-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('mapping-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('checklist-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('recap-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('final-section')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <div class="header" id="header">
+        <div class="container">
+            <h1>A Day in the Life of an Instruction</h1>
+            <p>The complete flow from human action to computer execution</p>
+            <div class="metrics-character">⚙️🔄💻</div>
+            <p>Imagine you press "Save" on an image editor. That single human action will ripple through dozens of COA ideas.</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </div>
+
+    <!-- Actors Section -->
+    <div class="section actors" id="actors-section">
+        <div class="container">
+            <h2 class="section-title fade-in">0) High-level actors and neighborhoods (the cast) 🎭</h2>
+            <div class="card fade-in">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">🧠</div>
+                        <div class="metric-title">CPU</div>
+                        <p>The mayor/conductor; contains Control Unit (CU) and Data Path (ALU, registers)</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📝</div>
+                        <div class="metric-title">Registers</div>
+                        <p>Tiny notepads inside the CPU</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🗄️</div>
+                        <div class="metric-title">Cache (L1/L2/L3)</div>
+                        <p>The CPU's pantry (SRAM)</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">💾</div>
+                        <div class="metric-title">Main memory (DRAM)</div>
+                        <p>The backstage storeroom where programs run</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🔄</div>
+                        <div class="metric-title">MMU & TLB</div>
+                        <p>The address translator and sticky notepad for translations</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📋</div>
+                        <div class="metric-title">Page tables, disk, tape</div>
+                        <p>Long-term storage and the OS maps</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">👮</div>
+                        <div class="metric-title">I/O controllers, DMA, IOP</div>
+                        <p>Customs officers and couriers handling peripherals</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🛣️</div>
+                        <div class="metric-title">Buses</div>
+                        <p>Roads (data bus, address bus, control bus)</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🖨️</div>
+                        <div class="metric-title">Peripheral device</div>
+                        <p>The hard drive, USB stick, printer, etc.</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🏙️</div>
+                        <div class="metric-title">Operating System (OS)</div>
+                        <p>The city manager that coordinates big actions</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fetch Section -->
+    <div class="section fetch" id="fetch-section">
+        <div class="container">
+            <h2 class="section-title fade-in">1) The program is running — the CPU wants to execute an instruction 🎯</h2>
+            <div class="card fade-in">
+                <div class="hierarchy-container">
+                    <div class="hierarchy-level">
+                        <span>Program counter (PC) points to next instruction's virtual address</span>
+                        <span>📍</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>Control Unit says: "Fetch!" — CPU issues a load for that instruction address</span>
+                        <span>📢</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>CPU uses virtual addresses (provided by OS) — must be translated to physical RAM address</span>
+                        <span>🔄</span>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📝</span>Important Detail</h3>
+                    <p>The CPU almost always uses virtual addresses. That means the address must be translated to a physical RAM address before the memory access can complete.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Execute Section -->
+    <div class="section execute" id="execute-section">
+        <div class="container">
+            <h2 class="section-title fade-in">2) Fast path: TLB → Cache → Registers (ideal case) 🏃</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Address Translation</h3>
+                    <p>The MMU checks the TLB (Translation Lookaside Buffer), a tiny, very fast cache of recent virtual→physical translations.</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">✅</div>
+                            <div class="feature-content">
+                                <h3>TLB hit</h3>
+                                <p>Great — the MMU quickly supplies the physical address</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">❌</div>
+                            <div class="feature-content">
+                                <h3>TLB miss</h3>
+                                <p>The MMU must walk the page table (possibly multi-level) — slower; the OS may be involved if the page isn't resident</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔍</span>Cache Lookup</h3>
+                    <p>With physical address in hand, the CPU checks the L1 cache for that physical address.</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">✅</div>
+                            <div class="feature-content">
+                                <h3>Cache hit</h3>
+                                <p>Instruction fetched in a cycle or two and placed into the Instruction Register (IR)</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">❌</div>
+                            <div class="feature-content">
+                                <h3>Cache miss</h3>
+                                <p>Lookup lower levels (L2, L3), then main memory (DRAM). Each miss adds latency</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🧩</span>Instruction Decoding</h3>
+                    <p>The CU decodes the instruction (opcode → micro-ops). If the CU is:</p>
+                    
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon">⚡</div>
+                            <div class="metric-title">Hardwired</div>
+                            <p>Combinational logic generates control signals right away (fast, inflexible)</p>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">🔄</div>
+                            <div class="metric-title">Microprogrammed</div>
+                            <p>The CU fetches microinstructions from a control store and executes them (flexible, slightly slower)</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📥</span>Operand Fetching</h3>
+                    <p>The instruction's operands are fetched from registers (fast) or from memory if needed (load). Addressing modes tell how to get operands:</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔢</div>
+                            <div class="feature-content">
+                                <h3>Immediate</h3>
+                                <p>Value is in the instruction itself</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📝</div>
+                            <div class="feature-content">
+                                <h3>Register</h3>
+                                <p>Value is in a register</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📍</div>
+                            <div class="feature-content">
+                                <h3>Direct</h3>
+                                <p>Address is in the instruction</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔗</div>
+                            <div class="feature-content">
+                                <h3>Indirect</h3>
+                                <p>Address of address is in the instruction</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Indexed</h3>
+                                <p>Address is register + constant</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📚</div>
+                            <div class="feature-content">
+                                <h3>Stack</h3>
+                                <p>Value is on the stack</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Execute in Data Path Section -->
+    <div class="section execute" id="execute-section">
+        <div class="container">
+            <h2 class="section-title fade-in">3) Execute in the data path ⚙️</h2>
+            <div class="card fade-in">
+                <div class="hierarchy-container">
+                    <div class="hierarchy-level">
+                        <span>Control Unit sets control lines: selects ALU operation, source registers, sets multiplexers</span>
+                        <span>🎛️</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>ALU performs arithmetic/logic; results go back to registers or to an internal buffer</span>
+                        <span>🧮</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>If instruction is store/load, effective address is computed, then memory access starts</span>
+                        <span>🔄</span>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🚌</span>Memory Access Process</h3>
+                    <p>CPU issues memory read/write on the address bus, control signals (read/write) on the control bus, and data transfers on the data bus.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Memory Access Section -->
+    <div class="section memory" id="memory-section">
+        <div class="container">
+            <h2 class="section-title fade-in">4) When memory access misses all caches: main memory & page faults 💾</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">❌</span>Cache Miss</h3>
+                    <p>If the needed block is not in cache, the system fetches it from main memory (DRAM). DRAM access is slower — tens to hundreds of cycles.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">⚠️</span>Page Fault</h3>
+                    <p>If the page is not present in main memory (page table entry invalid) → page fault:</p>
+                    
+                    <div class="hierarchy-container">
+                        <div class="hierarchy-level">
+                            <span>CPU traps to the OS. OS picks a frame to free, writes it back to disk if dirty</span>
+                            <span>🛑</span>
+                        </div>
+                        <div class="hierarchy-level">
+                            <span>Reads the requested page from disk into RAM</span>
+                            <span>💿</span>
+                        </div>
+                        <div class="hierarchy-level">
+                            <span>Disk transfer is slow (milliseconds for HDD; much faster for SSD)</span>
+                            <span>⏱️</span>
+                        </div>
+                        <div class="hierarchy-level">
+                            <span>OS may place the transfer on a DMA controller so the CPU does not poll/waste cycles</span>
+                            <span>🚀</span>
+                        </div>
+                        <div class="hierarchy-level">
+                            <span>After the page arrives, OS updates the page table, TLB is invalidated or updated</span>
+                            <span>🔄</span>
+                        </div>
+                        <div class="hierarchy-level">
+                            <span>Control returns to the faulting process — instruction restarted</span>
+                            <span>▶️</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disk and DMA Section -->
+    <div class="section disk" id="disk-section">
+        <div class="container">
+            <h2 class="section-title fade-in">5) Disk and DMA — the courier service 💿</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🚚</span>DMA (Direct Memory Access)</h3>
+                    <p>DMA controller handles big transfers between disk and memory:</p>
+                    
+                    <div class="hierarchy-container">
+                        <div class="hierarchy-level">
+                            <span>CPU sets DMA registers: source, destination, length, and starts DMA</span>
+                            <span>📋</span>
+                        </div>
+                        <div class="hierarchy-level">
+                            <span>DMA drives the bus to transfer blocks</span>
+                            <span>🚌</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon">🕒</div>
+                            <div class="metric-title">Cycle-Stealing</div>
+                            <p>DMA takes some bus cycles</p>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">💥</div>
+                            <div class="metric-title">Burst Mode</div>
+                            <p>DMA uses bus for a long burst</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔔</span>DMA Completion</h3>
+                    <p>Once done, DMA raises an interrupt to inform CPU; OS resumes any blocked process.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">💾</span>Disk Controllers</h3>
+                    <p>For disks, RAID or caching layers may serve or mirror data; disk controller may have its own buffer and microcontroller — the IOP idea at a smaller scale.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Write Back Section -->
+    <div class="section writeback" id="writeback-section">
+        <div class="container">
+            <h2 class="section-title fade-in">6) Writing data back — caches and consistency ✍️</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📝</span>Write Policies</h3>
+                    
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon">🔄</div>
+                            <div class="metric-title">Write-through</div>
+                            <p>Every store updates cache and main memory (simpler, higher bus traffic)</p>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">⏱️</div>
+                            <div class="metric-title">Write-back</div>
+                            <p>Cache keeps the updated block marked dirty and writes back to memory later (saves bandwidth)</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Cache Coherence</h3>
+                    <p>In multicore systems, hardware protocols (MESI-like) ensure all cores see a consistent memory view.</p>
+                    
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon">🔍</div>
+                            <div class="metric-title">Modified</div>
+                            <p>Cache line is modified in this cache only</p>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">👀</div>
+                            <div class="metric-title">Exclusive</div>
+                            <p>Cache line is unmodified and exists only in this cache</p>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">🔄</div>
+                            <div class="metric-title">Shared</div>
+                            <p>Cache line is unmodified and may exist in other caches</p>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">❌</div>
+                            <div class="metric-title">Invalid</div>
+                            <p>Cache line is invalid</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- I/O Request Section -->
+    <div class="section io" id="io-section">
+        <div class="container">
+            <h2 class="section-title fade-in">7) I/O request: saving the file — stepping into the I/O subsystem 📁</h2>
+            <div class="card fade-in">
+                <div class="hierarchy-container">
+                    <div class="hierarchy-level">
+                        <span>Application makes a system call (write)</span>
+                        <span>📞</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>OS handles file metadata and issues device operations</span>
+                        <span>📋</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>OS asks device driver to write the data</span>
+                        <span>👨‍💻</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>Driver programs the I/O controller (disk controller, NIC, USB controller)</span>
+                        <span>🎛️</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>Driver typically uses DMA: tells DMA where buffer is in RAM and where to put it on disk</span>
+                        <span>🚚</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>DMA moves chunks while CPU continues other work</span>
+                        <span>⚙️</span>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔔</span>Interrupt Handling</h3>
+                    <p>While data moves, the device may raise interrupts:</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Priority interrupts</h3>
+                                <p>Decide which device gets CPU attention first</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Interrupt handling process</h3>
+                                <p>Saves CPU state (pushes registers onto stack), jumps to ISR (interrupt service routine), processes the event, and restores state</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Low-level Signaling Section -->
+    <div class="section signaling" id="signaling-section">
+        <div class="container">
+            <h2 class="section-title fade-in">8) Low-level signaling — buses, strobe, handshaking, serial protocols 📡</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🛣️</span>Buses</h3>
+                    <p>Buses carry address, data, and control lines. Arbitration handles who uses the bus (CPU, DMA, IOP).</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🤝</span>Handshaking</h3>
+                    <p>Between devices and controllers, handshaking ensures both sides are ready: request → acknowledge → data transfer.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔗</span>Serial Communication</h3>
+                    <p>Serial links use synchronous (clocked, e.g., SPI/I²C) or asynchronous (UART — start/stop bits) communication; they include flow control (RTS/CTS or XON/XOFF) and error detection.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🥁</span>Strobe Signals</h3>
+                    <p>Strobe signals tell the receiver "read the data now" for parallel transfers — same idea applied with timing pulses in memory buses.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Return to CPU Section -->
+    <div class="section return" id="return-section">
+        <div class="container">
+            <h2 class="section-title fade-in">9) Returning to the CPU — the final steps 🔄</h2>
+            <div class="card fade-in">
+                <div class="hierarchy-container">
+                    <div class="hierarchy-level">
+                        <span>When disk DMA finishes, it interrupts the CPU</span>
+                        <span>🔔</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>OS updates file metadata and may mark data as committed</span>
+                        <span>📝</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>CPU resumes the user process, finishes executing the system call</span>
+                        <span>▶️</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>Returns to the user program</span>
+                        <span>↩️</span>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">✅</span>Final Result</h3>
+                    <p>The "Save" action completes — the file is safely stored across RAM and disk, with caches and buffers managed efficiently.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Section -->
+    <div class="section performance" id="performance-section">
+        <div class="container">
+            <h2 class="section-title fade-in">10) Performance knobs — where delays happen and how COA fixes them 📊</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">⏱️</span>Latency Sources</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">❌</div>
+                            <div class="feature-content">
+                                <h3>Cache misses</h3>
+                                <p>When data isn't in cache</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">❌</div>
+                            <div class="feature-content">
+                                <h3>TLB misses</h3>
+                                <p>When address translation isn't in TLB</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⚠️</div>
+                            <div class="feature-content">
+                                <h3>Page faults</h3>
+                                <p>When page isn't in main memory (disk I/O)</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🚌</div>
+                            <div class="feature-content">
+                                <h3>Bus contention</h3>
+                                <p>When multiple components need the bus</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔔</div>
+                            <div class="feature-content">
+                                <h3>Interrupt overhead</h3>
+                                <p>Time to handle interrupts</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📈</span>Metrics to Watch</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🎯</div>
+                            <div class="feature-content">
+                                <h3>Cache hit rate</h3>
+                                <p>Percentage of memory accesses found in cache</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🎯</div>
+                            <div class="feature-content">
+                                <h3>TLB hit rate</h3>
+                                <p>Percentage of address translations found in TLB</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⚙️</div>
+                            <div class="feature-content">
+                                <h3>CPU utilization</h3>
+                                <p>How busy the CPU is</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⏱️</div>
+                            <div class="feature-content">
+                                <h3>Latency</h3>
+                                <p>Response time for operations</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Throughput</h3>
+                                <p>Work completed per second</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">⚡</span>Optimizations</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🗄️</div>
+                            <div class="feature-content">
+                                <h3>Cache</h3>
+                                <p>Bigger, more associative caches; prefetching and smart replacement (LRU, LFU)</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>TLB</h3>
+                                <p>Larger TLBs and page size manipulation</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🏭</div>
+                            <div class="feature-content">
+                                <h3>Pipelining / superscalar / out-of-order</h3>
+                                <p>Keep ALU busy; needs branch prediction and hazard handling</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🚚</div>
+                            <div class="feature-content">
+                                <h3>DMA & IOPs</h3>
+                                <p>Offload I/O work from CPU</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">💾</div>
+                            <div class="feature-content">
+                                <h3>Virtual memory tuning</h3>
+                                <p>Reduce page faults via working set management</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🛣️</div>
+                            <div class="feature-content">
+                                <h3>Bus architecture</h3>
+                                <p>Multi-level buses and point-to-point high-speed links</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mapping to COA Section -->
+    <div class="section mapping" id="mapping-section">
+        <div class="container">
+            <h2 class="section-title fade-in">11) How all this maps to COA (the big picture) 🗺️</h2>
+            <div class="card fade-in">
+                <p>COA studies both the machine's instruction behavior and how hardware is organized to run it fast and reliably:</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">📋</div>
+                        <div class="feature-content">
+                            <h3>Instruction level</h3>
+                            <p>ISA, instruction formats, addressing modes determine how the CPU asks for operands</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🎛️</div>
+                        <div class="feature-content">
+                            <h3>Control unit</h3>
+                            <p>Hardwired vs microprogrammed decide how control signals are generated</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⚙️</div>
+                        <div class="feature-content">
+                            <h3>Data path</h3>
+                            <p>ALU, registers, and buses do the work when signals say "compute" or "move"</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🗄️</div>
+                        <div class="feature-content">
+                            <h3>Memory system</h3>
+                            <p>Registers → cache → RAM → disk → tape form the memory hierarchy balancing speed and cost</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Memory management</h3>
+                            <p>MMU, TLB, paging/segmentation give the illusion of large private address spaces and protect processes</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔌</div>
+                        <div class="feature-content">
+                            <h3>I/O subsystem</h3>
+                            <p>Controllers, DMA, interrupts, IOPs connect the CPU to the outside world without overwhelming it</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔗</div>
+                        <div class="feature-content">
+                            <h3>Interconnect & protocol layer</h3>
+                            <p>Buses, strobe, handshaking, serial protocols are the physical/electrical glue</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🎨</span>The Art of COA</h3>
+                    <p>COA is the art of making these pieces cooperate so a keyboard click becomes a saved file with good speed, correct data, and efficient hardware use.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checklist Section -->
+    <div class="section checklist" id="checklist-section">
+        <div class="container">
+            <h2 class="section-title fade-in">12) Concrete checklist: what happens when you press "Save" ✅</h2>
+            <div class="card fade-in">
+                <div class="hierarchy-container">
+                    <div class="hierarchy-level">
+                        <span>App requests write → OS syscall</span>
+                        <span>📝</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>OS chooses buffer (RAM) → programs disk write via driver</span>
+                        <span>💾</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>Driver sets up DMA → device controller reads buffer from RAM</span>
+                        <span>🚚</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>DMA or controller writes sectors to disk (RAID or cache may help)</span>
+                        <span>💿</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>Disk signals completion → DMA/Controller raises interrupt</span>
+                        <span>🔔</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>OS updates metadata and returns control to app</span>
+                        <span>🔄</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>Behind the scenes: caches and TLB entries are managed; page faults handled if needed</span>
+                        <span>🔍</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recap Table Section -->
+    <div class="section recap" id="recap-section">
+        <div class="container">
+            <h2 class="section-title fade-in">13) Quick recap table 📊</h2>
+            <div class="card fade-in">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Role in the flow</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>CU (hardwired / micro)</td>
+                            <td>Decodes instructions, issues control signals</td>
+                        </tr>
+                        <tr>
+                            <td>Registers, ALU</td>
+                            <td>Fast compute and temporary storage</td>
+                        </tr>
+                        <tr>
+                            <td>Cache (L1/L2/L3)</td>
+                            <td>Rapid instruction/data access; hit/miss determines latency</td>
+                        </tr>
+                        <tr>
+                            <td>MMU & TLB</td>
+                            <td>Translate virtual→physical addresses; cache translations</td>
+                        </tr>
+                        <tr>
+                            <td>Page table & OS</td>
+                            <td>Map pages; handle page faults and swapping</td>
+                        </tr>
+                        <tr>
+                            <td>DRAM</td>
+                            <td>Main memory — slower than cache</td>
+                        </tr>
+                        <tr>
+                            <td>Disk (HDD/SSD), RAID, Tape</td>
+                            <td>Secondary and archival storage</td>
+                        </tr>
+                        <tr>
+                            <td>DMA</td>
+                            <td>Moves bulk data without CPU cycles</td>
+                        </tr>
+                        <tr>
+                            <td>I/O controller / IOP</td>
+                            <td>Manage specific device protocols and buffering</td>
+                        </tr>
+                        <tr>
+                            <td>Bus / Handshake / Strobe / Serial</td>
+                            <td>Physical transfer and synchronization</td>
+                        </tr>
+                        <tr>
+                            <td>Interrupts / Priority</td>
+                            <td>Devices notify CPU; priorities resolve conflicts</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final Thought Section -->
+    <div class="section final" id="final-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Final thought 💭</h2>
+            <div class="card fade-in">
+                <p>Underneath the friendly interface of "Save" or "Open" is a carefully choreographed race: the Control Unit calls the play, the Data Path runs the play, memory and caches provide the ball, the MMU makes sure players are allowed on the field, and the I/O crews shuttle the result to long-term storage — all coordinated to make your action feel instant.</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">🎛️</div>
+                        <div class="metric-title">Control Unit</div>
+                        <p>Calls the play</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">⚙️</div>
+                        <div class="metric-title">Data Path</div>
+                        <p>Runs the play</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🗄️</div>
+                        <div class="metric-title">Memory & Caches</div>
+                        <p>Provide the ball</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🔄</div>
+                        <div class="metric-title">MMU</div>
+                        <p>Makes sure players are allowed on the field</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🚚</div>
+                        <div class="metric-title">I/O Crews</div>
+                        <p>Shuttle the result to long-term storage</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Scroll to section function
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+            
+            // Update active nav dot
+            const navDots = document.querySelectorAll('.nav-dot');
+            navDots.forEach(dot => dot.classList.remove('active'));
+            
+            const sections = ['header', 'actors-section', 'fetch-section', 'execute-section', 
+                             'memory-section', 'disk-section', 'writeback-section', 'io-section',
+                             'signaling-section', 'return-section', 'performance-section', 
+                             'mapping-section', 'checklist-section', 'recap-section', 'final-section'];
+            
+            const index = sections.indexOf(sectionId);
+            if (index !== -1) {
+                navDots[index].classList.add('active');
+            }
+        }
+
+        // Update active nav dot on scroll
+        window.addEventListener('scroll', () => {
+            const sections = ['header', 'actors-section', 'fetch-section', 'execute-section', 
+                             'memory-section', 'disk-section', 'writeback-section', 'io-section',
+                             'signaling-section', 'return-section', 'performance-section', 
+                             'mapping-section', 'checklist-section', 'recap-section', 'final-section'];
+            
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (scrollY >= (sectionTop - 200)) {
+                    current = sectionId;
+                }
+            });
+            
+            navDots.forEach(dot => dot.classList.remove('active'));
+            
+            const index = sections.indexOf(current);
+            if (index !== -1) {
+                navDots[index].classList.add('active');
+            }
+        });
+
+        // Fade in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8085 Programming Model</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/8085-programming-model/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .overview { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .registers { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .accumulator { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .flag { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .program { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .stack { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Register Visualization Styles */
+        .register-visualization {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+        .register-box {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 10px;
+            text-align: center;
+            width: 120px;
+            transition: transform 0.3s ease;
+        }
+        .register-box:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.25);
+        }
+        .register-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .register-bits {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .bit {
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            margin: 0 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        /* Flag Register Styles */
+        .flag-visualization {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .flag-container {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            width: 80%;
+            max-width: 600px;
+        }
+        .flag-row {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+        .flag-item {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            width: 100px;
+            transition: transform 0.3s ease;
+        }
+        .flag-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .flag-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        /* Programming Model Styles */
+        .programming-model {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .model-container {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+        }
+        .model-component {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .model-component:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.4);
+        }
+        .model-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .model-center {
+            background: rgba(255, 99, 71, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+            transition: transform 0.3s ease;
+        }
+        .model-center:hover {
+            transform: scale(1.05);
+            background: rgba(255, 99, 71, 0.5);
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('overview')"></div>
+        <div class="nav-dot" onclick="scrollToSection('registers')"></div>
+        <div class="nav-dot" onclick="scrollToSection('accumulator')"></div>
+        <div class="nav-dot" onclick="scrollToSection('flag')"></div>
+        <div class="nav-dot" onclick="scrollToSection('program')"></div>
+        <div class="nav-dot" onclick="scrollToSection('stack')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section id="header" class="header">
+        <div class="container">
+            <h1>8085 Programming Model</h1>
+            <p>Understanding the Core Components of the Intel 8085 Microprocessor</p>
+            <div class="metrics-character">🔧</div>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section id="overview" class="section overview">
+        <div class="container">
+            <h2 class="section-title fade-in">Overview: 8085 Programming Model</h2>
+            <div class="card fade-in">
+                <p>The 8085 programming model is an assembly language program written specifically for the Intel 8085 CPU. Fundamental parts include the accumulator (A), which is primarily used for arithmetic and logical operations, and the six general-purpose registers (B, C, D, E, H, and L), which are critical for data manipulation and storage. While the stack pointer (SP) handles subroutine calls and returns by showing the top of the stack, the program counter (PC) tracks the address of the next instruction to be executed. Status indications that represent the results of arithmetic and logical operations, such as Sign (S), Zero (Z), and Carry (CY), are kept in the flags register.</p>
+                <br>
+                <p>To this are added a variety of instructions covering data transfer, branching, and arithmetic, logic, and control transfer functions. Programming design is made more flexible and efficient by addressing modes, which control how operands are accessed during instruction execution. The 8085 also has input/output connections that allow it to communicate with other devices. This allows for a variety of applications, from simple control programs to complex data processing and communication jobs. Comprehending this programming approach is essential to effectively utilizing the microprocessor's capabilities and creating assembly language programs.</p>
+            </div>
+            <div class="programming-model fade-in">
+                <h3 style="text-align: center; margin-bottom: 20px;">8085 Programming Model Components</h3>
+                <div class="model-container">
+                    <div class="model-row">
+                        <div class="model-component">Accumulator (A)</div>
+                    </div>
+                    <div class="model-row">
+                        <div class="model-component">B</div>
+                        <div class="model-component">C</div>
+                    </div>
+                    <div class="model-row">
+                        <div class="model-component">D</div>
+                        <div class="model-component">E</div>
+                    </div>
+                    <div class="model-row">
+                        <div class="model-component">H</div>
+                        <div class="model-component">L</div>
+                    </div>
+                    <div class="model-center">
+                        <h3>Flags Register</h3>
+                        <p>S Z AC P CY</p>
+                    </div>
+                    <div class="model-row">
+                        <div class="model-component">Program Counter (PC)</div>
+                    </div>
+                    <div class="model-row">
+                        <div class="model-component">Stack Pointer (SP)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Six General-Purpose Registers Section -->
+    <section id="registers" class="section registers">
+        <div class="container">
+            <h2 class="section-title fade-in">Six General-Purpose Registers</h2>
+            <div class="card fade-in">
+                <p>The Intel 8085 microprocessor features six general-purpose registers, which are used for storing and manipulating data during program execution. These registers are as follows:</p>
+                <div class="register-visualization">
+                    <div class="register-box">
+                        <div class="register-name">B</div>
+                        <div class="register-bits">
+                            <div class="bit">7</div>
+                            <div class="bit">6</div>
+                            <div class="bit">5</div>
+                            <div class="bit">4</div>
+                            <div class="bit">3</div>
+                            <div class="bit">2</div>
+                            <div class="bit">1</div>
+                            <div class="bit">0</div>
+                        </div>
+                    </div>
+                    <div class="register-box">
+                        <div class="register-name">C</div>
+                        <div class="register-bits">
+                            <div class="bit">7</div>
+                            <div class="bit">6</div>
+                            <div class="bit">5</div>
+                            <div class="bit">4</div>
+                            <div class="bit">3</div>
+                            <div class="bit">2</div>
+                            <div class="bit">1</div>
+                            <div class="bit">0</div>
+                        </div>
+                    </div>
+                    <div class="register-box">
+                        <div class="register-name">D</div>
+                        <div class="register-bits">
+                            <div class="bit">7</div>
+                            <div class="bit">6</div>
+                            <div class="bit">5</div>
+                            <div class="bit">4</div>
+                            <div class="bit">3</div>
+                            <div class="bit">2</div>
+                            <div class="bit">1</div>
+                            <div class="bit">0</div>
+                        </div>
+                    </div>
+                    <div class="register-box">
+                        <div class="register-name">E</div>
+                        <div class="register-bits">
+                            <div class="bit">7</div>
+                            <div class="bit">6</div>
+                            <div class="bit">5</div>
+                            <div class="bit">4</div>
+                            <div class="bit">3</div>
+                            <div class="bit">2</div>
+                            <div class="bit">1</div>
+                            <div class="bit">0</div>
+                        </div>
+                    </div>
+                    <div class="register-box">
+                        <div class="register-name">H</div>
+                        <div class="register-bits">
+                            <div class="bit">7</div>
+                            <div class="bit">6</div>
+                            <div class="bit">5</div>
+                            <div class="bit">4</div>
+                            <div class="bit">3</div>
+                            <div class="bit">2</div>
+                            <div class="bit">1</div>
+                            <div class="bit">0</div>
+                        </div>
+                    </div>
+                    <div class="register-box">
+                        <div class="register-name">L</div>
+                        <div class="register-bits">
+                            <div class="bit">7</div>
+                            <div class="bit">6</div>
+                            <div class="bit">5</div>
+                            <div class="bit">4</div>
+                            <div class="bit">3</div>
+                            <div class="bit">2</div>
+                            <div class="bit">1</div>
+                            <div class="bit">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📝</span>Register Pairs</h3>
+                <p>These registers can be combined as register pairs to perform 16-bit operations:</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>BC Register Pair</h3>
+                            <p>B and C registers combined to form a 16-bit register pair</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>DE Register Pair</h3>
+                            <p>D and E registers combined to form a 16-bit register pair</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>HL Register Pair</h3>
+                            <p>H and L registers combined to form a 16-bit register pair</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📋</span>Register Details</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Register</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>B Register</td>
+                            <td>The B register is an 8-bit register used for temporary storage of data and as an operand in arithmetic and logical operations.</td>
+                        </tr>
+                        <tr>
+                            <td>C Register</td>
+                            <td>The C register is another 8-bit register that works in conjunction with the B register as a pair (BC register pair). It is commonly used for storing data and as an operand in various instructions.</td>
+                        </tr>
+                        <tr>
+                            <td>D Register</td>
+                            <td>The D register is an 8-bit general-purpose register used for storing intermediate data and as an operand in arithmetic and logical operations.</td>
+                        </tr>
+                        <tr>
+                            <td>E Register</td>
+                            <td>The E register is another 8-bit register that forms a pair (DE register pair) with the D register. It serves similar functions to the D register, providing additional storage for data.</td>
+                        </tr>
+                        <tr>
+                            <td>H Register</td>
+                            <td>The H register is an 8-bit general-purpose register used for storing data and as an operand in arithmetic and logical operations. It often works in conjunction with the L register.</td>
+                        </tr>
+                        <tr>
+                            <td>L Register</td>
+                            <td>The L register is the sixth 8-bit general-purpose register in the 8085 microprocessor. Like the H register, it is used for data storage and manipulation, often forming a pair (HL register pair) with the H register for 16-bit operations.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Accumulator Register Section -->
+    <section id="accumulator" class="section accumulator">
+        <div class="container">
+            <h2 class="section-title fade-in">Accumulator Register</h2>
+            <div class="card fade-in">
+                <p>An essential part of the programming model for the Intel 8085 microprocessor is the Accumulator Register, sometimes known as the "A" register. It temporarily stores data during arithmetic, logic, and data transfer operations as an 8-bit register. The accumulator functions as the main working register and is essential to the majority of the microprocessor's arithmetic and logical operations.</p>
+                <br>
+                <p>The accumulator stores the outcomes of data transfer operations between memory and other registers in addition to its use in arithmetic operations. When data is transported into or out of the microprocessor's memory or other registers, it serves as the destination register. The accumulator is frequently listed as one of the operands in instructions involving arithmetic, logic, or data transfer operations.</p>
+            </div>
+            <div class="register-visualization fade-in">
+                <div class="register-box" style="width: 180px;">
+                    <div class="register-name">Accumulator (A)</div>
+                    <div class="register-bits">
+                        <div class="bit">7</div>
+                        <div class="bit">6</div>
+                        <div class="bit">5</div>
+                        <div class="bit">4</div>
+                        <div class="bit">3</div>
+                        <div class="bit">2</div>
+                        <div class="bit">1</div>
+                        <div class="bit">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔧</span>Key Features</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">⚙️</div>
+                        <div class="feature-content">
+                            <h3>Part of ALU</h3>
+                            <p>This register is a part of Arithmetic Logic Unit (ALU)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">💾</div>
+                        <div class="feature-content">
+                            <h3>8-bit Data Storage</h3>
+                            <p>Can store 8 bits of data</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🧮</div>
+                        <div class="feature-content">
+                            <h3>Arithmetic Operations</h3>
+                            <p>Performs arithmetic operations like addition, subtraction</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔣</div>
+                        <div class="feature-content">
+                            <h3>Logical Operations</h3>
+                            <p>Performs logical operations like AND, OR, XOR</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📤</div>
+                        <div class="feature-content">
+                            <h3>Result Storage</h3>
+                            <p>Result of an operation is stored in accumulator</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <p>The accumulator register is essential to the execution of instructions and numerous computations carried out by assembly language programs developed for the 8085 microprocessor, owing to its fundamental role in data management and processing. Efficient programming and utilization of the microprocessor's capabilities require an understanding of its usage and capabilities.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Flag Register Section -->
+    <section id="flag" class="section flag">
+        <div class="container">
+            <h2 class="section-title fade-in">Flag Register</h2>
+            <div class="card fade-in">
+                <p>An essential part of the Intel 8085 microprocessor's programming model is the Flag Register, which holds a variety of condition code flags representing the results of logical and arithmetic operations. The outcomes of the most recent arithmetic or logical command that the processor carried out are indicated by these flags.</p>
+            </div>
+            <div class="flag-visualization fade-in">
+                <div class="flag-container">
+                    <div class="flag-row">
+                        <div class="flag-item">
+                            <div class="flag-name">S</div>
+                            <div>Sign Flag</div>
+                        </div>
+                        <div class="flag-item">
+                            <div class="flag-name">Z</div>
+                            <div>Zero Flag</div>
+                        </div>
+                        <div class="flag-item">
+                            <div class="flag-name">AC</div>
+                            <div>Auxiliary Carry</div>
+                        </div>
+                    </div>
+                    <div class="flag-row">
+                        <div class="flag-item">
+                            <div class="flag-name">P</div>
+                            <div>Parity Flag</div>
+                        </div>
+                        <div class="flag-item">
+                            <div class="flag-name">CY</div>
+                            <div>Carry Flag</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📋</span>Flag Details</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Flag</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Sign Flag (S)</td>
+                            <td>When an operation has a negative result, this flag is set, meaning that the most important bit of the result is 1.</td>
+                        </tr>
+                        <tr>
+                            <td>Zero Flag (Z)</td>
+                            <td>When an operation yields a zero result, the Zero Flag is set. The Zero Flag is set when the result is 00000000, meaning that no bits are set in the result.</td>
+                        </tr>
+                        <tr>
+                            <td>Auxiliary Carry Flag (AC)</td>
+                            <td>The Auxiliary Carry Flag is utilized in arithmetic procedures involving Binary Coded Decimal (BCD). In order to enable BCD correction, it is set if there is a carry from bit 3 to bit 4 during an arithmetic operation.</td>
+                        </tr>
+                        <tr>
+                            <td>Parity Flag (P)</td>
+                            <td>When an operation yields an even number of set bits, which indicates even parity, the Parity Flag (P) is set. The Parity Flag is removed in the event that the result has an odd number of set bits.</td>
+                        </tr>
+                        <tr>
+                            <td>Carry Flag (CY)</td>
+                            <td>During an arithmetic operation, if the most significant bit (bit 7) is carried out, the Carry Flag is set. Additionally, it is employed in subtraction procedures to detect borrow.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Program Counter Section -->
+    <section id="program" class="section program">
+        <div class="container">
+            <h2 class="section-title fade-in">Program Counter (PC)</h2>
+            <div class="card fade-in">
+                <p>An essential part of the architecture of the Intel 8085 microprocessor is the Program Counter (PC), a 16-bit register that stores the memory address of the subsequent instruction to be retrieved and performed. The Program Counter, which points to the memory address of the next instruction as it is executed sequentially by the CPU, automatically increases after each instruction execution.</p>
+                <br>
+                <p>The microprocessor retrieves the instruction stored at the memory address that the Program Counter points to during the fetch-execute cycle. After an instruction is fetched, the PC automatically increments to point to the memory address of the next instruction, readying it for the next fetch operation. The CPU can then carry out instructions sequentially until a branch or jump instruction modifies the value of the Program Counter. This process is repeated iteratively.</p>
+            </div>
+            <div class="register-visualization fade-in">
+                <div class="register-box" style="width: 240px;">
+                    <div class="register-name">Program Counter (PC)</div>
+                    <div class="register-bits">
+                        <div class="bit">15</div>
+                        <div class="bit">14</div>
+                        <div class="bit">13</div>
+                        <div class="bit">12</div>
+                        <div class="bit">11</div>
+                        <div class="bit">10</div>
+                        <div class="bit">9</div>
+                        <div class="bit">8</div>
+                        <div class="bit">7</div>
+                        <div class="bit">6</div>
+                        <div class="bit">5</div>
+                        <div class="bit">4</div>
+                        <div class="bit">3</div>
+                        <div class="bit">2</div>
+                        <div class="bit">1</div>
+                        <div class="bit">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔄</span>Functionality</h3>
+                <p>The Program Counter is altered by branching and jumping instructions, which reroute the execution flow to alternative sections of the program or subroutine. For example, conditional branch instructions allow the execution of different instruction sequences dependent on the result of previous operations by altering the PC's value based on predetermined criteria.</p>
+                <br>
+                <p>The microprocessor's ability to execute instructions sequentially from memory is made possible by the Program Counter, whose function in managing the instruction sequence is essential to its functioning. For the purpose of creating successful assembly language programs and guaranteeing proper program flow inside the 8085 microprocessor architecture, it is imperative to comprehend and efficiently manage the Program Counter.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stack Pointer Section -->
+    <section id="stack" class="section stack">
+        <div class="container">
+            <h2 class="section-title fade-in">The Stack Pointer (SP)</h2>
+            <div class="card fade-in">
+                <p>An essential component of the Intel 8085 microprocessor's architecture, the Stack Pointer (SP) Register is in charge of overseeing the stack memory region. The memory address of the top of the stack at any given time is stored in this 16-bit register.</p>
+                <br>
+                <p>The stack of the 8085 microprocessor functions according to the Last-of-First-Out (LIFO) principle, which states that the last data item added to the stack will be the first one removed. Typically, the stack is utilized for interrupts and subroutine calls, where it is used to temporarily store data and return addresses.</p>
+            </div>
+            <div class="register-visualization fade-in">
+                <div class="register-box" style="width: 240px;">
+                    <div class="register-name">Stack Pointer (SP)</div>
+                    <div class="register-bits">
+                        <div class="bit">15</div>
+                        <div class="bit">14</div>
+                        <div class="bit">13</div>
+                        <div class="bit">12</div>
+                        <div class="bit">11</div>
+                        <div class="bit">10</div>
+                        <div class="bit">9</div>
+                        <div class="bit">8</div>
+                        <div class="bit">7</div>
+                        <div class="bit">6</div>
+                        <div class="bit">5</div>
+                        <div class="bit">4</div>
+                        <div class="bit">3</div>
+                        <div class="bit">2</div>
+                        <div class="bit">1</div>
+                        <div class="bit">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📚</span>Stack Operations</h3>
+                <p>The Program Counter (PC) is pushed onto the stack when a subroutine is called, enabling the CPU to return to the proper place in the main program once the subroutine has finished executing. Furthermore, during the execution of a procedure, additional registers or temporary data may be pushed into the stack for storage.</p>
+                <br>
+                <p>In contrast, the CPU can resume running the main program when a subroutine is completed by popping the previously saved return address off the stack and loading it into the Program Counter. As data is added to or removed from the stack, the Stack Pointer automatically increases or decreases to preserve the accurate memory location of the stack's top. It is essential for effectively controlling the stack and guaranteeing the accuracy of the data kept therein.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔄</span>Stack Pointer Behavior</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">⬇️</div>
+                        <div class="feature-content">
+                            <h3>PUSH Operation</h3>
+                            <p>When data is pushed onto the stack, the Stack Pointer is decremented by 2 (for 16-bit data)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⬆️</div>
+                        <div class="feature-content">
+                            <h3>POP Operation</h3>
+                            <p>When data is popped from the stack, the Stack Pointer is incremented by 2 (for 16-bit data)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📍</div>
+                        <div class="feature-content">
+                            <h3>Points to Top</h3>
+                            <p>Always points to the memory location of the top of the stack</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Scroll to section function
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update active navigation dot based on scroll position
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            if (current) {
+                document.querySelector(`.nav-dot[onclick="scrollToSection('${current}')"]`).classList.add('active');
+            }
+        });
+
+        // Fade in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

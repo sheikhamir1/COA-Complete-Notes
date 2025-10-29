@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>8085 Microprocessor Timing Diagrams</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+        color: #fff;
+        overflow-x: hidden;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      /* Header Section */
+      .header {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("https://picsum.photos/seed/microprocessor/1920/1080.jpg")
+          center/cover;
+        opacity: 0.2;
+        z-index: -1;
+      }
+      .header h1 {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        animation: glow 2s infinite alternate;
+      }
+      @keyframes glow {
+        from {
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        to {
+          text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
+            0 0 30px rgba(255, 255, 255, 0.6);
+        }
+      }
+      .header p {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        max-width: 800px;
+      }
+      .metrics-character {
+        font-size: 8rem;
+        margin: 2rem 0;
+        animation: bounce 2s infinite;
+      }
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+      .scroll-indicator {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 2rem;
+        animation: scroll 1.5s infinite;
+      }
+      @keyframes scroll {
+        0%,
+        100% {
+          transform: translateX(-50%) translateY(0);
+          opacity: 1;
+        }
+        50% {
+          transform: translateX(-50%) translateY(10px);
+          opacity: 0.5;
+        }
+      }
+      /* Navigation */
+      .nav {
+        position: fixed;
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      .nav-dot {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .nav-dot.active {
+        background: #fff;
+        transform: scale(1.2);
+      }
+      /* Section Styles */
+      .section {
+        min-height: 100vh;
+        padding: 80px 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+      }
+      .section-title {
+        font-size: 3rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        position: relative;
+      }
+      .section-title::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+        border-radius: 2px;
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 30px;
+        margin: 20px 0;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+      }
+      /* Section Specific Backgrounds */
+      .intro {
+        background: linear-gradient(
+          135deg,
+          rgba(30, 60, 114, 0.7),
+          rgba(42, 82, 152, 0.7)
+        );
+      }
+      .big-picture {
+        background: linear-gradient(
+          135deg,
+          rgba(30, 114, 60, 0.7),
+          rgba(42, 152, 80, 0.7)
+        );
+      }
+      .what-is {
+        background: linear-gradient(
+          135deg,
+          rgba(114, 30, 114, 0.7),
+          rgba(152, 42, 152, 0.7)
+        );
+      }
+      .signals {
+        background: linear-gradient(
+          135deg,
+          rgba(30, 114, 114, 0.7),
+          rgba(42, 152, 152, 0.7)
+        );
+      }
+      .timing-units {
+        background: linear-gradient(
+          135deg,
+          rgba(114, 60, 30, 0.7),
+          rgba(152, 80, 42, 0.7)
+        );
+      }
+      .cpu-process {
+        background: linear-gradient(
+          135deg,
+          rgba(30, 60, 114, 0.7),
+          rgba(42, 82, 152, 0.7)
+        );
+      }
+      .machine-cycles {
+        background: linear-gradient(
+          135deg,
+          rgba(114, 30, 114, 0.7),
+          rgba(42, 82, 152, 0.7)
+        );
+      }
+      .opcode-fetch {
+        background: linear-gradient(
+          135deg,
+          rgba(30, 114, 60, 0.7),
+          rgba(42, 82, 152, 0.7)
+        );
+      }
+      .memory-io {
+        background: linear-gradient(
+          135deg,
+          rgba(114, 60, 30, 0.7),
+          rgba(114, 30, 114, 0.7)
+        );
+      }
+      .analogy {
+        background: linear-gradient(
+          135deg,
+          rgba(30, 60, 114, 0.7),
+          rgba(42, 152, 80, 0.7)
+        );
+      }
+      .islamic {
+        background: linear-gradient(
+          135deg,
+          rgba(114, 30, 60, 0.7),
+          rgba(152, 42, 82, 0.7)
+        );
+      }
+      .summary {
+        background: linear-gradient(
+          135deg,
+          rgba(30, 114, 60, 0.7),
+          rgba(42, 82, 152, 0.7)
+        );
+      }
+      /* List Styles */
+      .feature-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
+      }
+      .feature-item {
+        display: flex;
+        align-items: flex-start;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+      }
+      .feature-item:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .feature-item .emoji {
+        font-size: 2.5rem;
+        margin-right: 15px;
+      }
+      .feature-content h3 {
+        font-size: 1.3rem;
+        margin-bottom: 5px;
+      }
+      /* Table Styles */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      th,
+      td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      th {
+        background: rgba(255, 255, 255, 0.2);
+        font-weight: bold;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tr:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .register-icon {
+        font-size: 2rem;
+        margin-right: 10px;
+        vertical-align: middle;
+      }
+      /* Subsection Styles */
+      .subsection {
+        margin-top: 40px;
+      }
+      .subsection-title {
+        font-size: 2rem;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+      }
+      .subsection-title .emoji {
+        margin-right: 10px;
+      }
+      /* Metrics Grid Styles */
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
+      }
+      .metric-card {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        transition: transform 0.3s ease;
+      }
+      .metric-card:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .metric-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+      }
+      .metric-title {
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      /* Memory Hierarchy Styles */
+      .hierarchy-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 30px 0;
+      }
+      .hierarchy-level {
+        width: 80%;
+        padding: 20px;
+        margin: 10px 0;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        text-align: center;
+        font-weight: bold;
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .hierarchy-level::after {
+        content: "↓";
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 1.5rem;
+      }
+      .hierarchy-level:last-child::after {
+        display: none;
+      }
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 2.5rem;
+        }
+        .header p {
+          font-size: 1.2rem;
+        }
+        .section-title {
+          font-size: 2rem;
+        }
+        .nav {
+          display: none;
+        }
+      }
+      /* Animations on scroll */
+      .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+      }
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      /* Custom styles for timing diagram */
+      .timing-diagram {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin: 30px 0;
+      }
+      .signal-row {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .signal-name {
+        width: 120px;
+        font-weight: bold;
+      }
+      .signal-wave {
+        flex-grow: 1;
+        height: 40px;
+        position: relative;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+      }
+      .wave-high {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 20px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.5);
+      }
+      .wave-low {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 20px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .t-state {
+        position: absolute;
+        top: -25px;
+        font-size: 0.8rem;
+      }
+      .t1 {
+        left: 0;
+      }
+      .t2 {
+        left: 25%;
+      }
+      .t3 {
+        left: 50%;
+      }
+      .t4 {
+        left: 75%;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <div class="nav">
+      <div class="nav-dot active" data-section="0"></div>
+      <div class="nav-dot" data-section="1"></div>
+      <div class="nav-dot" data-section="2"></div>
+      <div class="nav-dot" data-section="3"></div>
+      <div class="nav-dot" data-section="4"></div>
+      <div class="nav-dot" data-section="5"></div>
+      <div class="nav-dot" data-section="6"></div>
+      <div class="nav-dot" data-section="7"></div>
+      <div class="nav-dot" data-section="8"></div>
+      <div class="nav-dot" data-section="9"></div>
+      <div class="nav-dot" data-section="10"></div>
+      <div class="nav-dot" data-section="11"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section class="header" id="section-0">
+      <div class="container">
+        <h1>
+          ⏱️ Timing Diagrams – Understanding 8085 Microprocessor Operations
+        </h1>
+        <div class="metrics-character">🔧</div>
+        <p>
+          A visual journey into how the 8085 microprocessor executes
+          instructions step by step
+        </p>
+        <div class="scroll-indicator">↓</div>
+      </div>
+    </section>
+
+    <!-- Big Picture Context -->
+    <section class="section big-picture" id="section-1">
+      <div class="container">
+        <h2 class="section-title">🧩 Big Picture Context</h2>
+        <div class="card fade-in">
+          <p style="font-size: 1.3rem; margin-bottom: 20px">
+            The 8085 Microprocessor works step-by-step using electrical signals
+            and clock pulses.
+          </p>
+          <p style="font-size: 1.3rem; margin-bottom: 20px">
+            A Timing Diagram shows how signals change over time during these
+            steps — for example, when the CPU reads data, writes data, or
+            fetches an instruction.
+          </p>
+          <p style="font-size: 1.3rem">
+            It's like a time schedule for all actions happening inside the
+            processor.
+          </p>
+        </div>
+        <div class="metrics-grid fade-in">
+          <div class="metric-card">
+            <div class="metric-icon">⏰</div>
+            <div class="metric-title">Time-based</div>
+            <p>Shows when signals change</p>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">📊</div>
+            <div class="metric-title">Visual</div>
+            <p>Graphical representation</p>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">🔄</div>
+            <div class="metric-title">Sequential</div>
+            <p>Step-by-step process</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- What is a Timing Diagram -->
+    <section class="section what-is" id="section-2">
+      <div class="container">
+        <h2 class="section-title">🔧 1. What is a Timing Diagram?</h2>
+        <div class="card fade-in">
+          <p style="font-size: 1.3rem; margin-bottom: 20px">
+            A Timing Diagram is a graphical representation that shows the
+            relationship between signals and time in the microprocessor.
+          </p>
+          <p style="font-size: 1.3rem; margin-bottom: 20px">
+            It tells us when:
+          </p>
+          <ul
+            style="font-size: 1.2rem; list-style-type: none; padding-left: 20px"
+          >
+            <li style="margin-bottom: 10px">
+              📖 the CPU reads data from memory,
+            </li>
+            <li style="margin-bottom: 10px">✍️ writes data to memory,</li>
+            <li style="margin-bottom: 10px">🔍 fetches an instruction,</li>
+            <li style="margin-bottom: 10px">
+              🔌 or communicates with I/O devices.
+            </li>
+          </ul>
+          <p style="font-size: 1.3rem">
+            Each line or wave in the diagram represents a signal (like clock,
+            read, write, IO/M', etc.) changing from High (1) to Low (0)
+            according to time.
+          </p>
+        </div>
+        <div class="timing-diagram fade-in">
+          <div class="signal-row">
+            <div class="signal-name">Clock</div>
+            <div class="signal-wave">
+              <div class="wave-high" style="width: 50%"></div>
+              <div class="wave-low" style="left: 50%; width: 50%"></div>
+              <div class="t-state t1">T1</div>
+              <div class="t-state t2">T2</div>
+              <div class="t-state t3">T3</div>
+              <div class="t-state t4">T4</div>
+            </div>
+          </div>
+          <div class="signal-row">
+            <div class="signal-name">RD'</div>
+            <div class="signal-wave">
+              <div class="wave-high" style="width: 100%"></div>
+            </div>
+          </div>
+          <div class="signal-row">
+            <div class="signal-name">WR'</div>
+            <div class="signal-wave">
+              <div class="wave-high" style="width: 100%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Important Signals in 8085 -->
+    <section class="section signals" id="section-3">
+      <div class="container">
+        <h2 class="section-title">⚙️ 2. Important Signals in 8085</h2>
+        <div class="card fade-in">
+          <table>
+            <thead>
+              <tr>
+                <th>Signal</th>
+                <th>Full Form</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>IO/M'</td>
+                <td>Input/Output or Memory</td>
+                <td>
+                  Tells whether the operation is with memory (0) or I/O device
+                  (1)
+                </td>
+              </tr>
+              <tr>
+                <td>S1, S0</td>
+                <td>Status Signals</td>
+                <td>Define the type of operation (Fetch, Read, Write, etc.)</td>
+              </tr>
+              <tr>
+                <td>RD' (Read)</td>
+                <td>Read Signal</td>
+                <td>Activated (Low) when the processor reads data</td>
+              </tr>
+              <tr>
+                <td>WR' (Write)</td>
+                <td>Write Signal</td>
+                <td>Activated (Low) when the processor writes data</td>
+              </tr>
+              <tr>
+                <td>ALE</td>
+                <td>Address Latch Enable</td>
+                <td>
+                  Helps separate address and data on the same lines (AD0–AD7)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="metrics-grid fade-in">
+          <div class="metric-card">
+            <div class="metric-icon">🔌</div>
+            <div class="metric-title">IO/M'</div>
+            <p>Differentiates between I/O and Memory operations</p>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">📡</div>
+            <div class="metric-title">RD'/WR'</div>
+            <p>Controls read and write operations</p>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">🔒</div>
+            <div class="metric-title">ALE</div>
+            <p>Separates address and data on shared lines</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Timing Units -->
+    <section class="section timing-units" id="section-4">
+      <div class="container">
+        <h2 class="section-title">⏳ 3. Timing Units</h2>
+        <div class="card fade-in">
+          <table>
+            <thead>
+              <tr>
+                <th>Term</th>
+                <th>Meaning</th>
+                <th>Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>T-State (Clock Cycle)</td>
+                <td>The smallest unit of time controlled by the clock</td>
+                <td>T1, T2, T3...</td>
+              </tr>
+              <tr>
+                <td>Machine Cycle</td>
+                <td>A set of T-states that completes one basic operation</td>
+                <td>Opcode Fetch = 4T</td>
+              </tr>
+              <tr>
+                <td>Instruction Cycle</td>
+                <td>
+                  Combination of all machine cycles required for one instruction
+                </td>
+                <td>MOV A, B = 1 Machine Cycle (4T)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card fade-in">
+          <h3 class="subsection-title">🧮 Example:</h3>
+          <p style="font-size: 1.3rem; margin-bottom: 15px">
+            Instruction: MOV A, B
+          </p>
+          <p style="font-size: 1.3rem; margin-bottom: 15px">
+            → Fetch the instruction (Opcode Fetch – 4T)
+          </p>
+          <p style="font-size: 1.3rem">
+            → Execute (move data between registers)
+          </p>
+          <p style="font-size: 1.3rem; margin-top: 15px; font-weight: bold">
+            Total time = 1 Machine Cycle = 4 T-states
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- The CPU's Working Process -->
+    <section class="section cpu-process" id="section-5">
+      <div class="container">
+        <h2 class="section-title">🧠 4. The CPU's Working Process</h2>
+        <div class="card fade-in">
+          <p style="font-size: 1.3rem; margin-bottom: 20px">
+            Every instruction runs in two main steps:
+          </p>
+        </div>
+        <div class="feature-list fade-in">
+          <div class="feature-item">
+            <div class="emoji">📥</div>
+            <div class="feature-content">
+              <h3>(1) Fetch Cycle (FC)</h3>
+              <p>The processor fetches (reads) the instruction from memory.</p>
+              <p>
+                Example: Reading the opcode of MOV A, B from memory address
+                2050H.
+              </p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="emoji">⚙️</div>
+            <div class="feature-content">
+              <h3>(2) Execute Cycle (EC)</h3>
+              <p>The processor executes the fetched instruction.</p>
+              <p>Example: Moving data from register B to register A.</p>
+            </div>
+          </div>
+        </div>
+        <div class="card fade-in" style="text-align: center; margin-top: 30px">
+          <p style="font-size: 1.5rem; font-weight: bold">
+            ✅ Instruction Cycle = Fetch Cycle + Execute Cycle
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Types of Machine Cycles in 8085 -->
+    <section class="section machine-cycles" id="section-6">
+      <div class="container">
+        <h2 class="section-title">🔁 5. Types of Machine Cycles in 8085</h2>
+        <div class="card fade-in">
+          <table>
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Description</th>
+                <th>T-States</th>
+                <th>Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Opcode Fetch Cycle</td>
+                <td>Reads the instruction code from memory</td>
+                <td>4T</td>
+                <td>Fetching "MOV A, B"</td>
+              </tr>
+              <tr>
+                <td>Memory Read Cycle</td>
+                <td>Reads data from memory</td>
+                <td>3T</td>
+                <td>Reading data from address 2050H</td>
+              </tr>
+              <tr>
+                <td>Memory Write Cycle</td>
+                <td>Writes data into memory</td>
+                <td>3T</td>
+                <td>Saving a result into memory</td>
+              </tr>
+              <tr>
+                <td>I/O Read Cycle</td>
+                <td>Reads data from an input device</td>
+                <td>3T</td>
+                <td>Getting key input from keyboard</td>
+              </tr>
+              <tr>
+                <td>I/O Write Cycle</td>
+                <td>Sends data to an output device</td>
+                <td>3T</td>
+                <td>Displaying result on screen</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Opcode Fetch Cycle (Detailed) -->
+    <section class="section opcode-fetch" id="section-7">
+      <div class="container">
+        <h2 class="section-title">🧩 6. Opcode Fetch Cycle (Detailed)</h2>
+        <div class="card fade-in">
+          <p style="font-size: 1.3rem; margin-bottom: 20px">
+            When a new instruction starts, the first thing 8085 does is fetch
+            its opcode from memory.
+          </p>
+          <h3 class="subsection-title">🧾 Example:</h3>
+          <p style="font-size: 1.3rem; margin-bottom: 20px">
+            Fetch the byte 41H from memory address 2105H.
+          </p>
+          <h3 class="subsection-title">🔄 Steps:</h3>
+        </div>
+        <div class="hierarchy-container fade-in">
+          <div class="hierarchy-level">
+            <span>T1:</span>
+            <span
+              >CPU sends the address (2105H) on the address bus. ALE = 1 → lower
+              8 bits (A0–A7) are latched.</span
+            >
+          </div>
+          <div class="hierarchy-level">
+            <span>T2:</span>
+            <span
+              >IO/M' = 0 → indicates memory operation. RD' becomes LOW → tells
+              memory to place data on data bus.</span
+            >
+          </div>
+          <div class="hierarchy-level">
+            <span>T3:</span>
+            <span
+              >Memory places the byte 41H (opcode) on the data bus. CPU reads
+              this byte and stores it.</span
+            >
+          </div>
+          <div class="hierarchy-level">
+            <span>T4:</span>
+            <span>Opcode is decoded. CPU understands it means MOV A, B.</span>
+          </div>
+        </div>
+        <div class="card fade-in" style="text-align: center">
+          <p style="font-size: 1.3rem">
+            After this, the CPU knows what to do next (copy data from B to A).
+          </p>
+          <p style="font-size: 1.5rem; font-weight: bold; margin-top: 15px">
+            🕐 Total Time: 4T (4 clock cycles)
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Memory and I/O Read/Write Cycles -->
+    <section class="section memory-io" id="section-8">
+      <div class="container">
+        <h2 class="section-title">💾 7. Memory and I/O Read/Write Cycles</h2>
+        <div class="feature-list fade-in">
+          <div class="feature-item">
+            <div class="emoji">🧠</div>
+            <div class="feature-content">
+              <h3>Memory Read Cycle</h3>
+              <p>Used when the CPU needs to read data from memory.</p>
+              <p>Example: Read data from address 2050H.</p>
+              <p>Takes 3T-states (T1–T3).</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="emoji">✍️</div>
+            <div class="feature-content">
+              <h3>Memory Write Cycle</h3>
+              <p>Used when the CPU wants to write (store) data into memory.</p>
+              <p>Example: Store result into address 3050H.</p>
+              <p>Takes 3T-states.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="emoji">📥</div>
+            <div class="feature-content">
+              <h3>I/O Read Cycle</h3>
+              <p>Used to read data from an input device (keyboard, sensor).</p>
+              <p>Example: Get a key press.</p>
+              <p>Takes 3T-states.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="emoji">📤</div>
+            <div class="feature-content">
+              <h3>I/O Write Cycle</h3>
+              <p>
+                Used to send data to an output device (screen, LED, printer).
+              </p>
+              <p>Example: Display output result.</p>
+              <p>Takes 3T-states.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Real-World Analogy -->
+    <section class="section analogy" id="section-9">
+      <div class="container">
+        <h2 class="section-title">🌍 8. Real-World Analogy</h2>
+        <div class="card fade-in">
+          <p style="font-size: 1.3rem; margin-bottom: 20px">
+            Imagine a teacher and a student:
+          </p>
+          <p style="font-size: 1.3rem; margin-bottom: 20px">
+            The teacher (Memory/I-O) gives questions or receives answers.
+          </p>
+          <p style="font-size: 1.3rem; margin-bottom: 20px">
+            The student (CPU) reads the question (Fetch), understands it
+            (Decode), and writes the answer (Execute).
+          </p>
+          <p style="font-size: 1.3rem">
+            Each question-answer process takes fixed time steps — like T1, T2,
+            T3 — similar to how the CPU completes its cycles in a fixed pattern.
+          </p>
+        </div>
+        <div class="metrics-grid fade-in">
+          <div class="metric-card">
+            <div class="metric-icon">👨‍🏫</div>
+            <div class="metric-title">Teacher</div>
+            <p>Memory/I-O devices</p>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">👨‍🎓</div>
+            <div class="metric-title">Student</div>
+            <p>CPU</p>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">📚</div>
+            <div class="metric-title">Question</div>
+            <p>Instruction</p>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon">✍️</div>
+            <div class="metric-title">Answer</div>
+            <p>Execution</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Summary Table -->
+    <section class="section summary" id="section-11">
+      <div class="container">
+        <h2 class="section-title">🧭 10. Summary Table</h2>
+        <div class="card fade-in">
+          <table>
+            <thead>
+              <tr>
+                <th>Concept</th>
+                <th>Meaning</th>
+                <th>Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>T-State</td>
+                <td>Smallest unit of time</td>
+                <td>One clock tick</td>
+              </tr>
+              <tr>
+                <td>Machine Cycle</td>
+                <td>Group of T-states for one operation</td>
+                <td>Opcode Fetch (4T)</td>
+              </tr>
+              <tr>
+                <td>Instruction Cycle</td>
+                <td>Fetch + Execute</td>
+                <td>MOV A, B</td>
+              </tr>
+              <tr>
+                <td>Opcode Fetch</td>
+                <td>CPU reads instruction from memory</td>
+                <td>41H from 2105H</td>
+              </tr>
+              <tr>
+                <td>Memory Read/Write</td>
+                <td>CPU reads/writes data to memory</td>
+                <td>Reading/saving file</td>
+              </tr>
+              <tr>
+                <td>I/O Read/Write</td>
+                <td>CPU interacts with devices</td>
+                <td>Keyboard/display</td>
+              </tr>
+              <tr>
+                <td>Fetch & Execute</td>
+                <td>Two parts of every instruction</td>
+                <td>Read & perform action</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card fade-in" style="text-align: center; margin-top: 30px">
+          <p style="font-size: 1.5rem; font-weight: bold">
+            Thank you for exploring 8085 Microprocessor Timing Diagrams!
+          </p>
+          <p style="font-size: 1.3rem; margin-top: 15px">
+            Remember: Understanding timing is key to mastering microprocessor
+            operations.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      // Navigation functionality
+      document.addEventListener("DOMContentLoaded", function () {
+        const navDots = document.querySelectorAll(".nav-dot");
+        const sections = document.querySelectorAll(".section, .header");
+
+        // Function to update active nav dot based on scroll position
+        function updateActiveNav() {
+          let current = 0;
+
+          sections.forEach((section, index) => {
+            const rect = section.getBoundingClientRect();
+            if (
+              rect.top <= window.innerHeight / 2 &&
+              rect.bottom >= window.innerHeight / 2
+            ) {
+              current = index;
+            }
+          });
+
+          navDots.forEach((dot, index) => {
+            if (index === current) {
+              dot.classList.add("active");
+            } else {
+              dot.classList.remove("active");
+            }
+          });
+        }
+
+        // Function to scroll to section when nav dot is clicked
+        function scrollToSection(index) {
+          sections[index].scrollIntoView({ behavior: "smooth" });
+        }
+
+        // Add click event to nav dots
+        navDots.forEach((dot, index) => {
+          dot.addEventListener("click", () => scrollToSection(index));
+        });
+
+        // Update active nav on scroll
+        window.addEventListener("scroll", updateActiveNav);
+
+        // Initial call to set active nav
+        updateActiveNav();
+
+        // Fade in animation on scroll
+        const fadeElements = document.querySelectorAll(".fade-in");
+
+        function checkFade() {
+          fadeElements.forEach((element) => {
+            const rect = element.getBoundingClientRect();
+            const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+
+            if (isVisible) {
+              element.classList.add("visible");
+            }
+          });
+        }
+
+        // Initial check and add scroll event listener
+        checkFade();
+        window.addEventListener("scroll", checkFade);
+      });
+    </script>
+  </body>
+</html>

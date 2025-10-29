@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architectural Classification: The Map of Computer Cities</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/computer-architecture-city/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .system-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .big-picture { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .instruction-cycle { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .flynn { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .other-explorers { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .structural { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .grain-size { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .fits-coa { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .summary { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" data-section="header"></div>
+        <div class="nav-dot" data-section="big-picture"></div>
+        <div class="nav-dot" data-section="instruction-cycle"></div>
+        <div class="nav-dot" data-section="flynn"></div>
+        <div class="nav-dot" data-section="other-explorers"></div>
+        <div class="nav-dot" data-section="structural"></div>
+        <div class="nav-dot" data-section="grain-size"></div>
+        <div class="nav-dot" data-section="fits-coa"></div>
+        <div class="nav-dot" data-section="summary"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section class="header" id="header">
+        <div class="container">
+            <h1>Architectural Classification</h1>
+            <div class="system-character">🏙️</div>
+            <p>The Map of Computer Cities</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Big Picture Section -->
+    <section class="section big-picture" id="big-picture">
+        <div class="container">
+            <h2 class="section-title fade-in">The Big Picture</h2>
+            <div class="card fade-in">
+                <p>Imagine a busy city of computers. Some machines are small shops run by one worker, others are giant factories with many people building things at the same time. "Architectural classification" is the map that tells us what kind of city a computer is—how its citizens (instructions and data) move, how the buildings (processors and memory) connect, and how many jobs can run side by side.</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🗺️</span>Where This Fits in COA</h3>
+                    <p>In Computer Organization & Architecture (COA), this topic sits inside <strong>Process Organization</strong>, because it explains how the CPU and memory are arranged to handle many tasks. Understanding architectural classification helps us see both the logical flow of information and the physical structure that enables it.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🏢</div>
+                        <div class="feature-content">
+                            <h3>Computer City</h3>
+                            <p>Visualize computers as cities with different layouts and workflows</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🗺️</div>
+                        <div class="feature-content">
+                            <h3>Classification Map</h3>
+                            <p>Shows how instructions, data, processors, and memory are organized</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🏗️</div>
+                        <div class="feature-content">
+                            <h3>Process Organization</h3>
+                            <p>Part of COA that focuses on CPU and memory arrangement</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instruction Cycle Section -->
+    <section class="section instruction-cycle" id="instruction-cycle">
+        <div class="container">
+            <h2 class="section-title fade-in">Starting the Journey: The Instruction Cycle</h2>
+            <div class="card fade-in">
+                <p>Every computer, no matter how fancy, obeys a rhythm: fetch an instruction, decode it, execute it, and store the result. Picture a librarian (the control unit) fetching one instruction card at a time, a translator (decoder) reading it, and a worker (ALU) doing the job.</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>The Two Streams</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📜</div>
+                            <div class="feature-content">
+                                <h3>Instruction Stream</h3>
+                                <p>The sequence of instructions flowing into the CPU for processing</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Data Stream</h3>
+                                <p>The flow of data back and forth between the CPU and memory</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🧩</span>Foundation for Classification</h3>
+                    <p>These two streams are the foundation for classifying computer designs. How these streams flow—singly or in parallel—forms the basis of architectural classification schemes. Understanding this fundamental rhythm helps us see how different computer architectures optimize this cycle for different purposes.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Flynn's Classification Section -->
+    <section class="section flynn" id="flynn">
+        <div class="container">
+            <h2 class="section-title fade-in">Flynn's Famous Map</h2>
+            <div class="card fade-in">
+                <p>In 1972, Michael Flynn said, "Let's classify computers by how many instruction streams and data streams they can handle." This created a simple but powerful framework that remains influential today.</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🗺️</span>The Four Categories</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">1️⃣</div>
+                            <div class="feature-content">
+                                <h3>SISD</h3>
+                                <p><strong>Single Instruction, Single Data</strong>. Think of a single-lane road—classic sequential machines where one instruction operates on one data item at a time.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>SIMD</h3>
+                                <p><strong>Single Instruction, Multiple Data</strong>. A single traffic light tells many lanes to go at once—great for graphics or vector math where the same operation applies to multiple data items.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>MISD</h3>
+                                <p><strong>Multiple Instructions, Single Data</strong>. Rare, like a relay race where many runners work on the same baton. Multiple instructions process the same data stream, often for fault tolerance.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🏙️</div>
+                            <div class="feature-content">
+                                <h3>MIMD</h3>
+                                <p><strong>Multiple Instructions, Multiple Data</strong>. A bustling city with many independent workers—this is how most modern parallel computers behave, with multiple processors executing different instructions on different data.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔍</span>Focus on Behavior</h3>
+                    <p>Flynn's map shows <em>behavior</em>—the patterns of flow—without worrying about physical layout. It focuses on how many instruction and data streams can be processed simultaneously, providing a high-level view of parallelism in computer systems.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Other Explorers Section -->
+    <section class="section other-explorers" id="other-explorers">
+        <div class="container">
+            <h2 class="section-title fade-in">Other Explorers</h2>
+            <div class="card fade-in">
+                <p>Beyond Flynn's classification, other researchers developed more detailed schemes to capture different aspects of computer architecture.</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📏</span>Feng's Classification</h3>
+                    <p>Feng's classification looks at <em>degree of parallelism</em>—how many bits or words can be processed at once, from bit-by-bit (Word Serial Bit Serial - WSBS) to fully parallel word-and-bit processing (Word Parallel Bit Parallel - WPBP).</p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">1️⃣</div>
+                            <div class="feature-content">
+                                <h3>WSBS</h3>
+                                <p>Word Serial, Bit Serial - processes one bit at a time, sequentially</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>WPBP</h3>
+                                <p>Word Parallel, Bit Parallel - processes all bits of multiple words simultaneously</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔧</span>Handler's Classification</h3>
+                    <p>Handler's classification dives into pipeline details, describing how many control units, ALUs, and bit-level circuits can work in parallel or in stages. It uses notations like <code>(p * p', a * a', b * b')</code> to capture how a machine chains operations.</p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🎛️</div>
+                            <div class="feature-content">
+                                <h3>Control Units (p)</h3>
+                                <p>Number of processors and their configuration</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⚙️</div>
+                            <div class="feature-content">
+                                <h3>ALUs (a)</h3>
+                                <p>Arithmetic Logic Units and their arrangement</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔌</div>
+                            <div class="feature-content">
+                                <h3>Bit Circuits (b)</h3>
+                                <p>Bit-level processing elements and their organization</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔍</span>Finer Measurements</h3>
+                    <p>These classification schemes add finer measurements of parallel power beyond Flynn's simple four boxes. They provide more detailed ways to describe and compare different computer architectures based on their internal organization and processing capabilities.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Structural Classification Section -->
+    <section class="section structural" id="structural">
+        <div class="container">
+            <h2 class="section-title fade-in">The Physical Layouts: Structural Classification</h2>
+            <div class="card fade-in">
+                <p>Behavior is one thing; wiring is another. Architects also sort computers by <strong>how their processors and memories are physically connected</strong>.</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔗</span>Shared Memory / Tightly Coupled</h3>
+                    <p>All processors dip into the same memory pool. It's fast and good for real-time work, but everyone must politely share.</p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">⚖️</div>
+                            <div class="feature-content">
+                                <h3>UMA</h3>
+                                <p><strong>Uniform Memory Access</strong> - Equal memory access time for all processors</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🌐</div>
+                            <div class="feature-content">
+                                <h3>NUMA</h3>
+                                <p><strong>Non-Uniform Memory Access</strong> - Each processor has local memory plus slower access to others</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">💾</div>
+                            <div class="feature-content">
+                                <h3>COMA</h3>
+                                <p><strong>Cache Only Memory Access</strong> - Everything is cache, forming a global memory space</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📮</span>Loosely Coupled (Distributed)</h3>
+                    <p>Each processor has its own memory and talks to others by sending messages—like independent houses connected by a mail service. This avoids memory conflicts but needs careful communication.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🛣️</span>Interconnection Networks</h3>
+                    <p>Interconnection networks (crossbars, multistage switches) are the "roads" linking processors and memory. The design of these networks significantly impacts system performance and scalability.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Grain Size Section -->
+    <section class="section grain-size" id="grain-size">
+        <div class="container">
+            <h2 class="section-title fade-in">Finding Parallel Tasks: Grain Size</h2>
+            <div class="card fade-in">
+                <p>Parallelism isn't just hardware; it starts with the program. We look for pieces that can run at the same time:</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔍</span>Levels of Parallelism</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔬</div>
+                            <div class="feature-content">
+                                <h3>Fine Grain</h3>
+                                <p>Tiny instruction chunks (less than ~20 instructions), like assembly-line micro-steps. Offers many parallel tasks but with high coordination overhead.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📋</div>
+                            <div class="feature-content">
+                                <h3>Medium Grain</h3>
+                                <p>Procedures or subroutines with hundreds of instructions. Balances parallelism with coordination costs.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📚</div>
+                            <div class="feature-content">
+                                <h3>Coarse Grain</h3>
+                                <p>Whole programs or large tasks with thousands of instructions. Minimal coordination overhead but fewer parallel opportunities.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔗</span>Dependencies</h3>
+                    <p>Before splitting tasks, we check dependencies:</p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Data Dependencies</h3>
+                                <p>Does one instruction need another's output? True dependencies prevent parallel execution.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Control Dependencies</h3>
+                                <p>Loops or if/else order that affects which instructions execute. Branches can limit parallelism.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⚙️</div>
+                            <div class="feature-content">
+                                <h3>Resource Dependencies</h3>
+                                <p>Do tasks fight for the same hardware? Resource conflicts can serialize execution.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📐</span>Bernstein's Conditions</h3>
+                    <p>Bernstein's conditions give a neat test: two tasks can run in parallel only if they never try to read and write the same memory locations in conflicting ways. This formal approach helps identify parallelizable code sections.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fits COA Section -->
+    <section class="section fits-coa" id="fits-coa">
+        <div class="container">
+            <h2 class="section-title fade-in">How It Fits into COA</h2>
+            <div class="card fade-in">
+                <p>COA wants you to see both <em>behavior</em> (instruction/data flow) and <em>structure</em> (how components connect). Architectural classification ties them together:</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Instruction Cycle</h3>
+                    <p>Shows the basic CPU rhythm that all architectures follow, whether sequential or parallel. Understanding this cycle is fundamental to seeing how different architectures optimize or parallelize it.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🗺️</span>Classification Schemes</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Flynn, Feng, Handler</h3>
+                                <p>Explain <em>types of parallelism</em> and how they manifest in different architectures</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔗</div>
+                            <div class="feature-content">
+                                <h3>Shared vs. Distributed Memory</h3>
+                                <p>Shows <em>physical organization</em> and how it affects performance and programming models</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔍</div>
+                            <div class="feature-content">
+                                <h3>Grain Size and Dependencies</h3>
+                                <p>Teach how <em>software can exploit the hardware</em> by identifying parallelizable code sections</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🎯</span>Practical Applications</h3>
+                    <p>Understanding these schemes helps when you design processors, optimize programs for parallel execution, or choose the right architecture for tasks like AI training or scientific simulation. This knowledge bridges the gap between theoretical computer science and practical engineering.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Summary Section -->
+    <section class="section summary" id="summary">
+        <div class="container">
+            <h2 class="section-title fade-in">Quick Recap</h2>
+            <div class="card fade-in">
+                <p>Seen as a story, architectural classification is the bridge between <strong>the logical dance of instructions</strong> and <strong>the physical city of processors and memory</strong>. It tells you not only <em>what</em> a computer does but <em>how</em> its internal society is organized so that countless operations can march—or sprint—together.</p>
+            </div>
+            <div class="card fade-in">
+                <table>
+                    <tr>
+                        <th><span class="register-icon">🔍</span>Viewpoint</th>
+                        <th><span class="register-icon">💡</span>Key idea</th>
+                        <th><span class="register-icon">🌐</span>Example</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Instruction/Data Flow (Flynn)</strong></td>
+                        <td>SISD, SIMD, MISD, MIMD</td>
+                        <td>GPU = SIMD, multicore server = MIMD</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Degree of Parallelism (Feng)</strong></td>
+                        <td>Bits/words processed per time</td>
+                        <td>WPBP fully parallel</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pipeline Detail (Handler)</strong></td>
+                        <td>p, a, b notation</td>
+                        <td>Cray-1 = (1, 12*8, 64*(1~14))</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Physical Structure</strong></td>
+                        <td>Shared vs. distributed memory</td>
+                        <td>UMA/NUMA/COMA vs. Loosely coupled</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Software Grain</strong></td>
+                        <td>Fine, medium, coarse</td>
+                        <td>Loop parallelism vs. whole-program</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🧠</span>Key Takeaway</h3>
+                    <p>Architectural classification provides multiple lenses to understand computer systems. By examining both behavior and structure, we gain a comprehensive view of how computers are organized and how they can be optimized for different tasks. This knowledge is essential for computer architects, system programmers, and anyone seeking to understand the fundamental principles that underpin all computing systems.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔮</span>Future Directions</h3>
+                    <p>As computing continues to evolve with new paradigms like quantum computing, neuromorphic architectures, and specialized AI accelerators, classification schemes will also need to adapt. However, the fundamental principles of understanding instruction flow, data access, and physical organization will remain relevant, providing a foundation for understanding whatever comes next in the ever-changing landscape of computer architecture.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const navDots = document.querySelectorAll('.nav-dot');
+            const sections = document.querySelectorAll('section');
+            
+            // Function to update active navigation dot
+            function updateActiveNav() {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (scrollY >= (sectionTop - 200)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                
+                navDots.forEach(dot => {
+                    dot.classList.remove('active');
+                    if (dot.getAttribute('data-section') === current) {
+                        dot.classList.add('active');
+                    }
+                });
+            }
+            
+            // Add click event to navigation dots
+            navDots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-section');
+                    const targetSection = document.getElementById(targetId);
+                    window.scrollTo({
+                        top: targetSection.offsetTop,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+            
+            // Update active navigation on scroll
+            window.addEventListener('scroll', updateActiveNav);
+            
+            // Fade-in animation on scroll
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            function checkFade() {
+                fadeElements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    
+                    if (elementTop < window.innerHeight - elementVisible) {
+                        element.classList.add('visible');
+                    }
+                });
+            }
+            
+            // Initial check and add scroll event listener
+            checkFade();
+            window.addEventListener('scroll', checkFade);
+        });
+    </script>
+</body>
+</html>

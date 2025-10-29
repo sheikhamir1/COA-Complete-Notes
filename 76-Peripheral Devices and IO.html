@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peripheral Devices and I/O Systems</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/peripheral-devices/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .peripheral-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .definition { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .classification { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .types { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Device Grid Styles */
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .device-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+        .device-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .device-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .device-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('intro')"></div>
+        <div class="nav-dot" onclick="scrollToSection('definition')"></div>
+        <div class="nav-dot" onclick="scrollToSection('classification')"></div>
+        <div class="nav-dot" onclick="scrollToSection('types')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section id="header" class="header">
+        <div class="container">
+            <h1>Peripheral Devices and I/O Systems</h1>
+            <p>Understanding input/output operations and peripheral device management</p>
+            <div class="peripheral-character">🖱️</div>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section id="intro" class="section intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction</h2>
+            <div class="card fade-in">
+                <p>In modern computer systems, the efficient management of input and output operations is crucial for optimal performance and user experience. Peripheral devices, such as keyboards, mice, printers, and storage devices, form an essential part of the computing environment, allowing interaction with the system and extending its capabilities.</p>
+            </div>
+            <div class="card fade-in">
+                <p>These devices require robust interfaces and transfer methods to communicate effectively with the central processing unit (CPU) and memory. The architecture and methods used to handle input and output operations significantly impact the overall system performance.</p>
+            </div>
+            <div class="card fade-in">
+                <p>Various techniques, including direct memory access (DMA), priority interrupts, and the use of specialized input-output processors (IOPs), have been developed to streamline these operations and reduce the CPU's workload. Each of these techniques has its unique advantages and is suited to different types of tasks and performance requirements.</p>
+            </div>
+            <div class="card fade-in">
+                <p>This unit explores the fundamental concepts and structures related to peripheral devices and their interaction with computer systems. It covers the various types of I/O interfaces, modes of data transfer, the concept and implementation of priority interrupts, and the role of DMA in improving data transfer efficiency.</p>
+            </div>
+            <div class="card fade-in">
+                <p>Additionally, we delve into the design and function of input-output processors, which further enhance the system's ability to handle complex I/O operations seamlessly. Through this comprehensive examination, we aim to provide a clear understanding of how input-output operations are managed in modern computer systems and their impact on overall performance.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Definition and Examples Section -->
+    <section id="definition" class="section definition">
+        <div class="container">
+            <h2 class="section-title fade-in">Peripheral Devices</h2>
+            <div class="card fade-in">
+                <p>Peripheral devices are hardware components that are not part of the central processing unit (CPU) or main memory of a computer system but are essential for various input, output, and storage functions. They are typically connected to the computer via various ports and interfaces.</p>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">📝</span>Definition and Examples of Peripheral Devices</h3>
+                <div class="card">
+                    <p>Peripheral devices are external devices that provide input to the computer, output from the computer, or storage capabilities. They enhance the functionality of the computer system by allowing it to interact with the external environment and store data persistently.</p>
+                </div>
+                
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">📥</div>
+                        <div class="feature-content">
+                            <h3>Input Devices</h3>
+                            <p>Keyboard, mouse, scanner, microphone</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📤</div>
+                        <div class="feature-content">
+                            <h3>Output Devices</h3>
+                            <p>Monitor, printer, speakers</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">💾</div>
+                        <div class="feature-content">
+                            <h3>Storage Devices</h3>
+                            <p>Hard drives, solid-state drives (SSDs), optical drives (CDs, DVDs)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Classification Section -->
+    <section id="classification" class="section classification">
+        <div class="container">
+            <h2 class="section-title fade-in">Classification of Peripheral Devices</h2>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">📥</span>Input Devices</h3>
+                <div class="device-grid">
+                    <div class="device-card">
+                        <div class="device-icon">⌨️</div>
+                        <div class="device-title">Keyboard</div>
+                        <p>A primary input device used to input text and commands into the computer.</p>
+                    </div>
+                    <div class="device-card">
+                        <div class="device-icon">🖱️</div>
+                        <div class="device-title">Mouse</div>
+                        <p>A pointing device that allows users to interact with the computer's graphical user interface.</p>
+                    </div>
+                    <div class="device-card">
+                        <div class="device-icon">📷</div>
+                        <div class="device-title">Scanner</div>
+                        <p>A device that converts physical documents into digital format.</p>
+                    </div>
+                    <div class="device-card">
+                        <div class="device-icon">🎤</div>
+                        <div class="device-title">Microphone</div>
+                        <p>An audio input device used for voice recording or communication.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">📤</span>Output Devices</h3>
+                <div class="device-grid">
+                    <div class="device-card">
+                        <div class="device-icon">🖥️</div>
+                        <div class="device-title">Monitor</div>
+                        <p>The primary output device used to display visual information from the computer.</p>
+                    </div>
+                    <div class="device-card">
+                        <div class="device-icon">🖨️</div>
+                        <div class="device-title">Printer</div>
+                        <p>A device that produces hard copies of digital documents.</p>
+                    </div>
+                    <div class="device-card">
+                        <div class="device-icon">🔊</div>
+                        <div class="device-title">Speakers</div>
+                        <p>Audio output devices used to play sound.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">💾</span>Storage Devices</h3>
+                <div class="device-grid">
+                    <div class="device-card">
+                        <div class="device-icon">💿</div>
+                        <div class="device-title">Hard Disk Drives (HDDs)</div>
+                        <p>Traditional storage devices that use spinning disks to read and write data.</p>
+                    </div>
+                    <div class="device-card">
+                        <div class="device-icon">💾</div>
+                        <div class="device-title">Solid-State Drives (SSDs)</div>
+                        <p>Faster, more reliable storage devices that use flash memory.</p>
+                    </div>
+                    <div class="device-card">
+                        <div class="device-icon">💽</div>
+                        <div class="device-title">Optical Drives</div>
+                        <p>Devices that read and write data from optical discs like CDs, DVDs, and Blu-rays.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Types Section -->
+    <section id="types" class="section types">
+        <div class="container">
+            <h2 class="section-title fade-in">Types of Peripheral Devices</h2>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">📥</span>Input Devices</h3>
+                <div class="card">
+                    <p><strong>Keyboard:</strong> The keyboard is a primary input device used to input text and commands into the computer. Keyboards come in various layouts, with the QWERTY layout being the most common. They can be wired or wireless.</p>
+                </div>
+                <div class="card">
+                    <p><strong>Mouse:</strong> The mouse is a pointing device that allows users to interact with the computer's graphical user interface. It can be moved on a surface to control the position of a cursor on the screen and has buttons for clicking and selecting items.</p>
+                </div>
+                <div class="card">
+                    <p><strong>Scanner:</strong> A scanner converts physical documents into digital format by capturing images of the documents. Scanners can be flatbed, sheet-fed, or handheld, and are used for digitizing printed text, images, and other documents.</p>
+                </div>
+                <div class="card">
+                    <p><strong>Microphone:</strong> Microphones capture audio input for recording or communication purposes. They can be standalone devices or integrated into other hardware like headsets, webcams, and laptops.</p>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">📤</span>Output Devices</h3>
+                <div class="card">
+                    <p><strong>Monitor:</strong> Monitors display visual output from the computer. They come in various sizes and resolutions, with technologies like LCD, LED, and OLED. Monitors can be used for general computing, gaming, graphic design, and other applications.</p>
+                </div>
+                <div class="card">
+                    <p><strong>Printer:</strong> Printers produce hard copies of digital documents. They can be inkjet, laser, or 3D printers, each suited for different tasks like printing photos, documents, or three-dimensional objects.</p>
+                </div>
+                <div class="card">
+                    <p><strong>Speakers:</strong> Speakers output audio from the computer, providing sound for multimedia applications, music, and communication. They can be part of a sound system or integrated into other devices.</p>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">💾</span>Storage Devices</h3>
+                <div class="card">
+                    <p><strong>Hard Disk Drives (HDDs):</strong> HDDs use spinning disks coated with magnetic material to read and write data. They offer large storage capacities and are commonly used for data storage and backup.</p>
+                </div>
+                <div class="card">
+                    <p><strong>Solid-State Drives (SSDs):</strong> SSDs use flash memory to store data, providing faster read/write speeds and greater reliability compared to HDDs. They are increasingly used in modern computers for their performance benefits.</p>
+                </div>
+                <div class="card">
+                    <p><strong>Optical Drives:</strong> Optical drives read and write data from optical discs like CDs, DVDs, and Blu-rays. They are used for data distribution, media playback, and backup storage.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update active navigation dot based on scroll position
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - sectionHeight / 3)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            if (current) {
+                document.querySelector(`.nav-dot[onclick="scrollToSection('${current}')"]`).classList.add('active');
+            }
+        });
+
+        // Fade-in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

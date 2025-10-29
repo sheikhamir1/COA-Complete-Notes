@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TLB (Translation Lookaside Buffer) - Memory Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/tlb-hardware/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .tlb-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .importance { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .components { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .operation { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .detailed { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .diagram { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .benefits { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .challenges { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Process Flow Styles */
+        .process-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .process-step {
+            width: 90%;
+            padding: 20px;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .process-step::after {
+            content: "↓";
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        .process-step:last-child::after {
+            display: none;
+        }
+        .step-number {
+            background: rgba(255, 255, 255, 0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 20px;
+        }
+        .step-content {
+            flex: 1;
+        }
+        .step-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        /* Diagram Styles */
+        .diagram-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .diagram-box {
+            width: 80%;
+            padding: 20px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .diagram-arrow {
+            font-size: 2rem;
+            margin: 5px 0;
+        }
+        /* Key Points Styles */
+        .key-points {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .key-point {
+            flex: 1;
+            min-width: 250px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .key-point .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('intro')"></div>
+        <div class="nav-dot" onclick="scrollToSection('importance')"></div>
+        <div class="nav-dot" onclick="scrollToSection('components')"></div>
+        <div class="nav-dot" onclick="scrollToSection('operation')"></div>
+        <div class="nav-dot" onclick="scrollToSection('detailed')"></div>
+        <div class="nav-dot" onclick="scrollToSection('diagram')"></div>
+        <div class="nav-dot" onclick="scrollToSection('benefits')"></div>
+        <div class="nav-dot" onclick="scrollToSection('challenges')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section id="header" class="header">
+        <div class="container">
+            <h1>TLB (Translation Lookaside Buffer)</h1>
+            <p>Understanding the specialized cache for virtual address translation</p>
+            <div class="tlb-character">🔍</div>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section id="intro" class="section intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to TLB</h2>
+            <div class="card fade-in">
+                <p>The Translation Lookaside Buffer (TLB) is a specialized cache used to improve the speed of virtual address translation in computer systems. It is a part of the memory management unit (MMU) and stores recent translations of virtual addresses to physical addresses.</p>
+            </div>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">⚡</div>
+                    <div class="feature-content">
+                        <h3>Specialized Cache</h3>
+                        <p>Designed specifically for address translations</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🧠</div>
+                    <div class="feature-content">
+                        <h3>Part of MMU</h3>
+                        <p>Integral component of memory management</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔄</div>
+                    <div class="feature-content">
+                        <h3>Address Translation</h3>
+                        <p>Maps virtual to physical addresses</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Importance of TLB Section -->
+    <section id="importance" class="section importance">
+        <div class="container">
+            <h2 class="section-title fade-in">Importance of TLB</h2>
+            <div class="card fade-in">
+                <p>Without a TLB, every memory access would require a page table lookup, which involves accessing main memory and can significantly slow down the system. By caching recent translations, the TLB reduces the number of memory accesses needed for address translation, thereby improving overall system performance.</p>
+            </div>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">⏱️</div>
+                    <div class="feature-content">
+                        <h3>Performance Boost</h3>
+                        <p>Reduces memory access time for address translation</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔄</div>
+                    <div class="feature-content">
+                        <h3>Fewer Memory Accesses</h3>
+                        <p>Minimizes main memory lookups</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">📈</div>
+                    <div class="feature-content">
+                        <h3>System Efficiency</h3>
+                        <p>Improves overall system performance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Components of TLB Section -->
+    <section id="components" class="section components">
+        <div class="container">
+            <h2 class="section-title fade-in">Components of TLB</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🏷️</div>
+                    <div class="feature-content">
+                        <h3>Tag</h3>
+                        <p>Identifies the virtual page number</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔢</div>
+                    <div class="feature-content">
+                        <h3>Page Frame Number</h3>
+                        <p>The corresponding physical page frame number</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">✅</div>
+                    <div class="feature-content">
+                        <h3>Valid Bit</h3>
+                        <p>Indicates whether the TLB entry is valid</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔒</div>
+                    <div class="feature-content">
+                        <h3>Access Control Bits</h3>
+                        <p>Permissions and access rights for the page</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">⚙️</div>
+                    <div class="feature-content">
+                        <h3>Other Bits</h3>
+                        <p>May include bits for managing replacement policies (e.g., LRU)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Operation of TLB Section -->
+    <section id="operation" class="section operation">
+        <div class="container">
+            <h2 class="section-title fade-in">Operation of TLB</h2>
+            <div class="process-flow fade-in">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">Virtual Address Generation</div>
+                        <p>The CPU generates a virtual address.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">TLB Lookup</div>
+                        <p>The MMU checks the TLB for a match with the virtual page number.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">TLB Hit</div>
+                        <p>If a match is found (TLB hit), the corresponding physical page frame number is used to form the physical address, and the memory access proceeds.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-title">TLB Miss</div>
+                        <p>If no match is found (TLB miss), the MMU must perform a page table lookup.</p>
+                        <p>The page table lookup retrieves the physical page frame number.</p>
+                        <p>The TLB is updated with the new translation.</p>
+                        <p>The memory access then proceeds with the translated address.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Steps in TLB Operation Section -->
+    <section id="detailed" class="section detailed">
+        <div class="container">
+            <h2 class="section-title fade-in">Detailed Steps in TLB Operation</h2>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">🖥️</span>Virtual Address Generation</h3>
+                <div class="card">
+                    <p>The CPU generates a virtual address, consisting of a virtual page number and an offset within the page.</p>
+                    <p><strong>Example:</strong> For a 32-bit virtual address with a 4 KB page size, the top 20 bits could represent the virtual page number, and the bottom 12 bits represent the offset.</p>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔍</span>TLB Lookup</h3>
+                <div class="card">
+                    <p>The MMU uses the virtual page number to search the TLB.</p>
+                    <p>If the TLB has multiple entries, associative or direct-mapped search techniques may be used.</p>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">✅</span>TLB Hit</h3>
+                <div class="card">
+                    <p>If the virtual page number is found in the TLB, the corresponding physical page frame number is retrieved.</p>
+                    <p>The physical address is constructed by combining the physical page frame number with the offset.</p>
+                    <p><strong>Example:</strong> If the TLB entry maps virtual page number 0x123 to physical page frame 0x456, and the offset is 0x789, the physical address is 0x456789.</p>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">❌</span>TLB Miss</h3>
+                <div class="card">
+                    <p>If the virtual page number is not found in the TLB, a page table lookup is initiated.</p>
+                    <p>The MMU retrieves the page table entry for the virtual page number, obtaining the physical page frame number.</p>
+                    <p>The TLB is updated with the new translation.</p>
+                    <p>The physical address is then constructed, and the memory access proceeds.</p>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">💾</span>Memory Access</h3>
+                <div class="card">
+                    <p>The constructed physical address is used to access the memory.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Diagram of TLB Operation Section -->
+    <section id="diagram" class="section diagram">
+        <div class="container">
+            <h2 class="section-title fade-in">Diagram of TLB Operation</h2>
+            <div class="card fade-in">
+                <p>Here is a simplified block diagram of TLB operation:</p>
+            </div>
+            <div class="diagram-container fade-in">
+                <div class="diagram-box">
+                    <h3>CPU</h3>
+                    <p>Generates virtual address (VPN + Offset)</p>
+                </div>
+                <div class="diagram-arrow">⬇️</div>
+                <div class="diagram-box">
+                    <h3>MMU</h3>
+                    <p>Checks TLB for translation</p>
+                </div>
+                <div class="diagram-arrow">⬇️</div>
+                <div class="diagram-box">
+                    <h3>TLB</h3>
+                    <p>Cache of recent translations</p>
+                </div>
+                <div class="diagram-arrow">⬇️</div>
+                <div class="diagram-box">
+                    <h3>Page Table</h3>
+                    <p>Accessed on TLB miss</p>
+                </div>
+                <div class="diagram-arrow">⬇️</div>
+                <div class="diagram-box">
+                    <h3>Physical Memory</h3>
+                    <p>Accessed using physical address</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits of TLB Section -->
+    <section id="benefits" class="section benefits">
+        <div class="container">
+            <h2 class="section-title fade-in">Benefits of TLB</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">⚡</div>
+                    <div class="feature-content">
+                        <h3>Speed</h3>
+                        <p>Significantly reduces the time needed for address translation by caching recent translations</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔄</div>
+                    <div class="feature-content">
+                        <h3>Efficiency</h3>
+                        <p>Decreases the number of memory accesses required for translation, freeing up memory bandwidth for other operations</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">📈</div>
+                    <div class="feature-content">
+                        <h3>Performance</h3>
+                        <p>Improves the overall performance of the system by reducing latency in memory access</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Challenges and Solutions Section -->
+    <section id="challenges" class="section challenges">
+        <div class="container">
+            <h2 class="section-title fade-in">Challenges and Solutions</h2>
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">⏱️</span>TLB Miss Penalty</h3>
+                <div class="card">
+                    <p><strong>Challenge:</strong> When a TLB miss occurs, the penalty is the time taken to perform a page table lookup.</p>
+                    <p><strong>Solution:</strong> This can be mitigated by optimizing page table structures and using larger TLBs.</p>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">📏</span>TLB Size</h3>
+                <div class="card">
+                    <p><strong>Challenge:</strong> A larger TLB can store more entries, reducing the miss rate but at the cost of increased hardware complexity and power consumption.</p>
+                    <p><strong>Solution:</strong> Balancing TLB size and performance is critical.</p>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 style="text-align: center; margin-bottom: 15px;">TLB Challenges Overview</h3>
+                <table>
+                    <tr>
+                        <th>Challenge</th>
+                        <th>Description</th>
+                        <th>Solution</th>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">⏱️</span>Miss Penalty</td>
+                        <td>Time penalty when TLB miss occurs</td>
+                        <td>Optimize page table structures</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">📏</span>Size Limitations</td>
+                        <td>Trade-off between size and complexity</td>
+                        <td>Balanced design approach</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🔄</span>Replacement Policy</td>
+                        <td>Deciding which entries to replace</td>
+                        <td>Efficient algorithms like LRU</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">⚡</span>Power Consumption</td>
+                        <td>Higher power with larger TLBs</td>
+                        <p>Power-efficient designs</p>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update active navigation dot based on scroll position
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - sectionHeight / 3)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            if (current) {
+                document.querySelector(`.nav-dot[onclick="scrollToSection('${current}')"]`).classList.add('active');
+            }
+        });
+
+        // Fade-in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

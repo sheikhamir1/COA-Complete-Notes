@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Priority Interrupt - Computer Systems</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/priority-interrupt/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .interrupt-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .definition { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .levels { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .mechanisms { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .vectors { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .applications { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .challenges { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 152, 80, 0.7)); }
+        .types { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Priority System Card */
+        .priority-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            transition: transform 0.3s ease;
+        }
+        .priority-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .priority-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .priority-title .emoji {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .comparison-table th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        .comparison-table tr:hover td {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('intro')"></div>
+        <div class="nav-dot" onclick="scrollToSection('definition')"></div>
+        <div class="nav-dot" onclick="scrollToSection('levels')"></div>
+        <div class="nav-dot" onclick="scrollToSection('mechanisms')"></div>
+        <div class="nav-dot" onclick="scrollToSection('vectors')"></div>
+        <div class="nav-dot" onclick="scrollToSection('applications')"></div>
+        <div class="nav-dot" onclick="scrollToSection('challenges')"></div>
+        <div class="nav-dot" onclick="scrollToSection('types')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section id="header" class="header">
+        <div class="container">
+            <h1>Priority Interrupt</h1>
+            <p>Understanding interrupt systems and priority management in computer systems</p>
+            <div class="interrupt-character">⚡</div>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section id="intro" class="section intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to Priority Interrupt</h2>
+            <div class="card fade-in">
+                <p>Priority interrupt systems are designed to handle multiple interrupt requests from various I/O devices based on their priority levels. The main goal is to ensure that the most critical tasks are addressed first, enhancing the efficiency and responsiveness of the system.</p>
+            </div>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">⚡</div>
+                    <div class="feature-content">
+                        <h3>Efficiency</h3>
+                        <p>Optimizes system resource usage</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔢</div>
+                    <div class="feature-content">
+                        <h3>Priority Levels</h3>
+                        <p>Manages multiple interrupt requests</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔄</div>
+                    <div class="feature-content">
+                        <h3>Responsiveness</h3>
+                        <p>Ensures critical tasks are addressed first</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Definition and Purpose Section -->
+    <section id="definition" class="section definition">
+        <div class="container">
+            <h2 class="section-title fade-in">Definition and Purpose</h2>
+            <div class="card fade-in">
+                <p><strong>Definition:</strong> A priority interrupt system assigns priority levels to different interrupt sources and ensures that higher-priority interrupts are serviced before lower-priority ones.</p>
+            </div>
+            <div class="card fade-in">
+                <p><strong>Purpose:</strong> The primary purpose is to manage multiple interrupt requests efficiently, ensuring that critical tasks receive immediate attention while less critical tasks are deferred.</p>
+            </div>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🎯</div>
+                    <div class="feature-content">
+                        <h3>Task Prioritization</h3>
+                        <p>Ensures critical tasks are handled first</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">📊</div>
+                    <div class="feature-content">
+                        <h3>Resource Management</h3>
+                        <p>Optimizes system resources</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">⚡</div>
+                    <div class="feature-content">
+                        <h3>System Responsiveness</h3>
+                        <p>Improves overall system performance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Priority Levels Section -->
+    <section id="levels" class="section levels">
+        <div class="container">
+            <h2 class="section-title fade-in">Priority Levels</h2>
+            <div class="card fade-in">
+                <p><strong>Hierarchy:</strong> Interrupt sources are organized into a hierarchy of priority levels. Each device or interrupt source is assigned a specific priority level.</p>
+            </div>
+            <div class="card fade-in">
+                <p><strong>Preemptive Handling:</strong> If a high-priority interrupt occurs while a lower-priority interrupt is being serviced, the current process is suspended, and the high-priority interrupt is handled first.</p>
+            </div>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🔢</div>
+                    <div class="feature-content">
+                        <h3>Hierarchical Structure</h3>
+                        <p>Organized levels of importance</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">⏸️</div>
+                    <div class="feature-content">
+                        <h3>Preemption</h3>
+                        <p>Higher priority interrupts can pause lower ones</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🏷️</div>
+                    <div class="feature-content">
+                        <h3>Assigned Levels</h3>
+                        <p>Each device has a specific priority</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mechanisms for Priority Interrupts Section -->
+    <section id="mechanisms" class="section mechanisms">
+        <div class="container">
+            <h2 class="section-title fade-in">Mechanisms for Priority Interrupts</h2>
+            <div class="priority-card fade-in">
+                <div class="priority-title"><span class="emoji">🔗</span>Daisy-Chaining</div>
+                <p>A simple hardware approach where devices are connected in series. The first device in the chain has the highest priority, and the priority decreases down the chain.</p>
+            </div>
+            <div class="priority-card fade-in">
+                <div class="priority-title"><span class="emoji">⚡</span>Parallel Priority Interrupt</div>
+                <p>A more complex and faster approach where each device is connected to a priority encoder. The encoder determines the highest-priority interrupt and sends a signal to the CPU.</p>
+            </div>
+            <div class="priority-card fade-in">
+                <div class="priority-title"><span class="emoji">🔄</span>Software Polling</div>
+                <p>The CPU polls the interrupt sources in a predefined priority order. This method is simpler but slower compared to hardware-based mechanisms.</p>
+            </div>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🔗</div>
+                    <div class="feature-content">
+                        <h3>Daisy-Chaining</h3>
+                        <p>Simple series connection of devices</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">⚡</div>
+                    <div class="feature-content">
+                        <h3>Parallel Priority</h3>
+                        <p>Fast encoder-based system</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔄</div>
+                    <div class="feature-content">
+                        <h3>Software Polling</h3>
+                        <p>CPU checks devices in order</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interrupt Vectors and Service Routines Section -->
+    <section id="vectors" class="section vectors">
+        <div class="container">
+            <h2 class="section-title fade-in">Interrupt Vectors and Service Routines</h2>
+            <div class="card fade-in">
+                <p><strong>Interrupt Vector Table (IVT):</strong> A table that holds the addresses of the interrupt service routines (ISRs) for various interrupts. Each interrupt source has a specific entry in the IVT.</p>
+            </div>
+            <div class="card fade-in">
+                <p><strong>Interrupt Service Routine (ISR):</strong> A special block of code executed in response to an interrupt. The ISR for a high-priority interrupt must complete quickly to minimize the delay for lower-priority interrupts.</p>
+            </div>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">📋</div>
+                    <div class="feature-content">
+                        <h3>IVT</h3>
+                        <p>Table of ISR addresses</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">💻</div>
+                    <div class="feature-content">
+                        <h3>ISR</h3>
+                        <p>Code for handling interrupts</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">⚡</div>
+                    <div class="feature-content">
+                        <h3>Quick Execution</h3>
+                        <p>High-priority ISRs must be fast</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Applications Section -->
+    <section id="applications" class="section applications">
+        <div class="container">
+            <h2 class="section-title fade-in">Applications</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">⏱️</div>
+                    <div class="feature-content">
+                        <h3>Real-Time Systems</h3>
+                        <p>Priority interrupt systems are crucial in real-time systems where timely processing of critical tasks is essential, such as in embedded systems, industrial control systems, and medical devices.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🖥️</div>
+                    <div class="feature-content">
+                        <h3>Multitasking Operating Systems</h3>
+                        <p>Used in operating systems to manage hardware interrupts from various peripheral devices like keyboards, mice, and network cards.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">📡</div>
+                    <div class="feature-content">
+                        <h3>Communication Systems</h3>
+                        <p>Ensures that urgent communication tasks, like handling incoming data packets, are given priority over less critical tasks.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Challenges and Considerations Section -->
+    <section id="challenges" class="section challenges">
+        <div class="container">
+            <h2 class="section-title fade-in">Challenges and Considerations</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🧩</div>
+                    <div class="feature-content">
+                        <h3>Complexity</h3>
+                        <p>Implementing a priority interrupt system can add complexity to both hardware and software design.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">⚖️</div>
+                    <div class="feature-content">
+                        <h3>Overhead</h3>
+                        <p>Context switching and handling multiple interrupts can introduce overhead, impacting system performance if not managed efficiently.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🕒</div>
+                    <div class="feature-content">
+                        <h3>Starvation</h3>
+                        <p>Lower-priority tasks may face starvation if high-priority interrupts occur frequently. Proper system design and scheduling are necessary to mitigate this issue.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Types of Priority Interrupt Systems Section -->
+    <section id="types" class="section types">
+        <div class="container">
+            <h2 class="section-title fade-in">Types of Priority Interrupt Systems</h2>
+            
+            <div class="priority-card fade-in">
+                <div class="priority-title"><span class="emoji">🔗</span>Daisy-Chaining Priority System</div>
+                <p><strong>Mechanism:</strong> Devices are connected in a series (daisy-chain) with each device having an interrupt enable line that passes through it to the next device in the chain.</p>
+                <p><strong>Priority Determination:</strong> The device closest to the CPU has the highest priority. If it generates an interrupt, it will block further interrupts from lower-priority devices.</p>
+                <p><strong>Advantages:</strong> Simple and cost-effective.</p>
+                <p><strong>Disadvantages:</strong> Not scalable for systems with many devices; lower-priority devices may experience long wait times if higher-priority devices frequently generate interrupts.</p>
+            </div>
+            
+            <div class="priority-card fade-in">
+                <div class="priority-title"><span class="emoji">⚡</span>Parallel Priority Interrupt System</div>
+                <p><strong>Mechanism:</strong> Each interrupting device has a separate interrupt line connected to a priority encoder, which determines the highest-priority interrupt.</p>
+                <p><strong>Priority Determination:</strong> The priority encoder identifies the highest-priority interrupt and sends the corresponding interrupt vector to the CPU.</p>
+                <p><strong>Advantages:</strong> Fast and efficient; better suited for systems with multiple interrupt sources.</p>
+                <p><strong>Disadvantages:</strong> More complex and expensive due to additional hardware (priority encoder).</p>
+            </div>
+            
+            <div class="priority-card fade-in">
+                <div class="priority-title"><span class="emoji">🔄</span>Software Polling</div>
+                <p><strong>Mechanism:</strong> The CPU periodically checks each device's status in a predefined order to determine if it has requested an interrupt.</p>
+                <p><strong>Priority Determination:</strong> The order in which devices are polled defines their priority.</p>
+                <p><strong>Advantages:</strong> Simple to implement in software; no need for additional hardware.</p>
+                <p><strong>Disadvantages:</strong> Slower than hardware-based systems; not suitable for systems requiring immediate interrupt servicing.</p>
+            </div>
+            
+            <div class="priority-card fade-in">
+                <div class="priority-title"><span class="emoji">🔢</span>Interrupt Priority Level System</div>
+                <p><strong>Mechanism:</strong> Each interrupt request line is assigned a priority level. The CPU includes a priority controller that handles multiple interrupt requests based on these levels.</p>
+                <p><strong>Priority Determination:</strong> The priority controller ensures that the highest-priority interrupt is serviced first.</p>
+                <p><strong>Advantages:</strong> Highly flexible and can handle complex priority schemes; allows dynamic priority assignment.</p>
+                <p><strong>Disadvantages:</strong> Requires sophisticated hardware and software support.</p>
+            </div>
+            
+            <div class="priority-card fade-in">
+                <div class="priority-title"><span class="emoji">🧭</span>Vectored Interrupt System</div>
+                <p><strong>Mechanism:</strong> Each interrupt source is assigned a unique vector address, which directly points to the interrupt service routine (ISR).</p>
+                <p><strong>Priority Determination:</strong> The priority is determined by the vector addresses assigned to the interrupt sources.</p>
+                <p><strong>Advantages:</strong> Fast and efficient interrupt handling; reduces the need for interrupt processing overhead.</p>
+                <p><strong>Disadvantages:</strong> Complex to implement; requires hardware support for vector addresses.</p>
+            </div>
+            
+            <div class="priority-card fade-in">
+                <div class="priority-title"><span class="emoji">🔀</span>Nested Interrupts</div>
+                <p><strong>Mechanism:</strong> Allows an interrupt service routine (ISR) to be interrupted by higher-priority interrupts.</p>
+                <p><strong>Priority Determination:</strong> Higher-priority interrupts can interrupt lower-priority ISRs.</p>
+                <p><strong>Advantages:</strong> Improves system responsiveness for high-priority tasks; prevents critical task delays.</p>
+                <p><strong>Disadvantages:</strong> Increases system complexity; requires careful management to prevent stack overflow and ensure ISR completion.</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update active navigation dot based on scroll position
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - sectionHeight / 3)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            if (current) {
+                document.querySelector(`.nav-dot[onclick="scrollToSection('${current}')"]`).classList.add('active');
+            }
+        });
+
+        // Fade-in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

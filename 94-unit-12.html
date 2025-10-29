@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The 8085 Microprocessor: A Journey into COA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/microprocessor-chip/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .processor-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .big-picture { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .story { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .what-is { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .meet-8085 { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .inside-8085 { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .execution { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .signals { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .instruction { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .why-matters { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+        .summary { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 152, 80, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Timeline Styles */
+        .timeline {
+            position: relative;
+            margin: 30px 0;
+        }
+        .timeline::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 40px;
+            width: 50%;
+        }
+        .timeline-item:nth-child(odd) {
+            left: 0;
+            padding-right: 40px;
+            text-align: right;
+        }
+        .timeline-item:nth-child(even) {
+            left: 50%;
+            padding-left: 40px;
+        }
+        .timeline-dot {
+            position: absolute;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+        }
+        .timeline-item:nth-child(odd) .timeline-dot {
+            right: -10px;
+        }
+        .timeline-item:nth-child(even) .timeline-dot {
+            left: -10px;
+        }
+        .timeline-content {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+            .timeline::before {
+                left: 0;
+            }
+            .timeline-item {
+                width: 100%;
+                left: 0 !important;
+                padding-left: 40px !important;
+                padding-right: 0 !important;
+                text-align: left !important;
+            }
+            .timeline-dot {
+                left: -10px !important;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" data-section="header"></div>
+        <div class="nav-dot" data-section="big-picture"></div>
+        <div class="nav-dot" data-section="story"></div>
+        <div class="nav-dot" data-section="what-is"></div>
+        <div class="nav-dot" data-section="meet-8085"></div>
+        <div class="nav-dot" data-section="inside-8085"></div>
+        <div class="nav-dot" data-section="execution"></div>
+        <div class="nav-dot" data-section="signals"></div>
+        <div class="nav-dot" data-section="instruction"></div>
+        <div class="nav-dot" data-section="why-matters"></div>
+        <div class="nav-dot" data-section="summary"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section class="header" id="header">
+        <div class="container">
+            <h1>The 8085 Microprocessor</h1>
+            <div class="processor-character">🧠</div>
+            <p>A Journey into Computer Organization & Architecture</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Big Picture Section -->
+    <section class="section big-picture" id="big-picture">
+        <div class="container">
+            <h2 class="section-title fade-in">Big Picture: Where This Fits in COA</h2>
+            <div class="card fade-in">
+                <p>In Computer Organization & Architecture (COA), we study how a computer really works inside—from tiny logic gates up to the CPU, memory, buses, and I/O.</p>
+            </div>
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🏗️</div>
+                        <div class="feature-content">
+                            <h3>CPU Design</h3>
+                            <p>Inside it is the Microprocessor Architecture.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔍</div>
+                        <div class="feature-content">
+                            <h3>Classic Examples</h3>
+                            <p>The 8085 (8-bit) and 8086 (16-bit) Intel chips show how real processors work.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🧩</div>
+                        <div class="feature-content">
+                            <h3>Learning Model</h3>
+                            <p>Understanding the 8085 is like looking at a small but complete model of how today's powerful CPUs still operate.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Story Section -->
+    <section class="section story" id="story">
+        <div class="container">
+            <h2 class="section-title fade-in">The Story of Microprocessors</h2>
+            <div class="card fade-in">
+                <p>Imagine the early 1970s: computers were huge, slow, and built from many separate parts. Then came a revolution that changed everything.</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📅</span>Evolution Timeline</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h4>1971 – Intel 4004 (4-bit)</h4>
+                                <p>The first microprocessor, tiny but limited in capability.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h4>1972 – 8008 (8-bit)</h4>
+                                <p>More powerful but still not enough for complex tasks.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h4>1974 – 8080 (8-bit)</h4>
+                                <p>First truly usable general-purpose microprocessor chip.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h4>1977 – 8085 (8-bit)</h4>
+                                <p>Simpler design, needed only +5V power, became a learning standard.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h4>1978 – 8086 (16-bit)</h4>
+                                <p>Start of the x86 family that would power personal computers.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🚀</span>The Impact</h3>
+                    <p>Each step made processors smaller, faster, and more capable, which allowed the birth of the personal computer and transformed how we work and live. This evolution continues today with modern processors that can perform billions of operations per second.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What Is Section -->
+    <section class="section what-is" id="what-is">
+        <div class="container">
+            <h2 class="section-title fade-in">What Is a Microprocessor?</h2>
+            <div class="card fade-in">
+                <p>Think of it as the brain on a single chip—a complete computation engine that processes data and controls other parts of a computer system.</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🧠</span>Key Characteristics</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔢</div>
+                            <div class="feature-content">
+                                <h3>Binary Processing</h3>
+                                <p>It processes binary numbers (0s and 1s), the fundamental language of computers.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📚</div>
+                            <div class="feature-content">
+                                <h3>Instruction Set</h3>
+                                <p>Has its own "language" of instructions it can understand and execute.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⏱️</div>
+                            <div class="feature-content">
+                                <h3>Clock Speed</h3>
+                                <p>Operates at a specific clock speed that determines how many instructions it can process per second.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📏</div>
+                            <div class="feature-content">
+                                <h3>Bit-width</h3>
+                                <p>The number of bits it can process at once (8-bit, 16-bit, etc.), indicating its data-handling capacity.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Meet 8085 Section -->
+    <section class="section meet-8085" id="meet-8085">
+        <div class="container">
+            <h2 class="section-title fade-in">Meet the 8085: The Learning Model</h2>
+            <div class="card fade-in">
+                <p>Intel's 8085 is an 8-bit microprocessor that became a standard for learning computer architecture due to its simple yet powerful design.</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📋</span>Key Specifications</h3>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon">🔢</div>
+                            <div class="metric-title">8-bit Data Bus</div>
+                            <p>Handles 8 bits of data at a time</p>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">📍</div>
+                            <div class="metric-title">16-bit Address Bus</div>
+                            <p>Can address 64 KB of memory</p>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">⚡</div>
+                            <div class="metric-title">3 MHz Clock</div>
+                            <p>Operates at 3 million cycles per second</p>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">🔋</div>
+                            <div class="metric-title">Single Power Supply</div>
+                            <p>Requires only +5V to operate</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🗃️</span>Registers</h3>
+                    <p>The 8085 has six general-purpose registers (B, C, D, E, H, L) that can be paired as BC, DE, HL for 16-bit operations. These registers act as small, fast storage locations within the CPU.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Inside 8085 Section -->
+    <section class="section inside-8085" id="inside-8085">
+        <div class="container">
+            <h2 class="section-title fade-in">Inside the 8085 – Main Components</h2>
+            <div class="card fade-in">
+                <p>Picture a small city of tiny units, each with a specific job, working together to process information:</p>
+            </div>
+            <div class="card fade-in">
+                <table>
+                    <tr>
+                        <th><span class="register-icon">🧩</span>Component</th>
+                        <th><span class="register-icon">📝</span>Role</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Accumulator</strong></td>
+                        <td>A special 8-bit register where numbers come to be added, subtracted, etc. It's the primary workhorse for arithmetic operations.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ALU (Arithmetic Logic Unit)</strong></td>
+                        <td>The "math & logic factory" that adds, subtracts, AND/ORs data from the Accumulator and temporary register.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>General Purpose Registers</strong></td>
+                        <td>B, C, D, E, H, L — small storage cupboards. HL pair can point to a memory location, acting as a memory pointer.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Program Counter (PC)</strong></td>
+                        <td>Like a bookmark — always holds the address of the next instruction to be executed.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Stack Pointer (SP)</strong></td>
+                        <td>Points to the top of a stack in RAM, used for temporary storage during subroutines or interrupts.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Flags</strong></td>
+                        <td>Tiny indicators (Carry, Zero, Sign, Parity, Aux-Carry) that tell if an operation caused a carry, zero result, etc.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Instruction Register & Decoder</strong></td>
+                        <td>Receives the instruction fetched from memory and decodes what to do next.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Timing & Control Unit</strong></td>
+                        <td>The conductor of the orchestra — synchronizes data flow, sends control signals (RD, WR, ALE).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Buses (Address & Data)</strong></td>
+                        <td>The roads for carrying addresses and data between CPU, memory, and I/O.</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Execution Section -->
+    <section class="section execution" id="execution">
+        <div class="container">
+            <h2 class="section-title fade-in">How the 8085 Executes Instructions</h2>
+            <div class="card fade-in">
+                <p>Every program is a list of instructions in memory. The CPU follows a continuous <strong>Fetch–Decode–Execute cycle</strong>, like breathing for the microprocessor:</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>The Cycle</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📥</div>
+                            <div class="feature-content">
+                                <h3>1. Fetch</h3>
+                                <p>PC puts the instruction's address on the address bus. Memory places the opcode (instruction code) on the data bus. Instruction Register stores it.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔍</div>
+                            <div class="feature-content">
+                                <h3>2. Decode</h3>
+                                <p>Decoder reads the opcode and decides the operation and required data.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>3. Execute</h3>
+                                <p>ALU or other units perform the action (add, move data, jump, etc.). Flags update if needed. PC updates to next instruction.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🌐</span>Real-World Example</h3>
+                    <p>Think of this cycle like following a recipe. First, you read the next step (fetch). Then you understand what it means (decode). Finally, you perform the action (execute). The 8085 does this millions of times per second, allowing it to complete complex tasks by breaking them into simple steps.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Signals Section -->
+    <section class="section signals" id="signals">
+        <div class="container">
+            <h2 class="section-title fade-in">Signals and Timing</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📡</span>Control Signals</h3>
+                    <p>The 8085 uses specific control signals to coordinate with memory and I/O devices:</p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📖</div>
+                            <div class="feature-content">
+                                <h3>RD (Read)</h3>
+                                <p>Indicates that the CPU wants to read data from memory or I/O.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">✍️</div>
+                            <div class="feature-content">
+                                <h3>WR (Write)</h3>
+                                <p>Indicates that the CPU wants to write data to memory or I/O.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔗</div>
+                            <div class="feature-content">
+                                <h3>ALE (Address Latch Enable)</h3>
+                                <p>Helps demultiplex the lower address bus from the data bus.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">⏱️</span>Timing</h3>
+                    <p>The 8085's operations are broken down into:</p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>T-states</h3>
+                                <p>The smallest unit of time, equal to one clock period.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Machine Cycles</h3>
+                                <p>Groups of T-states that perform a basic operation (opcode fetch, memory read/write, I/O read/write).</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Timing Diagrams</h3>
+                                <p>Show exactly when each signal goes high or low during operations, helping engineers understand and debug the system.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instruction Section -->
+    <section class="section instruction" id="instruction">
+        <div class="container">
+            <h2 class="section-title fade-in">Instruction Set & Addressing</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📚</span>Instruction Types</h3>
+                    <p>The 8085's instructions are grouped into five categories:</p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Data Transfer</h3>
+                                <p>Instructions like MOV (move data between registers) and MVI (move immediate data).</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">➕</div>
+                            <div class="feature-content">
+                                <h3>Arithmetic</h3>
+                                <p>Instructions like ADD (add to accumulator) and SUB (subtract from accumulator).</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔗</div>
+                            <div class="feature-content">
+                                <h3>Logical</h3>
+                                <p>Instructions like AND, OR, and CMP (compare) for logical operations.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔀</div>
+                            <div class="feature-content">
+                                <h3>Branching</h3>
+                                <p>Instructions like JMP (jump) and CALL (call subroutine) that change program flow.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⏸️</div>
+                            <div class="feature-content">
+                                <h3>Machine Control</h3>
+                                <p>Instructions like NOP (no operation) and HLT (halt) for controlling the CPU.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🎯</span>Addressing Modes</h3>
+                    <p>Addressing modes describe where the data for an instruction is located:</p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔢</div>
+                            <div class="feature-content">
+                                <h3>Immediate</h3>
+                                <p>Data is included in the instruction itself (e.g., MVI A, 05H).</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📍</div>
+                            <div class="feature-content">
+                                <h3>Direct</h3>
+                                <p>Instruction contains the exact memory address (e.g., LDA 2050H).</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🗃️</div>
+                            <div class="feature-content">
+                                <h3>Register</h3>
+                                <p>Data is in a register (e.g., MOV A, B).</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔗</div>
+                            <div class="feature-content">
+                                <h3>Register Indirect</h3>
+                                <p>Register contains the memory address (e.g., MOV A, M).</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🤔</div>
+                            <div class="feature-content">
+                                <h3>Implied</h3>
+                                <p>Data location is implied by the instruction (e.g., CMA).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Matters Section -->
+    <section class="section why-matters" id="why-matters">
+        <div class="container">
+            <h2 class="section-title fade-in">Why It Matters in COA</h2>
+            <div class="card fade-in">
+                <p>Studying the 8085 provides fundamental insights into computer organization and architecture that remain relevant today:</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🏗️</span>CPU Organization</h3>
+                    <p>The 8085 clearly demonstrates how registers, ALU, buses, and control units work together to process information. This organization forms the blueprint for modern processors, even as they've become more complex.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Instruction Execution</h3>
+                    <p>The fetch-decode-execute cycle of the 8085 is the same fundamental process used by modern CPUs. Understanding this cycle is essential to grasping how computers perform tasks at the most basic level.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔌</span>Memory & I/O Interfacing</h3>
+                    <p>The 8085 shows how a processor communicates with memory and input/output devices, a concept that remains central to computer design even as interfaces have become more sophisticated.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🌐</span>Real-World Connection</h3>
+                    <p>Though today's chips are far more advanced with billions of transistors, multiple cores, and complex instruction sets, their core principles are almost identical to those of the 8085. Learning the 8085 provides a foundation for understanding these modern systems.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Summary Section -->
+    <section class="section summary" id="summary">
+        <div class="container">
+            <h2 class="section-title fade-in">Summary</h2>
+            <div class="card fade-in">
+                <p>The 8085 microprocessor represents a pivotal moment in computing history and serves as an excellent model for understanding computer organization and architecture. Its simple yet powerful design demonstrates the fundamental principles that continue to guide processor design today.</p>
+            </div>
+            <div class="card fade-in">
+                <table>
+                    <tr>
+                        <th><span class="register-icon">📋</span>Topic</th>
+                        <th><span class="register-icon">📝</span>Key Points</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Evolution</strong></td>
+                        <td>4004 → 8008 → 8080 → <strong>8085 (8-bit)</strong> → 8086 (16-bit)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8085 Specs</strong></td>
+                        <td>8-bit CPU, 16-bit address bus (64 KB memory), 3 MHz clock</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Main Units</strong></td>
+                        <td>Accumulator, ALU, General Registers, PC, SP, Flags, Control/Timing</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Operation Cycle</strong></td>
+                        <td>Fetch → Decode → Execute</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Signals & Timing</strong></td>
+                        <td>RD, WR, ALE, machine cycles (opcode fetch, read, write)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Instruction Types</strong></td>
+                        <td>Data transfer, Arithmetic, Logical, Branching, Machine control</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Addressing Modes</strong></td>
+                        <td>Immediate, Direct, Register, Register Indirect, Implied</td>
+                    </tr>
+                    <tr>
+                        <td><strong>COA Link</strong></td>
+                        <td>Demonstrates CPU architecture, instruction execution, memory/I-O interface</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🧠</span>Key Takeaway</h3>
+                    <p>Think of the 8085 as a miniature, easy-to-observe model of the computer brain. By following how it fetches, decodes, and executes instructions, you gain a clear mental picture of what every modern CPU—no matter how powerful—still does at its core. This understanding forms the foundation for studying more advanced computer architectures and designing the computing systems of the future.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const navDots = document.querySelectorAll('.nav-dot');
+            const sections = document.querySelectorAll('section');
+            
+            // Function to update active navigation dot
+            function updateActiveNav() {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (scrollY >= (sectionTop - 200)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                
+                navDots.forEach(dot => {
+                    dot.classList.remove('active');
+                    if (dot.getAttribute('data-section') === current) {
+                        dot.classList.add('active');
+                    }
+                });
+            }
+            
+            // Add click event to navigation dots
+            navDots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-section');
+                    const targetSection = document.getElementById(targetId);
+                    window.scrollTo({
+                        top: targetSection.offsetTop,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+            
+            // Update active navigation on scroll
+            window.addEventListener('scroll', updateActiveNav);
+            
+            // Fade-in animation on scroll
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            function checkFade() {
+                fadeElements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    
+                    if (elementTop < window.innerHeight - elementVisible) {
+                        element.classList.add('visible');
+                    }
+                });
+            }
+            
+            // Initial check and add scroll event listener
+            checkFade();
+            window.addEventListener('scroll', checkFade);
+        });
+    </script>
+</body>
+</html>

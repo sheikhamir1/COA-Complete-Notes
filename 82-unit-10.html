@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I/O Systems: The Computer's Nervous System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/io-systems/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .peripherals { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .interface { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .modes { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .priority { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .dma { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .iop { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .coa { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .reflection { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+        .summary { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 152, 80, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" data-section="header"></div>
+        <div class="nav-dot" data-section="intro"></div>
+        <div class="nav-dot" data-section="peripherals"></div>
+        <div class="nav-dot" data-section="interface"></div>
+        <div class="nav-dot" data-section="modes"></div>
+        <div class="nav-dot" data-section="priority"></div>
+        <div class="nav-dot" data-section="dma"></div>
+        <div class="nav-dot" data-section="iop"></div>
+        <div class="nav-dot" data-section="coa"></div>
+        <div class="nav-dot" data-section="reflection"></div>
+        <div class="nav-dot" data-section="summary"></div>
+    </div>
+
+    <!-- Header Section -->
+    <header class="header" id="header">
+        <div class="container">
+            <h1>I/O Systems: The Computer's Nervous System</h1>
+            <div class="metrics-character">🔌</div>
+            <p>Understanding how computers communicate with the outside world through efficient input/output systems</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </header>
+
+    <!-- Introduction Section -->
+    <section class="section intro" id="intro">
+        <div class="container">
+            <h2 class="section-title fade-in">1. Introduction – Opening the Door to the Outside World</h2>
+            <div class="card fade-in">
+                <p>A computer is like a busy office building. Inside, the CPU is the manager and memory is the filing room. But to be useful, this office must <em>talk to the outside world</em>—people need to bring in documents (input) and take out results (output).</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🧠</div>
+                        <div class="metric-title">CPU</div>
+                        <p>The manager of the office</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">📁</div>
+                        <div class="metric-title">Memory</div>
+                        <p>The filing room</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🔌</div>
+                        <div class="metric-title">I/O Systems</div>
+                        <p>Communication with outside world</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔄</span>The Need for I/O</h3>
+                    <p class="fade-in">This is done through <strong>peripheral devices</strong> (keyboards, printers, hard drives) and a careful system for transferring data between them and the CPU. Efficient Input/Output (I/O) is essential so the manager (CPU) is not overworked.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">⚖️</span>Balance of Power</h3>
+                    <p class="fade-in">Without efficient I/O systems, even the most powerful CPU would be limited by how quickly it can communicate with the outside world, creating a bottleneck in the entire system.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Peripheral Devices Section -->
+    <section class="section peripherals" id="peripherals">
+        <div class="container">
+            <h2 class="section-title fade-in">2. Peripheral Devices – The Visitors</h2>
+            <div class="card fade-in">
+                <p>Peripheral devices are everything outside the CPU and main memory but essential for work:</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⌨️</div>
+                        <div class="feature-content">
+                            <h3>Input Devices</h3>
+                            <p>Keyboard, mouse, scanner, microphone (bring data in)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🖥️</div>
+                        <div class="feature-content">
+                            <h3>Output Devices</h3>
+                            <p>Monitor, printer, speakers (send results out)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">💾</div>
+                        <div class="feature-content">
+                            <h3>Storage Devices</h3>
+                            <p>Hard disk, SSD, optical drives (keep records safe)</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🏢</span>Office Analogy</h3>
+                    <p class="fade-in">These devices expand the computer's abilities, just like extra staff and storage rooms expand an office. Each peripheral has a specific role in making the computer system more useful and versatile.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">📱</span>Modern Peripherals</h3>
+                    <p class="fade-in">Today's computers connect to a wide range of peripherals, from traditional devices like printers and scanners to modern ones like webcams, VR headsets, and biometric sensors, each requiring specialized I/O handling.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- I/O Interface Section -->
+    <section class="section interface" id="interface">
+        <div class="container">
+            <h2 class="section-title fade-in">3. I/O Interface – The Reception Desk</h2>
+            <div class="card fade-in">
+                <p>The CPU and peripherals speak different "languages." The <strong>I/O interface</strong> is the reception desk that translates messages and manages timing so both sides understand each other.</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔌</div>
+                        <div class="feature-content">
+                            <h3>Ports</h3>
+                            <p>USB, HDMI for physical connections</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🎮</div>
+                        <div class="feature-content">
+                            <h3>Controllers</h3>
+                            <p>Manage communication (disk controller, network card)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">💿</div>
+                        <div class="feature-content">
+                            <h3>Device Drivers</h3>
+                            <p>Software interpreters</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔗</span>Types of Connections</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>Parallel</h3>
+                                <p>Several bits travel side-by-side (fast but short range)</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔢</div>
+                            <div class="feature-content">
+                                <h3>Serial</h3>
+                                <p>Bits travel one by one (USB, SATA—modern and reliable)</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📶</div>
+                            <div class="feature-content">
+                                <h3>Wireless</h3>
+                                <p>Bluetooth/Wi-Fi for cable-free communication</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔄</span>Translation and Protocol</h3>
+                    <p class="fade-in">The I/O interface handles protocol conversion, ensuring that data sent at one speed and format can be properly received and understood by devices operating at different speeds and with different requirements.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modes of Transfer Section -->
+    <section class="section modes" id="modes">
+        <div class="container">
+            <h2 class="section-title fade-in">4. Modes of Transfer – Moving the Data</h2>
+            <div class="card fade-in">
+                <p>Data must move between CPU, memory, and devices. There are several "delivery methods":</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">👤</div>
+                        <div class="feature-content">
+                            <h3>Programmed I/O</h3>
+                            <p>CPU does everything, like a manager carrying each file personally (simple but slow)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔔</div>
+                        <div class="feature-content">
+                            <h3>Interrupt-driven I/O</h3>
+                            <p>Devices tap the manager's shoulder when ready, so CPU works on other tasks until interrupted</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🚚</div>
+                        <div class="feature-content">
+                            <h3>Direct Memory Access (DMA)</h3>
+                            <p>A helper moves data directly between device and memory without bothering the manager</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🗺️</div>
+                        <div class="feature-content">
+                            <h3>Memory-Mapped I/O</h3>
+                            <p>Devices share the same address space as memory for easy access</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🚧</div>
+                        <div class="feature-content">
+                            <h3>Isolated I/O</h3>
+                            <p>Devices have their own separate address space</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">⚖️</span>Trade-offs</h3>
+                    <p class="fade-in">Each mode represents a trade-off between CPU involvement, speed, and complexity. Programmed I/O is simplest but most CPU-intensive, while DMA is most efficient but requires additional hardware.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Priority Interrupt Section -->
+    <section class="section priority" id="priority">
+        <div class="container">
+            <h2 class="section-title fade-in">5. Priority Interrupt – Who Gets Help First</h2>
+            <div class="card fade-in">
+                <p>Many devices can shout "I need attention!" at once. A <strong>priority interrupt system</strong> decides who gets served first:</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🚨</div>
+                        <div class="feature-content">
+                            <h3>High-priority tasks</h3>
+                            <p>Like emergency alarms interrupt immediately</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔗</div>
+                        <div class="feature-content">
+                            <h3>Daisy-chaining</h3>
+                            <p>Simple chain priority mechanism</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Parallel priority encoders</h3>
+                            <p>Faster priority determination</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Software polling</h3>
+                        <p>CPU checks devices in priority order</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🚦</span>Preventing Delays</h3>
+                    <p class="fade-in">This prevents delays for critical work, just like an emergency call takes priority over routine tasks. Without proper priority handling, important system functions could be delayed by less critical operations.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🎯</span>Interrupt Handling Process</h3>
+                    <p class="fade-in">When an interrupt occurs, the CPU:</p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⏸️</div>
+                            <div class="feature-content">
+                                <h3>Pauses Current Task</h3>
+                                <p>Saves current execution state</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔍</div>
+                            <div class="feature-content">
+                                <h3>Identifies Interrupt Source</h3>
+                                <p>Determines which device needs attention</p>
+                        </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔧</div>
+                            <div class="feature-content">
+                                <h3>Executes Service Routine</h3>
+                                <p>Handles the interrupt request</p>
+                        </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">▶️</div>
+                            <div class="feature-content">
+                                <h3>Resumes Original Task</div>
+                                <p>Restores previous execution state</p>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DMA Section -->
+    <section class="section dma" id="dma">
+        <div class="container">
+            <h2 class="section-title fade-in">6. Direct Memory Access (DMA) – The Super Helper</h2>
+            <div class="card fade-in">
+                <p><strong>DMA</strong> is a special hardware method where a <strong>DMA controller</strong> moves data directly between memory and a device.</p>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">📋</span>DMA Steps</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📍</div>
+                            <div class="feature-content">
+                                <h3>CPU Sets Parameters</h3>
+                                <p>Source, destination, and size of transfer</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>DMA Controller Transfers</h3>
+                                <p>Moves data while CPU does other jobs</p>
+                        </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔔</div>
+                            <div class="feature-content">
+                                <h3>Interrupt When Finished</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔧</span>DMA Modes</h3>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">💥</div>
+                            <div class="feature-content">
+                                <h3>Burst Mode</h3>
+                                <p>Transfers entire block at once</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🕵️</div>
+                            <div class="feature-content">
+                                <h3>Cycle Stealing</div>
+                                <p>Uses unused CPU cycles</p>
+                        </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">👻</div>
+                            <div class="feature-content">
+                                <h3>Transparent</div>
+                                <p>Completely invisible to CPU</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">⚡</span>Performance Benefits</h3>
+                    <p class="fade-in">DMA significantly improves system performance by freeing the CPU from data transfer duties, allowing it to focus on processing tasks. This is especially important for high-speed devices like disk drives and network interfaces.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- IOP Section -->
+    <section class="section iop" id="iop">
+        <div class="container">
+            <h2 class="section-title fade-in">7. Input-Output Processor (IOP) – A Dedicated Assistant</h2>
+            <div class="card fade-in">
+                <p>For heavy I/O work, a full <strong>Input-Output Processor</strong> acts like an assistant manager:</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📋</div>
+                        <div class="feature-content">
+                            <h3>Manages Device Commands</h3>
+                            <p>Handles device-specific operations</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Data Transfer</h3>
+                            <p>Moves data between devices and memory</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔔</div>
+                        <div class="feature-content">
+                            <h3>Interrupt Handling</h3>
+                            <p>Manages device interrupts</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">✅</div>
+                        <div class="feature-content">
+                            <h3>Error Checking</h3>
+                            <p>Ensures data integrity</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🧠</span>IOP Architecture</h3>
+                    <p class="fade-in">The IOP has its own control unit and buffer memory, making it almost like a separate processor dedicated to I/O operations. The CPU simply gives high-level instructions, and the IOP takes care of the detailed I/O operations.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">📈</span>Efficiency Boost</h3>
+                    <p class="fade-in">By offloading I/O tasks to a dedicated processor, the main CPU is free to focus on computation, significantly boosting overall system performance, especially in systems with many I/O devices.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It All Fits Into COA Section -->
+    <section class="section coa" id="coa">
+        <div class="container">
+            <h2 class="section-title fade-in">8. How It All Fits Into COA</h2>
+            <div class="card fade-in">
+                <p>In the COA hierarchy:</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⬆️</div>
+                        <div class="feature-content">
+                            <h3>Above</h3>
+                            <p>CPU and main memory need fast, reliable data exchange</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔌</div>
+                        <div class="feature-content">
+                            <h3>I/O System</h3>
+                            <p>Bridge connecting CPU to the outside world</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⬇️</div>
+                        <div class="feature-content">
+                            <h3>Below</h3>
+                            <p>Actual devices and physical signals</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔗</span>The Essential Bridge</h3>
+                    <p class="fade-in">Without these I/O mechanisms, the CPU's speed is wasted because data couldn't flow in or out efficiently. The I/O system forms the essential bridge between the computational power of the CPU and the practical utility of interacting with users and other systems.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🏗️</span>System Integration</h3>
+                    <p class="fade-in">In modern computer architecture, I/O systems are designed to integrate seamlessly with other components, creating a balanced system where no single component becomes a bottleneck for overall performance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Real-Life Reflection Section -->
+    <section class="section reflection" id="reflection">
+        <div class="container">
+            <h2 class="section-title fade-in">9. Real-Life Reflection & Islamic Lens</h2>
+            <div class="card fade-in">
+                <p>Efficient I/O reminds us of <strong>amanah</strong> (trust) and <strong>ihsan</strong> (excellence).</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🤝</div>
+                        <div class="feature-content">
+                            <h3>Amanah (Trust)</h3>
+                            <p>Just as a well-run office serves people quickly and fairly</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⭐</div>
+                        <div class="feature-content">
+                            <h3>Ihsan (Excellence)</h3>
+                            <p>A believer strives to handle duties with order and priority</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⚖️</div>
+                        <div class="feature-content">
+                            <h3>Balance & Justice</div>
+                            <p>Allah tells us to act with balance and justice</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">📖</span>Islamic Perspective</h3>
+                    <p class="fade-in">Just as a computer must balance tasks to serve all devices properly, a believer must balance their responsibilities to family, community, and faith. The priority system in interrupts mirrors the Islamic principle of giving precedence to important matters.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🌟</span>Excellence in Service</h3>
+                    <p class="fade-in">The concept of ihsan encourages us to do everything in the best possible way, just as engineers strive to create the most efficient I/O systems to serve users effectively.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Summary Table Section -->
+    <section class="section summary" id="summary">
+        <div class="container">
+            <h2 class="section-title fade-in">10. Quick Summary Table</h2>
+            <div class="card fade-in">
+                <table>
+                    <tr>
+                        <th>Topic</th>
+                        <th>Simple Meaning</th>
+                        <th>Why It Matters</th>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🖱️</span> Peripheral Devices</td>
+                        <td>Input/output/storage hardware</td>
+                        <td>Lets computer interact with users</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🔌</span> I/O Interface</td>
+                        <td>Bridge between CPU & devices</td>
+                        <td>Ensures smooth communication</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🔄</span> Modes of Transfer</td>
+                        <td>Ways to move data</td>
+                        <td>Affects speed & CPU workload</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🚨</span> Priority Interrupt</td>
+                        <td>Decide which device first</td>
+                        <td>Critical tasks get immediate attention</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🚚</span> Direct Memory Access</td>
+                        <td>Data moves without CPU</td>
+                        <td>Faster, frees CPU</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🤖</span> Input-Output Processor</td>
+                        <td>Separate processor for I/O</td>
+                        <td>Handles complex I/O, boosts performance</td>
+                    </tr>
+                </table>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">💡</span>Takeaway</h3>
+                    <p class="fade-in">I/O management is like the <strong>nervous system</strong> of a computer—carrying signals to and from the brain (CPU). Understanding it helps you see how every keystroke, print job, or file save travels smoothly, making the computer an efficient servant for human needs.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        const navDots = document.querySelectorAll('.nav-dot');
+        const sections = document.querySelectorAll('.section, .header');
+        
+        // Update active nav dot on scroll
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+                if (dot.getAttribute('data-section') === current) {
+                    dot.classList.add('active');
+                }
+            });
+            
+            // Fade in animation
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        });
+        
+        // Nav dot click functionality
+        navDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const targetId = dot.getAttribute('data-section');
+                const targetSection = document.getElementById(targetId);
+                
+                window.scrollTo({
+                    top: targetSection.offsetTop - 50,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Initial check for fade-in elements
+        const fadeElements = document.querySelectorAll('.fade-in');
+        fadeElements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top;
+            const elementVisible = 150;
+            
+            if (elementTop < window.innerHeight - elementVisible) {
+                element.classList.add('visible');
+            }
+        });
+    </script>
+</body>
+</html>

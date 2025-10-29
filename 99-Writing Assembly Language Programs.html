@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Writing Assembly Language Programs</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      body {
+        background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+        color: #fff;
+        overflow-x: hidden;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      /* Header Section */
+      .header {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* background: url('https://picsum.photos/seed/assembly-programming/1920/1080.jpg') center/cover; */
+        opacity: 0.2;
+        z-index: -1;
+      }
+      .header h1 {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        animation: glow 2s infinite alternate;
+      }
+      @keyframes glow {
+        from {
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        to {
+          text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
+            0 0 30px rgba(255, 255, 255, 0.6);
+        }
+      }
+      .header p {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        max-width: 800px;
+      }
+      .metrics-character {
+        font-size: 8rem;
+        margin: 2rem 0;
+        animation: bounce 2s infinite;
+      }
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+      .scroll-indicator {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 2rem;
+        animation: scroll 1.5s infinite;
+      }
+      @keyframes scroll {
+        0%,
+        100% {
+          transform: translateX(-50%) translateY(0);
+          opacity: 1;
+        }
+        50% {
+          transform: translateX(-50%) translateY(10px);
+          opacity: 0.5;
+        }
+      }
+      /* Navigation */
+      .nav {
+        position: fixed;
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      .nav-dot {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .nav-dot.active {
+        background: #fff;
+        transform: scale(1.2);
+      }
+      /* Section Styles */
+      .section {
+        min-height: 100vh;
+        padding: 80px 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+      }
+      .section-title {
+        font-size: 3rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        position: relative;
+      }
+      .section-title::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+        border-radius: 2px;
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 30px;
+        margin: 20px 0;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+      }
+      /* Section Specific Backgrounds */
+      .steps {
+        background: linear-gradient(
+          135deg,
+          rgba(30, 60, 114, 0.7),
+          rgba(42, 82, 152, 0.7)
+        );
+      }
+      .example {
+        background: linear-gradient(
+          135deg,
+          rgba(30, 114, 60, 0.7),
+          rgba(42, 152, 80, 0.7)
+        );
+      }
+      .addressing {
+        background: linear-gradient(
+          135deg,
+          rgba(114, 30, 114, 0.7),
+          rgba(152, 42, 152, 0.7)
+        );
+      }
+      .formats {
+        background: linear-gradient(
+          135deg,
+          rgba(30, 114, 114, 0.7),
+          rgba(42, 152, 152, 0.7)
+        );
+      }
+      .instruction {
+        background: linear-gradient(
+          135deg,
+          rgba(114, 60, 30, 0.7),
+          rgba(152, 80, 42, 0.7)
+        );
+      }
+      .block {
+        background: linear-gradient(
+          135deg,
+          rgba(30, 60, 114, 0.7),
+          rgba(42, 82, 152, 0.7)
+        );
+      }
+      .summary {
+        background: linear-gradient(
+          135deg,
+          rgba(114, 30, 114, 0.7),
+          rgba(42, 82, 152, 0.7)
+        );
+      }
+      /* List Styles */
+      .feature-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
+      }
+      .feature-item {
+        display: flex;
+        align-items: flex-start;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+      }
+      .feature-item:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .feature-item .emoji {
+        font-size: 2.5rem;
+        margin-right: 15px;
+      }
+      .feature-content h3 {
+        font-size: 1.3rem;
+        margin-bottom: 5px;
+      }
+      /* Table Styles */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      th,
+      td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      th {
+        background: rgba(255, 255, 255, 0.2);
+        font-weight: bold;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tr:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .register-icon {
+        font-size: 2rem;
+        margin-right: 10px;
+        vertical-align: middle;
+      }
+      /* Subsection Styles */
+      .subsection {
+        margin-top: 40px;
+      }
+      .subsection-title {
+        font-size: 2rem;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+      }
+      .subsection-title .emoji {
+        margin-right: 10px;
+      }
+      /* Code Block Styles */
+      .code-block {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        padding: 20px;
+        margin: 15px 0;
+        font-family: "Courier New", monospace;
+        overflow-x: auto;
+      }
+      .code-line {
+        display: flex;
+        margin-bottom: 10px;
+      }
+      .code-line:last-child {
+        margin-bottom: 0;
+      }
+      .line-number {
+        width: 30px;
+        color: #ff9a9e;
+        margin-right: 10px;
+        text-align: right;
+      }
+      .code-content {
+        flex: 1;
+      }
+      .comment {
+        color: #a0a0a0;
+        margin-left: 10px;
+      }
+      /* Flowchart Styles */
+      .flowchart {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 30px;
+        margin: 30px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .flowchart-container {
+        width: 100%;
+        max-width: 600px;
+      }
+      .flowchart-box {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 15px;
+        margin: 15px 0;
+        text-align: center;
+        transition: transform 0.3s ease;
+      }
+      .flowchart-box:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.3);
+      }
+      .flowchart-arrow {
+        font-size: 2rem;
+        margin: 5px 0;
+      }
+      .flowchart-diamond {
+        background: rgba(255, 99, 71, 0.3);
+        border-radius: 10px;
+        padding: 15px;
+        margin: 15px 0;
+        text-align: center;
+        width: 80%;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+        transform: rotate(45deg);
+        transition: transform 0.3s ease;
+      }
+      .flowchart-diamond:hover {
+        transform: rotate(45deg) scale(1.05);
+        background: rgba(255, 99, 71, 0.5);
+      }
+      .flowchart-diamond-content {
+        transform: rotate(-45deg);
+      }
+      /* Instruction Card Styles */
+      .instruction-card {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        transition: transform 0.3s ease;
+      }
+      .instruction-card:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.25);
+      }
+      .instruction-name {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #ff9a9e;
+      }
+      .instruction-desc {
+        margin-bottom: 10px;
+      }
+      .instruction-example {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        padding: 10px;
+        font-family: "Courier New", monospace;
+        margin-top: 10px;
+      }
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 2.5rem;
+        }
+        .header p {
+          font-size: 1.2rem;
+        }
+        .section-title {
+          font-size: 2rem;
+        }
+        .nav {
+          display: none;
+        }
+      }
+      /* Animations on scroll */
+      .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+      }
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+      <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+      <div class="nav-dot" onclick="scrollToSection('steps')"></div>
+      <div class="nav-dot" onclick="scrollToSection('example')"></div>
+      <div class="nav-dot" onclick="scrollToSection('addressing')"></div>
+      <div class="nav-dot" onclick="scrollToSection('formats')"></div>
+      <div class="nav-dot" onclick="scrollToSection('instruction')"></div>
+      <div class="nav-dot" onclick="scrollToSection('block')"></div>
+      <div class="nav-dot" onclick="scrollToSection('summary')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section id="header" class="header">
+      <div class="container">
+        <h1>Writing Assembly Language Programs</h1>
+        <p>A Step-by-Step Guide to 8085 Assembly Programming</p>
+        <div class="metrics-character">💻</div>
+        <div class="scroll-indicator">⬇️</div>
+      </div>
+    </section>
+
+    <!-- Steps Section -->
+    <section id="steps" class="section steps">
+      <div class="container">
+        <h2 class="section-title fade-in">Steps to Write a Program</h2>
+        <div class="card fade-in">
+          <p>
+            Writing an assembly language program requires a systematic approach
+            to ensure correctness and efficiency. Here are the essential steps
+            to follow when developing a program for the 8085 microprocessor:
+          </p>
+          <div class="feature-list">
+            <div class="feature-item">
+              <div class="emoji">🔍</div>
+              <div class="feature-content">
+                <h3>Analyze the Problem</h3>
+                <p>
+                  Understand the requirements and constraints of the problem you
+                  need to solve
+                </p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="emoji">🧠</div>
+              <div class="feature-content">
+                <h3>Develop Program Logic</h3>
+                <p>
+                  Determine the sequence of operations needed to solve the
+                  problem
+                </p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="emoji">📝</div>
+              <div class="feature-content">
+                <h3>Write an Algorithm</h3>
+                <p>
+                  Create a step-by-step procedure that outlines the solution
+                </p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="emoji">🔄</div>
+              <div class="feature-content">
+                <h3>Make a Flowchart</h3>
+                <p>
+                  Visualize the algorithm with a flowchart to better understand
+                  the program flow
+                </p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="emoji">💻</div>
+              <div class="feature-content">
+                <h3>Write Program Instructions</h3>
+                <p>
+                  Convert the algorithm into assembly language instructions for
+                  the 8085
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Example Program Section -->
+    <section id="example" class="section example">
+      <div class="container">
+        <h2 class="section-title fade-in">Example Program</h2>
+        <div class="card fade-in">
+          <h3 class="subsection-title">
+            <span class="emoji">📋</span>Problem Statement
+          </h3>
+          <p>
+            Program 8085 in Assembly language to add two 8-bit numbers and store
+            8-bit result in register C.
+          </p>
+        </div>
+        <div class="card fade-in">
+          <h3 class="subsection-title">
+            <span class="emoji">📝</span>Algorithm
+          </h3>
+          <ol style="margin-left: 20px">
+            <li>
+              Get two numbers
+              <ul style="margin-left: 20px; margin-top: 5px">
+                <li>Load 1st no. in register D</li>
+                <li>Load 2nd no. in register E</li>
+              </ul>
+            </li>
+            <li>
+              Add them
+              <ul style="margin-left: 20px; margin-top: 5px">
+                <li>Copy register D to A</li>
+                <li>Add register E to A</li>
+              </ul>
+            </li>
+            <li>
+              Store result
+              <ul style="margin-left: 20px; margin-top: 5px">
+                <li>Copy A to register C</li>
+              </ul>
+            </li>
+            <li>
+              Stop
+              <ul style="margin-left: 20px; margin-top: 5px">
+                <li>Stop processing</li>
+              </ul>
+            </li>
+          </ol>
+        </div>
+        <div class="flowchart fade-in">
+          <h3>Flowchart</h3>
+          <div class="flowchart-container">
+            <div class="flowchart-box">Start</div>
+            <div class="flowchart-arrow">⬇️</div>
+            <div class="flowchart-box">Load first number in register D</div>
+            <div class="flowchart-arrow">⬇️</div>
+            <div class="flowchart-box">Load second number in register E</div>
+            <div class="flowchart-arrow">⬇️</div>
+            <div class="flowchart-box">Copy register D to accumulator A</div>
+            <div class="flowchart-arrow">⬇️</div>
+            <div class="flowchart-box">Add register E to accumulator A</div>
+            <div class="flowchart-arrow">⬇️</div>
+            <div class="flowchart-box">Copy accumulator A to register C</div>
+            <div class="flowchart-arrow">⬇️</div>
+            <div class="flowchart-box">Stop</div>
+          </div>
+        </div>
+        <div class="card fade-in">
+          <h3 class="subsection-title">
+            <span class="emoji">💻</span>Assembly Language Program
+          </h3>
+          <div class="code-block">
+            <div class="code-line">
+              <div class="line-number">1</div>
+              <div class="code-content">
+                MVI D, 05H<span class="comment"
+                  >; Load first number (05H) in register D</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">2</div>
+              <div class="code-content">
+                MVI E, 03H<span class="comment"
+                  >; Load second number (03H) in register E</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">3</div>
+              <div class="code-content">
+                MOV A, D<span class="comment"
+                  >; Copy register D to accumulator A</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">4</div>
+              <div class="code-content">
+                ADD E<span class="comment"
+                  >; Add register E to accumulator A</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">5</div>
+              <div class="code-content">
+                MOV C, A<span class="comment"
+                  >; Copy accumulator A to register C</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">6</div>
+              <div class="code-content">
+                HLT<span class="comment">; Halt the program</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Addressing Modes Section -->
+    <section id="addressing" class="section addressing">
+      <div class="container">
+        <h2 class="section-title fade-in">Addressing Modes of 8085</h2>
+        <div class="card fade-in">
+          <p>
+            The Intel 8085 microprocessor supports several addressing modes that
+            determine how operands are accessed during instruction execution.
+            These addressing modes offer flexibility in programming and allow
+            efficient use of memory and register resources.
+          </p>
+        </div>
+        <div class="card fade-in">
+          <h3 class="subsection-title">
+            <span class="emoji">📋</span>Instruction Format
+          </h3>
+          <p>The general format of an 8085 assembly language instruction is:</p>
+          <div class="code-block">
+            <div class="code-line">
+              <div class="line-number">1</div>
+              <div class="code-content">
+                [Label:] Mnemonic [Operands] [;comments]
+              </div>
+            </div>
+          </div>
+          <p>Examples:</p>
+          <div class="code-block">
+            <div class="code-line">
+              <div class="line-number">1</div>
+              <div class="code-content">HLT</div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">2</div>
+              <div class="code-content">MVI A, 20H</div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">3</div>
+              <div class="code-content">
+                MOV M, A<span class="comment"
+                  >;Copy A to memory location whose address is stored in
+                  register pair HL</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">4</div>
+              <div class="code-content">
+                LOAD: LDA 2050H<span class="comment"
+                  >;Load A with contents of memory location with address
+                  2050H</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">5</div>
+              <div class="code-content">
+                READ: IN 07H<span class="comment"
+                  >;Read data from Input port with address 07H</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card fade-in">
+          <h3 class="subsection-title">
+            <span class="emoji">🔢</span>Types of Addressing Modes
+          </h3>
+          <div class="feature-list">
+            <div class="feature-item">
+              <div class="emoji">⚡</div>
+              <div class="feature-content">
+                <h3>Immediate Addressing</h3>
+                <p>
+                  In immediate addressing, the operand is specified directly
+                  within the instruction itself.
+                </p>
+                <div class="instruction-example">
+                  MVI A, 05H<span class="comment"
+                    >; Load immediate data 05H into the accumulator</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="emoji">📍</div>
+              <div class="feature-content">
+                <h3>Direct Addressing</h3>
+                <p>
+                  In direct addressing, the operand's memory address is directly
+                  specified within the instruction.
+                </p>
+                <div class="instruction-example">
+                  LDA 2050H<span class="comment"
+                    >; Load accumulator with contents of memory location
+                    2050H</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="emoji">📝</div>
+              <div class="feature-content">
+                <h3>Register Addressing</h3>
+                <p>
+                  In register addressing, the operand is located in one of the
+                  microprocessor's registers.
+                </p>
+                <div class="instruction-example">
+                  MOV B, C<span class="comment"
+                    >; Move the contents of register C into register B</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="emoji">🔍</div>
+              <div class="feature-content">
+                <h3>Indirect Addressing</h3>
+                <p>
+                  In indirect addressing, the operand's address is stored in a
+                  register or memory location, and the data is accessed
+                  indirectly.
+                </p>
+                <div class="instruction-example">
+                  MOV A, M<span class="comment"
+                    >; Move the data from memory location addressed by HL into
+                    the accumulator</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="emoji">📊</div>
+              <div class="feature-content">
+                <h3>Register Indirect Addressing</h3>
+                <p>
+                  This is a specific form of indirect addressing where the
+                  operand's address is stored in a register.
+                </p>
+                <div class="instruction-example">
+                  LDAX B<span class="comment"
+                    >; Load accumulator with data from memory location in BC
+                    register pair</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="emoji">📈</div>
+              <div class="feature-content">
+                <h3>Indexed Addressing</h3>
+                <p>
+                  In indexed addressing, the operand's address is calculated by
+                  adding an index value to a base address. The 8085 doesn't have
+                  built-in support for indexed addressing, but it can be
+                  simulated using other addressing modes.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card fade-in">
+          <p>
+            These addressing modes provide versatility in accessing operands and
+            data, allowing programmers to write efficient and compact code for
+            various tasks. Mastery of addressing modes is essential for
+            effective programming on the Intel 8085 microprocessor, enabling the
+            utilization of its capabilities to their fullest extent.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Instruction & Data Formats Section -->
+    <section id="formats" class="section formats">
+      <div class="container">
+        <h2 class="section-title fade-in">Instruction & Data Formats</h2>
+        <div class="card fade-in">
+          <p>
+            In the Intel 8085 microprocessor architecture, instructions and data
+            are structured according to specific formats to facilitate their
+            interpretation and execution. The instruction format typically
+            consists of an operation code (opcode) and, in some cases,
+            additional operands.
+          </p>
+          <br />
+          <p>
+            Instructions are encoded using a variable-length format, with
+            opcodes representing different operations such as data transfer,
+            arithmetic, logical, branching, and control transfer instructions.
+            Each opcode is associated with a specific operation that the
+            microprocessor performs when executing the instruction.
+            Additionally, some instructions may require additional data, which
+            can be specified as immediate values, memory addresses, or register
+            operands, depending on the addressing mode used.
+          </p>
+        </div>
+        <div class="card fade-in">
+          <h3 class="subsection-title">
+            <span class="emoji">💾</span>Data Representation
+          </h3>
+          <p>
+            Data in the 8085 architecture can be represented in various formats,
+            including binary, hexadecimal, and ASCII. Binary data consists of
+            sequences of 1s and 0s, which are interpreted by the microprocessor
+            as numerical values or instructions. Hexadecimal notation is
+            commonly used to represent binary data in a more compact and
+            readable format, with each hexadecimal digit representing four bits
+            of binary data. ASCII encoding is used for representing alphanumeric
+            characters and symbols, with each character assigned a unique binary
+            code.
+          </p>
+        </div>
+        <div class="card fade-in">
+          <p>
+            Both instructions and data are stored in the memory of the 8085
+            microprocessor, with instructions typically residing in program
+            memory and data stored in either program memory or data memory
+            locations. The microprocessor fetches instructions from memory using
+            the program counter (PC) and executes them sequentially,
+            interpreting each opcode and its associated operands according to
+            the instruction set architecture.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Instruction Size Classification Section -->
+    <section id="instruction" class="section instruction">
+      <div class="container">
+        <h2 class="section-title fade-in">Instruction Size Classification</h2>
+        <div class="card fade-in">
+          <p>
+            8085 Instruction set can be classified according to size (in bytes)
+            as:
+          </p>
+          <ol style="margin-left: 20px; margin-top: 15px">
+            <li>1-byte Instructions</li>
+            <li>2-byte Instructions</li>
+            <li>3-byte Instructions</li>
+          </ol>
+        </div>
+        <div class="card fade-in">
+          <h3 class="subsection-title">
+            <span class="emoji">1️⃣</span>One-byte Instructions
+          </h3>
+          <p>
+            One-byte instructions in the Intel 8085 microprocessor architecture
+            are compact instructions that occupy only one byte of memory. These
+            instructions typically represent simple operations that can be
+            executed quickly by the microprocessor.
+          </p>
+          <br />
+          <p>
+            One-byte instructions are often used for basic arithmetic, logical
+            operations, data transfer between registers, and control transfer
+            instructions such as NOP (no operation) and HLT (halt). Since they
+            are encoded in only one byte, they are easy to decode and execute,
+            contributing to faster program execution and efficient memory
+            utilization.
+          </p>
+          <br />
+          <p>
+            Examples of one-byte instructions in the 8085 architecture include:
+          </p>
+          <div class="code-block">
+            <div class="code-line">
+              <div class="line-number">1</div>
+              <div class="code-content">
+                MOV r1, r2<span class="comment"
+                  >; Move the contents of register r2 into register r1</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">2</div>
+              <div class="code-content">
+                ADD r<span class="comment"
+                  >; Add the contents of register r to the accumulator</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">3</div>
+              <div class="code-content">
+                SUB r<span class="comment"
+                  >; Subtract the contents of register r from the
+                  accumulator</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">4</div>
+              <div class="code-content">
+                INR r<span class="comment"
+                  >; Increment the contents of register r</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">5</div>
+              <div class="code-content">
+                NOP<span class="comment">; Perform no operation</span>
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">6</div>
+              <div class="code-content">
+                HLT<span class="comment">; Halt the microprocessor</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card fade-in">
+          <h3 class="subsection-title">
+            <span class="emoji">2️⃣</span>Two-byte Instructions
+          </h3>
+          <p>
+            Two-byte instructions in the Intel 8085 microprocessor architecture
+            are instructions that require two bytes of memory to represent.
+            These instructions are typically more complex than one-byte
+            instructions and may involve additional operands or data. Two-byte
+            instructions provide more functionality and flexibility, allowing
+            for a wider range of operations to be performed by the
+            microprocessor.
+          </p>
+          <br />
+          <p>
+            Some examples of two-byte instructions in the 8085 architecture
+            include:
+          </p>
+          <div class="code-block">
+            <div class="code-line">
+              <div class="line-number">1</div>
+              <div class="code-content">
+                MVI Rd, data<span class="comment"
+                  >; Move immediate data (data) into the specified register
+                  (Rd)</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">2</div>
+              <div class="code-content">
+                Example: MVI A, 0AH<span class="comment"
+                  >; Move immediate value 0AH into the accumulator</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">3</div>
+              <div class="code-content">
+                LXI Rp, data<span class="comment"
+                  >; Load immediate data (data) into the specified register pair
+                  (Rp)</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">4</div>
+              <div class="code-content">
+                Example: LXI H, 2050H<span class="comment"
+                  >; Load immediate value 2050H into the HL register pair</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">5</div>
+              <div class="code-content">
+                STA address<span class="comment"
+                  >; Store the contents of the accumulator into the memory
+                  location specified by the 16-bit address</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">6</div>
+              <div class="code-content">
+                Example: STA 3000H<span class="comment"
+                  >; Store the contents of the accumulator into memory location
+                  3000H</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card fade-in">
+          <h3 class="subsection-title">
+            <span class="emoji">3️⃣</span>Three-byte Instructions
+          </h3>
+          <p>
+            In the Intel 8085 microprocessor architecture, three-byte
+            instructions are instructions that require three bytes of memory to
+            represent. These instructions are typically more complex and involve
+            additional operands or data compared to one-byte or two-byte
+            instructions. Three-byte instructions provide even greater
+            functionality and flexibility, enabling a wider range of operations
+            to be performed.
+          </p>
+          <br />
+          <p>
+            Some examples of three-byte instructions in the 8085 architecture
+            include:
+          </p>
+          <div class="code-block">
+            <div class="code-line">
+              <div class="line-number">1</div>
+              <div class="code-content">
+                LHLD address<span class="comment"
+                  >; Load the HL register pair with the contents of the memory
+                  location specified by the 16-bit address</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">2</div>
+              <div class="code-content">
+                Example: LHLD 2000H<span class="comment"
+                  >; Load the HL register pair with the contents of memory
+                  location 2000H</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">3</div>
+              <div class="code-content">
+                SHLD address<span class="comment"
+                  >; Store the contents of the HL register pair into the memory
+                  location specified by the 16-bit address</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">4</div>
+              <div class="code-content">
+                Example: SHLD 3000H<span class="comment"
+                  >; Store the contents of the HL register pair into memory
+                  location 3000H</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">5</div>
+              <div class="code-content">
+                LXI Rp, address<span class="comment"
+                  >; Load immediate 16-bit data (address) into the specified
+                  register pair (Rp)</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">6</div>
+              <div class="code-content">
+                Example: LXI SP, 4000H<span class="comment"
+                  >; Load immediate value 4000H into the stack pointer register
+                  pair</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Block Data Transfer Section -->
+    <section id="block" class="section block">
+      <div class="container">
+        <h2 class="section-title fade-in">Block Data Transfer</h2>
+        <div class="card fade-in">
+          <p>
+            Block data transfer involves moving a block of data from one memory
+            location to another. This is a common operation in assembly
+            programming, especially when dealing with arrays or large data sets.
+            The following program demonstrates how to transfer a block of data
+            from one memory location to another using the 8085 microprocessor.
+          </p>
+        </div>
+        <div class="card fade-in">
+          <h3 class="subsection-title">
+            <span class="emoji">💻</span>Assembly Program for Block Data
+            Transfer
+          </h3>
+          <div class="code-block">
+            <div class="code-line">
+              <div class="line-number">1</div>
+              <div class="code-content">
+                MVI C, 0AH<span class="comment"
+                  >; Initialize counter i.e no. of bytes. Store the count in
+                  Register C, ie ten</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">2</div>
+              <div class="code-content">
+                LXI H, 2200H<span class="comment"
+                  >; Initialize source memory pointer. Data Starts from 2200
+                  location</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">3</div>
+              <div class="code-content">
+                LXI D, 2300H<span class="comment"
+                  >; Initialize destination memory pointer</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">4</div>
+              <div class="code-content">
+                BK: MOV A, M<span class="comment"
+                  >; Get byte from source memory block i.e 2200 to
+                  accumulator</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">5</div>
+              <div class="code-content">
+                STAX D<span class="comment"
+                  >; Store byte in the destination memory block i.e 2300 as
+                  stored in D-E pair</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">6</div>
+              <div class="code-content">
+                INX H<span class="comment"
+                  >; Increment source memory pointer</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">7</div>
+              <div class="code-content">
+                INX D<span class="comment"
+                  >; Increment destination memory pointer</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">8</div>
+              <div class="code-content">
+                DCR C<span class="comment"
+                  >; Decrement counter to keep track of bytes moved</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">9</div>
+              <div class="code-content">
+                JNZ BK<span class="comment"
+                  >; If counter not zero repeat steps</span
+                >
+              </div>
+            </div>
+            <div class="code-line">
+              <div class="line-number">10</div>
+              <div class="code-content">
+                HLT<span class="comment">; Terminate program</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Summary Section -->
+    <section id="summary" class="section summary">
+      <div class="container">
+        <h2 class="section-title fade-in">Summary</h2>
+        <div class="card fade-in">
+          <p>
+            This unit explores assembly language programming based on Intel
+            8085, focusing on basic tasks like data transfer, arithmetic
+            operations, and shifts. It progresses to more intricate programs,
+            demonstrating the use of loops and comparisons for code conversion,
+            character coding, and finding the largest value in an array.
+          </p>
+        </div>
+        <div class="card fade-in">
+          <p>
+            Assembly language programs are machine-dependent and require a deep
+            understanding of underlying hardware architecture. Development in
+            assembly language often demands more effort and expertise,
+            potentially increasing development time and costs.
+          </p>
+        </div>
+        <div class="card fade-in">
+          <p>
+            The assembler is a crucial component of computer design, enabling
+            smooth communication between memory modules and the central
+            processing unit (CPU). It handles the tedious operation of
+            converting symbolic code into object code, which can be stored as
+            paper tape or diskette files using the Intellect development
+            system's text editor.
+          </p>
+        </div>
+        <div class="card fade-in">
+          <p>
+            Memory interfacing is essential for ensuring smooth data
+            communication between the CPU and memory, and memory interface
+            strategies must change to provide larger capacities, quicker speeds,
+            and new memory modules as memory technology grows.
+          </p>
+        </div>
+        <div class="card fade-in">
+          <p>
+            In summary, understanding the programming model and its functions is
+            crucial for effectively using the microprocessor's capabilities and
+            creating assembly language programs. The Intel 8085 microprocessor
+            architecture consists of the Program Counter (PC), a 16-bit register
+            that stores the memory address of subsequent instructions. It
+            automatically increases after each instruction execution, allowing
+            the CPU to execute instructions sequentially until a branch or jump
+            instruction modifies the value.
+          </p>
+        </div>
+        <div class="card fade-in">
+          <p>
+            The Stack Pointer (SP) Register oversees the stack memory region,
+            following the Last-of-First-Out (LIFO) principle. The instruction
+            set of the 8085 microprocessor includes data transfer, arithmetic,
+            logical, branching, and control transfer instructions. The 8085
+            assembly language allows for problem analysis, program logic
+            development, algorithm creation, and program instruction writing.
+          </p>
+        </div>
+        <div class="card fade-in">
+          <p>
+            The microprocessor supports several addressing modes, allowing for
+            flexibility in programming and efficient use of memory and register
+            resources. Instructions and data are structured according to
+            specific formats, with instructions encoding in variable-length
+            format and data represented in binary, hexadecimal, and ASCII
+            formats. The 8085 instruction set can be classified as 1-byte
+            Instructions, 2-byte Instructions, and 3-byte Instructions. Assembly
+            language defines instructions, while memory interfacing is used for
+            efficient memory utilization.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      // Scroll to section function
+      function scrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        section.scrollIntoView({ behavior: "smooth" });
+      }
+
+      // Update active navigation dot based on scroll position
+      window.addEventListener("scroll", () => {
+        const sections = document.querySelectorAll("section");
+        const navDots = document.querySelectorAll(".nav-dot");
+
+        let current = "";
+        sections.forEach((section) => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.clientHeight;
+          if (scrollY >= sectionTop - 200) {
+            current = section.getAttribute("id");
+          }
+        });
+
+        navDots.forEach((dot) => {
+          dot.classList.remove("active");
+        });
+
+        if (current) {
+          document
+            .querySelector(`.nav-dot[onclick="scrollToSection('${current}')"]`)
+            .classList.add("active");
+        }
+      });
+
+      // Fade in animation on scroll
+      const observerOptions = {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.1,
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll(".fade-in").forEach((el) => {
+        observer.observe(el);
+      });
+    </script>
+  </body>
+</html>

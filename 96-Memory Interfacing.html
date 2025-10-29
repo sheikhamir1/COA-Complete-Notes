@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Interfacing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/memory-interfacing/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .memory { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .assembly { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .notes { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .model { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Code Block Styles */
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .code-line {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .code-line:last-child {
+            margin-bottom: 0;
+        }
+        .line-number {
+            width: 30px;
+            color: #ff9a9e;
+            margin-right: 10px;
+            text-align: right;
+        }
+        .code-content {
+            flex: 1;
+        }
+        .comment {
+            color: #a0a0a0;
+            margin-left: 10px;
+        }
+        /* Memory Chip Styles */
+        .memory-chip {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .memory-chip:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.25);
+        }
+        .chip-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #ff9a9e;
+        }
+        .chip-pins {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .pin-group {
+            margin: 10px;
+            text-align: center;
+        }
+        .pin-count {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .pin-label {
+            font-size: 1rem;
+        }
+        /* Programming Model Styles */
+        .programming-model {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .model-container {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+        }
+        .model-component {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .model-component:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.4);
+        }
+        .model-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .model-center {
+            background: rgba(255, 99, 71, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+            transition: transform 0.3s ease;
+        }
+        .model-center:hover {
+            transform: scale(1.05);
+            background: rgba(255, 99, 71, 0.5);
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('intro')"></div>
+        <div class="nav-dot" onclick="scrollToSection('memory')"></div>
+        <div class="nav-dot" onclick="scrollToSection('assembly')"></div>
+        <div class="nav-dot" onclick="scrollToSection('notes')"></div>
+        <div class="nav-dot" onclick="scrollToSection('model')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section id="header" class="header">
+        <div class="container">
+            <h1>Memory Interfacing</h1>
+            <p>Connecting Memory Modules with the CPU</p>
+            <div class="metrics-character">🧠</div>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section id="intro" class="section intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to Memory Interfacing</h2>
+            <div class="card fade-in">
+                <p>A crucial component of computer design is memory interfacing, which makes it easier for different kinds of memory modules and a computer's central processing unit (CPU) to communicate. In order to allow the CPU to read from and write to memory effectively, hardware and protocols must be designed and put into place.</p>
+                <br>
+                <p>Static random-access memory (SRAM), dynamic random-access memory (DRAM), and non-volatile memory, including flash memory, are commonly used in memory interfaces in contemporary computers.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🎯</span>Main Objectives</h3>
+                <p>Ensuring smooth data communication between the CPU and memory while maximizing speed, dependability, and affordability is the main objective of memory interfacing. Memory controllers and bus interfaces are examples of specialized integrated circuits that are frequently needed for this.</p>
+                <br>
+                <p>Memory controllers handle operations including addressing, data transmission, and error detection and correction as well as the flow of data between the CPU and memory modules.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔧</span>Key Components</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">📍</div>
+                        <div class="feature-content">
+                            <h3>Addressing Mechanisms</h3>
+                            <p>Systems to access specific memory locations</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Data Transmission Protocols</h3>
+                            <p>Synchronous and asynchronous communication techniques</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🚌</div>
+                        <div class="feature-content">
+                            <h3>Bus Designs</h3>
+                            <p>Physical and logical connections between components</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🗂️</div>
+                        <div class="feature-content">
+                            <h3>Memory Hierarchy</h3>
+                            <p>Organization of memory types by speed and cost</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Caching Techniques</h3>
+                            <p>Methods to improve data access speed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <p>The seamless functioning of computer systems depends on effective memory interfacing, which affects things like program performance, multitasking ability, and user experience in general. Memory interface strategies must change to provide larger capacities, quicker speeds, and new kinds of memory modules as memory technology grow, guaranteeing continuous improvements in computing power.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Typical EPROM and Static RAM Section -->
+    <section id="memory" class="section memory">
+        <div class="container">
+            <h2 class="section-title fade-in">Typical EPROM and Static RAM</h2>
+            <div class="card fade-in">
+                <p>There are typically "n" address pins and "m" data pins (also known as output pins) on a semiconductor memory IC.</p>
+                <br>
+                <p>Possessing two power supply pins, one for ground and the other for attaching the necessary supply voltage (V).</p>
+            </div>
+            <div class="memory-chip fade-in">
+                <div class="chip-title">Static RAM</div>
+                <p>Control signals required for static RAM:</p>
+                <div class="chip-pins">
+                    <div class="pin-group">
+                        <div class="pin-count">CS</div>
+                        <div class="pin-label">Chip Select</div>
+                    </div>
+                    <div class="pin-group">
+                        <div class="pin-count">OE</div>
+                        <div class="pin-label">Output Enable</div>
+                    </div>
+                    <div class="pin-group">
+                        <div class="pin-count">WE</div>
+                        <div class="pin-label">Write Enable</div>
+                    </div>
+                </div>
+            </div>
+            <div class="memory-chip fade-in">
+                <div class="chip-title">EPROM</div>
+                <p>Control signals required for EPROM read operations:</p>
+                <div class="chip-pins">
+                    <div class="pin-group">
+                        <div class="pin-count">CS</div>
+                        <div class="pin-label">Chip Select</div>
+                    </div>
+                    <div class="pin-group">
+                        <div class="pin-count">OE</div>
+                        <div class="pin-label">Output Enable</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔌</span>Pin Configuration</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">📍</div>
+                        <div class="feature-content">
+                            <h3>Address Pins</h3>
+                            <p>"n" address pins to select memory locations</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📊</div>
+                        <div class="feature-content">
+                            <h3>Data Pins</h3>
+                            <p>"m" data pins for input/output operations</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Power Pins</h3>
+                            <p>VCC for power supply and GND for ground</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🎛️</div>
+                        <div class="feature-content">
+                            <h3>Control Pins</h3>
+                            <p>Chip select, output enable, and write enable signals</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Assembly Language Program Section -->
+    <section id="assembly" class="section assembly">
+        <div class="container">
+            <h2 class="section-title fade-in">Assembly Language Program</h2>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">➕</span>Add Two Numbers</h3>
+                <p>Assembly language program to add two numbers:</p>
+                <div class="code-block">
+                    <div class="code-line">
+                        <div class="line-number">1</div>
+                        <div class="code-content">MVI A, 2H<span class="comment">; Copy value 2H in register A</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">2</div>
+                        <div class="code-content">MVI B, 4H<span class="comment">; Copy value 4H in register B</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">3</div>
+                        <div class="code-content">ADD B<span class="comment">; A = A + B</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📝</span>Program Explanation</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">1️⃣</div>
+                        <div class="feature-content">
+                            <h3>Line 1</h3>
+                            <p>MVI A, 2H - Moves the immediate value 2H (hexadecimal) into the accumulator (register A)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">2️⃣</div>
+                        <div class="feature-content">
+                            <h3>Line 2</h3>
+                            <p>MVI B, 4H - Moves the immediate value 4H (hexadecimal) into register B</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">3️⃣</div>
+                        <div class="feature-content">
+                            <h3>Line 3</h3>
+                            <p>ADD B - Adds the contents of register B to the accumulator and stores the result in the accumulator</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Notes Section -->
+    <section id="notes" class="section notes">
+        <div class="container">
+            <h2 class="section-title fade-in">Important Notes</h2>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">💻</span>Assembly Language Specificity</h3>
+                <p>Assembly language is specific to a given processor. For e.g. assembly language of 8085 is different than that of Motorola 6800 microprocessor.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🤖</span>Machine Language Understanding</h3>
+                <p>Microprocessor understands Machine Language only! Microprocessor cannot understand a program written in Assembly language.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔧</span>Assembler Program</h3>
+                <p>A program known as Assembler is used to convert a Assembly language program to machine language.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">📝</div>
+                        <div class="feature-content">
+                            <h3>Source Code</h3>
+                            <p>Assembly language program written by programmer</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Assembler</h3>
+                            <p>Converts assembly code to machine code</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⚙️</div>
+                        <div class="feature-content">
+                            <h3>Object Code</h3>
+                            <p>Machine language code that microprocessor can execute</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Programming Model Section -->
+    <section id="model" class="section model">
+        <div class="container">
+            <h2 class="section-title fade-in">Programming Model of 8085</h2>
+            <div class="card fade-in">
+                <p>The programming model of 8085 microprocessor shows the internal registers and their organization that are accessible to the programmer. These registers are used to store data, addresses, and control information during program execution.</p>
+            </div>
+            <div class="programming-model fade-in">
+                <div class="model-container">
+                    <div class="model-row">
+                        <div class="model-component">A (Accumulator)</div>
+                    </div>
+                    <div class="model-row">
+                        <div class="model-component">B</div>
+                        <div class="model-component">C</div>
+                    </div>
+                    <div class="model-row">
+                        <div class="model-component">D</div>
+                        <div class="model-component">E</div>
+                    </div>
+                    <div class="model-row">
+                        <div class="model-component">H</div>
+                        <div class="model-component">L</div>
+                    </div>
+                    <div class="model-center">
+                        <h3>Flags Register</h3>
+                        <p>S Z AC P CY</p>
+                    </div>
+                    <div class="model-row">
+                        <div class="model-component">Stack Pointer (SP)</div>
+                    </div>
+                    <div class="model-row">
+                        <div class="model-component">Program Counter (PC)</div>
+                    </div>
+                    <div class="model-row">
+                        <div class="model-component">Instruction Register</div>
+                    </div>
+                    <div class="model-row">
+                        <div class="model-component">Temporary Register</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📋</span>Register Description</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Register</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>A (Accumulator)</td>
+                            <td>8-bit register used for arithmetic and logical operations</td>
+                        </tr>
+                        <tr>
+                            <td>B, C, D, E, H, L</td>
+                            <td>8-bit general-purpose registers that can be used individually or as register pairs (BC, DE, HL)</td>
+                        </tr>
+                        <tr>
+                            <td>Flags Register</td>
+                            <td>Contains 5 status flags: Sign (S), Zero (Z), Auxiliary Carry (AC), Parity (P), and Carry (CY)</td>
+                        </tr>
+                        <tr>
+                            <td>Stack Pointer (SP)</td>
+                            <td>16-bit register that points to the top of the stack in memory</td>
+                        </tr>
+                        <tr>
+                            <td>Program Counter (PC)</td>
+                            <td>16-bit register that contains the address of the next instruction to be executed</td>
+                        </tr>
+                        <tr>
+                            <td>Instruction Register</td>
+                            <td>Holds the current instruction being executed</td>
+                        </tr>
+                        <tr>
+                            <td>Temporary Register</td>
+                            <td>Used internally by the processor for temporary storage during operations</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Scroll to section function
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update active navigation dot based on scroll position
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            if (current) {
+                document.querySelector(`.nav-dot[onclick="scrollToSection('${current}')"]`).classList.add('active');
+            }
+        });
+
+        // Fade in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

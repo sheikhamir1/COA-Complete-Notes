@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parallel Computer Structures</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/parallel-computer-structures/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .pipeline { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .array { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .multiprocessor { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .conclusion { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Diagram Styles */
+        .diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+        }
+        .diagram-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .diagram-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            position: relative;
+        }
+        .processor {
+            width: 100px;
+            height: 100px;
+            background: rgba(100, 200, 255, 0.3);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+        }
+        .memory {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 200, 100, 0.3);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+        }
+        .interconnect {
+            width: 150px;
+            height: 150px;
+            background: rgba(200, 100, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+        }
+        .pipeline-stage {
+            width: 120px;
+            height: 80px;
+            background: rgba(100, 200, 255, 0.3);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+        }
+        .connector {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            z-index: 1;
+        }
+        .horizontal-connector {
+            height: 4px;
+            width: 50px;
+        }
+        .vertical-connector {
+            width: 4px;
+            height: 50px;
+        }
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        .highlight {
+            color: #ffcc80;
+            font-weight: bold;
+        }
+        /* Hierarchy Styles */
+        .hierarchy-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .hierarchy-level {
+            width: 80%;
+            padding: 20px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hierarchy-level::after {
+            content: "↓";
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        .hierarchy-level:last-child::after {
+            display: none;
+        }
+        /* Pipeline Diagram */
+        .pipeline-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .pipeline-row {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            width: 100%;
+            justify-content: center;
+        }
+        .pipeline-cell {
+            width: 120px;
+            height: 60px;
+            background: rgba(100, 200, 255, 0.3);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 5px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+        }
+        .pipeline-arrow {
+            width: 40px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.7);
+            position: relative;
+        }
+        .pipeline-arrow::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 8px solid rgba(255, 255, 255, 0.7);
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('intro-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('pipeline-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('array-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('multiprocessor-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('conclusion-section')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <div class="header" id="header">
+        <div class="container">
+            <h1>Parallel Computer Structures</h1>
+            <p>Exploring Pipeline Computers, Array Processors, and Multiprocessor Systems</p>
+            <div class="metrics-character">🔀⚡💻</div>
+            <p>Understanding the fundamental architectures that enable parallel processing in modern computing</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </div>
+
+    <!-- Introduction Section -->
+    <div class="section intro" id="intro-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to Parallel Computers 📚</h2>
+            <div class="card fade-in">
+                <p>Parallel computers are those systems that use parallel processing. The basic features of parallel computers are listed below:</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🚰</div>
+                        <div class="feature-content">
+                            <h3>Pipeline Computers</h3>
+                            <p>Perform overlapped computations to exploit temporal parallelism</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>Array Processors</h3>
+                            <p>Use multiple synchronized arithmetic logic units to activate spatial parallelism</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔀</div>
+                        <div class="feature-content">
+                            <h3>Multiprocessor Systems</h3>
+                            <p>Achieve asynchronous parallelism through a set of interactive processors with shared resources</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Parallel Processing Concepts</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">⏱️</div>
+                            <div class="feature-content">
+                                <h3>Temporal Parallelism</h3>
+                                <p>Executing multiple instructions in overlapping time periods (pipelining)</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📍</div>
+                            <div class="feature-content">
+                                <h3>Spatial Parallelism</h3>
+                                <p>Executing multiple operations simultaneously across multiple processing units</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔀</div>
+                            <div class="feature-content">
+                                <h3>Asynchronous Parallelism</h3>
+                                <p>Multiple processors working independently on different tasks with shared resources</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pipeline Computers Section -->
+    <div class="section pipeline" id="pipeline-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Pipeline Computers 🚰</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📝</span>Instruction Execution Steps</h3>
+                    <p>The execution of an instruction on a digital computer involves four steps:</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📥</div>
+                            <div class="feature-content">
+                                <h3>Instruction Fetch (IF)</h3>
+                                <p>Fetching the instruction from main memory</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔍</div>
+                            <div class="feature-content">
+                                <h3>Instruction Decode (ID)</h3>
+                                <p>Decoding the instruction to identify the operation to perform</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Operand Fetch (OF)</h3>
+                                <p>Fetching operands if needed for the execution</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⚙️</div>
+                            <div class="feature-content">
+                                <h3>Execute (EX)</h3>
+                                <p>Executing the decoded arithmetic/logic operation</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Pipelining vs. Non-Pipelining</h3>
+                    <p>In non-pipelined computers, these four steps must finish before the next instruction can start. However, in a pipelined computer, successive instructions are executed concurrently in an overlapped manner.</p>
+                    
+                    <div class="diagram">
+                        <div class="diagram-title">Pipeline Stages</div>
+                        <div class="pipeline-diagram">
+                            <div class="pipeline-row">
+                                <div class="pipeline-cell">IF</div>
+                                <div class="pipeline-arrow"></div>
+                                <div class="pipeline-cell">ID</div>
+                                <div class="pipeline-arrow"></div>
+                                <div class="pipeline-cell">OF</div>
+                                <div class="pipeline-arrow"></div>
+                                <div class="pipeline-cell">EX</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title"><span class="emoji">⏱️</span>Pipeline Cycle Operation</h3>
+                        <p>The instruction cycle is made up of multiple pipeline cycles. A pipeline cycle can be set to the delay of the slowest stage. Data flows from stage to stage on each cycle, triggered by a common pipeline clock. All stages operate synchronously under this clock. Interface latches between stages hold intermediate results.</p>
+                    </div>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title"><span class="emoji">📊</span>Performance Comparison</h3>
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <div class="emoji">📝</div>
+                                <div class="feature-content">
+                                    <h3>Non-Pipelined</h3>
+                                    <p>One instruction takes four pipeline cycles to complete</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">🚰</div>
+                                <div class="feature-content">
+                                    <h3>Pipelined</h3>
+                                    <p>Once the pipeline is full, output results emerge each cycle</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title"><span class="emoji">📈</span>Pipeline Efficiency</h3>
+                        <p>Because of the overlapped instruction fetch/decode and execution, pipelines are well-suited for repeatedly performing the same operations. When the operation changes (e.g. from add to multiply), the pipeline must be drained and reconfigured, causing delays. Thus, pipelines are most attractive for vector processing with repeated operations.</p>
+                    </div>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title"><span class="emoji">💻</span>Real-World Example</h3>
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <div class="emoji">🖥️</div>
+                                <div class="feature-content">
+                                    <h3>Intel x86 Processors</h3>
+                                    <p>Modern processors use deep pipelines (14-19 stages in Pentium 4) to achieve high clock speeds</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">📱</div>
+                                <div class="feature-content">
+                                    <h3>ARM Processors</div>
+                                <p>Use shorter pipelines (8-13 stages) for better energy efficiency in mobile devices</p>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Array Computers Section -->
+    <div class="section array" id="array-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Array Computers 🔢</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔢</span>Definition and Structure</h3>
+                    <p>An array processor is a synchronized parallel computer with multiple arithmetic logic units, referred to as processing elements (PEs). It can operate simultaneously in a lockstep fashion. By replicating ALUs, spatial parallelism can be achieved.</p>
+                    
+                    <div class="diagram">
+                        <div class="diagram-title">Functional Structure of an SIMD Array Processor</div>
+                        <div class="diagram-content">
+                            <div class="processor">Control Unit</div>
+                            <div class="interconnect">Data Routing Network</div>
+                            <div class="memory">PE 1</div>
+                            <div class="memory">PE 2</div>
+                            <div class="memory">PE 3</div>
+                            <div class="memory">PE n</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🧩</span>Components of Array Processors</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🎛️</div>
+                            <div class="feature-content">
+                                <h3>Control Unit</h3>
+                                <p>Scalar and vector instructions are directly implemented in the Control unit</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🧮</div>
+                            <div class="feature-content">
+                                <h3>Processing Elements (PEs)</h3>
+                                <p>Each PE has an ALU with registers and local memory</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔗</div>
+                            <div class="feature-content">
+                                <h3>Data Routing Network</h3>
+                                <p>The PEs are interconnected by a data routing network</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">⚙️</span>Operation of Array Processors</h3>
+                    <p>The interconnection pattern established for a specific computation is under program control. Vector instructions are broadcast to the PEs for distributed execution across different component operands fetched directly from local memory. The PEs are passive devices with instruction decoding capabilities.</p>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title"><span class="emoji">🔄</span>Execution Process</h3>
+                        <div class="hierarchy-container">
+                            <div class="hierarchy-level">
+                                <span>Control Unit broadcasts vector instruction to all PEs</span>
+                                <span>📢</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Each PE fetches operands from its local memory</span>
+                                <span>📥</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>All PEs execute the same operation simultaneously</span>
+                                <span>⚙️</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Results may be stored locally or exchanged via routing network</span>
+                                <span>💾</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔍</span>Associative Processors</h3>
+                    <p>Additionally, associative memory, which is content addressable, will be examined in the context of parallel processing. Array processors designed with associative memory are called associative processors.</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔍</div>
+                            <div class="feature-content">
+                                <h3>Content Addressable Memory</h3>
+                                <p>Memory locations are accessed by their content rather than by address</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔢</div>
+                            <div class="feature-content">
+                                <h3>Parallel Search</h3>
+                                <p>Multiple memory locations can be searched simultaneously</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📊</span>Applications and Algorithms</h3>
+                    <p>Parallel algorithms on array processors will be provided for:</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">✖️</div>
+                            <div class="feature-content">
+                                <h3>Matrix Multiplication</h3>
+                                <p>Efficient parallel computation of matrix products</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔀</div>
+                            <div class="feature-content">
+                                <h3>Merging</h3>
+                                <p>Combining multiple sorted lists into one</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Sorting</h3>
+                                <p>Parallel sorting algorithms like bitonic sort</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🌊</div>
+                            <div class="feature-content">
+                                <h3>Fourier Transforms</h3>
+                                <p>Fast Fourier Transform (FFT) algorithms</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Real-World Examples</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🖥️</div>
+                            <div class="feature-content">
+                                <h3>Connection Machine</h3>
+                                <p>A famous massively parallel SIMD computer from the 1980s</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🎮</div>
+                            <div class="feature-content">
+                                <h3>GPU Architecture</h3>
+                                <p>Modern GPUs use SIMD principles for parallel processing</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📡</div>
+                            <div class="feature-content">
+                                <h3>Signal Processing</h3>
+                                <p>Digital signal processors often use array processing techniques</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Multiprocessor Systems Section -->
+    <div class="section multiprocessor" id="multiprocessor-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Multiprocessor Systems 🔀</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🎯</span>Goals and Objectives</h3>
+                    <p>The goal of researching and developing multiprocessor systems is to enhance throughput, reliability, flexibility, and availability.</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📈</div>
+                            <div class="feature-content">
+                                <h3>Throughput</h3>
+                                <p>Increased processing capability by utilizing multiple processors</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🛡️</div>
+                            <div class="feature-content">
+                                <h3>Reliability</h3>
+                                <p>System can continue operating even if one processor fails</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Flexibility</h3>
+                                <p>System can be reconfigured for different workloads</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">✅</div>
+                            <div class="feature-content">
+                                <h3>Availability</h3>
+                                <p>System resources are accessible when needed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🏗️</span>Basic Design</h3>
+                    <p>The fundamental multiprocessor design has two or more processors with similar capabilities. All processors have access to the same memory modules, I/O channels, and peripherals. Most critically, the entire system must be controlled by a single integrated operating system that enables interaction between processors and their programs.</p>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title"><span class="emoji">💾</span>Memory Architecture</h3>
+                        <p>In addition to the shared memories and I/O devices, each processor has its own local memory and private devices. Processors can communicate through the shared memories or the interrupt network.</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔗</span>Interconnection Structures</h3>
+                    <p>Multiprocessor hardware system organization is determined by the interconnection structure to be used between the memories and processors. The three different interconnections are:</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🚌</div>
+                            <div class="feature-content">
+                                <h3>Time-shared Common Bus</h3>
+                                <p>Simplest interconnection where all processors and memory share a common bus</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔀</div>
+                            <div class="feature-content">
+                                <h3>Crossbar Switch Network</h3>
+                                <p>Allows multiple simultaneous connections between processors and memory modules</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔌</div>
+                            <div class="feature-content">
+                                <h3>Multiport Switches</h3>
+                                <p>Memory modules have multiple ports for direct connection to processors</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🚌</span>Time-shared Common Bus</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">✅</div>
+                            <div class="feature-content">
+                                <h3>Advantages</h3>
+                                <ul>
+                                    <li>Simple and inexpensive to implement</li>
+                                    <li>Easy to add or remove processors</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">❌</div>
+                            <div class="feature-content">
+                                <h3>Disadvantages</h3>
+                                <ul>
+                                    <li>Becomes a bottleneck with many processors</li>
+                                    <li>Limited by bus bandwidth</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="diagram">
+                        <div class="diagram-title">Time-shared Common Bus Structure</div>
+                        <div class="diagram-content">
+                            <div class="processor">P1</div>
+                            <div class="processor">P2</div>
+                            <div class="processor">P3</div>
+                            <div class="interconnect">Common Bus</div>
+                            <div class="memory">M1</div>
+                            <div class="memory">M2</div>
+                            <div class="memory">M3</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔀</span>Crossbar Switch Network</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">✅</div>
+                            <div class="feature-content">
+                                <h3>Advantages</h3>
+                                <ul>
+                                    <li>Supports multiple simultaneous connections</li>
+                                    <li>Non-blocking architecture</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">❌</div>
+                            <div class="feature-content">
+                                <h3>Disadvantages</h3>
+                                <ul>
+                                    <li>Complex and expensive (n×m switches for n processors and m memories)</li>
+                                    <li>Wiring complexity increases with system size</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="diagram">
+                        <div class="diagram-title">Crossbar Switch Network Structure</div>
+                        <div class="diagram-content">
+                            <div class="processor">P1</div>
+                            <div class="processor">P2</div>
+                            <div class="processor">P3</div>
+                            <div class="interconnect">Crossbar Switch</div>
+                            <div class="memory">M1</div>
+                            <div class="memory">M2</div>
+                            <div class="memory">M3</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔌</span>Multiport Switches</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">✅</div>
+                            <div class="feature-content">
+                                <h3>Advantages</h3>
+                                <ul>
+                                    <li>Direct connection between processors and memory</li>
+                                    <li>Good performance for small to medium systems</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">❌</div>
+                            <div class="feature-content">
+                                <h3>Disadvantages</h3>
+                                <ul>
+                                    <li>Expensive memory modules with multiple ports</li>
+                                    <li>Limited scalability</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="diagram">
+                        <div class="diagram-title">Multiport Memory Structure</div>
+                        <div class="diagram-content">
+                            <div class="processor">P1</div>
+                            <div class="processor">P2</div>
+                            <div class="processor">P3</div>
+                            <div class="memory">Multiport Memory</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Real-World Examples</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🖥️</div>
+                            <div class="feature-content">
+                                <h3>Symmetric Multiprocessors (SMP)</h3>
+                                <p>Common in servers and high-end workstations (e.g., Intel Xeon, AMD EPYC)</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📱</div>
+                            <div class="feature-content">
+                                <h3>Multi-core Processors</h3>
+                                <p>Multiple processor cores on a single chip (e.g., ARM big.LITTLE)</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">☁️</div>
+                            <div class="feature-content">
+                                <h3>Cloud Computing Platforms</div>
+                                <p>Large-scale multiprocessor systems for distributed computing</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conclusion Section -->
+    <div class="section conclusion" id="conclusion-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Conclusion 🏁</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔍</span>Comparison of Parallel Computer Structures</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Structure</th>
+                                <th>Parallelism Type</th>
+                                <th>Key Features</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Pipeline Computers</td>
+                                <td>Temporal</td>
+                                <td>Overlapped instruction execution, synchronized stages</td>
+                                <td>Vector processing, repetitive operations</td>
+                            </tr>
+                            <tr>
+                                <td>Array Processors</td>
+                                <td>Spatial</td>
+                                <td>Multiple synchronized ALUs, lockstep operation</td>
+                                <td>Data-parallel tasks, matrix operations</td>
+                            </tr>
+                            <tr>
+                                <td>Multiprocessor Systems</td>
+                                <td>Asynchronous</td>
+                                <td>Interactive processors, shared resources</td>
+                                <td>General-purpose computing, high availability</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Evolution and Integration</h3>
+                    <p>Modern computer systems often combine elements from all three parallel structures. For example:</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🖥️</div>
+                            <div class="feature-content">
+                                <h3>Modern CPUs</h3>
+                                <p>Use pipelining (temporal) with multiple cores (spatial) and shared cache (multiprocessor)</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🎮</div>
+                            <div class="feature-content">
+                                <h3>GPUs</h3>
+                                <p>Combine array processing principles with pipelining and multiprocessor designs</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">☁️</div>
+                            <div class="feature-content">
+                                <h3>Cloud Systems</div>
+                                <p>Integrate all three structures at different levels of the architecture</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🚀</span>Future Directions</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🧠</div>
+                            <div class="feature-content">
+                                <h3>Neuromorphic Computing</h3>
+                                <p>Bio-inspired parallel architectures for AI and machine learning</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⚛️</div>
+                            <div class="feature-content">
+                                <h3>Quantum Computing</h3>
+                                <p>Exploiting quantum parallelism for exponential speedup</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🌐</div>
+                            <div class="feature-content">
+                                <h3>Distributed Systems</h3>
+                                <p>Large-scale parallel computing across global networks</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">💡</span>Key Takeaways</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🚰</div>
+                            <div class="feature-content">
+                                <h3>Pipeline Computers</h3>
+                                <p>Exploit temporal parallelism through overlapped execution</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔢</div>
+                            <div class="feature-content">
+                                <h3>Array Processors</h3>
+                                <p>Exploit spatial parallelism through multiple synchronized ALUs</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔀</div>
+                            <div class="feature-content">
+                                <h3>Multiprocessor Systems</h3>
+                                <p>Exploit asynchronous parallelism through interactive processors</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🎯</span>Final Thoughts</h3>
+                    <p>Understanding these three fundamental parallel computer structures is essential for designing and implementing efficient computing systems. Each structure has its strengths and is suited for different types of applications. The future of computing lies in hybrid approaches that combine the best features of all three structures to meet the ever-increasing demands for computational power.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Scroll to section function
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+            
+            // Update active nav dot
+            const navDots = document.querySelectorAll('.nav-dot');
+            navDots.forEach(dot => dot.classList.remove('active'));
+            
+            const sections = ['header', 'intro-section', 'pipeline-section', 'array-section', 'multiprocessor-section', 'conclusion-section'];
+            
+            const index = sections.indexOf(sectionId);
+            if (index !== -1) {
+                navDots[index].classList.add('active');
+            }
+        }
+
+        // Update active nav dot on scroll
+        window.addEventListener('scroll', () => {
+            const sections = ['header', 'intro-section', 'pipeline-section', 'array-section', 'multiprocessor-section', 'conclusion-section'];
+            
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (scrollY >= (sectionTop - 200)) {
+                    current = sectionId;
+                }
+            });
+            
+            navDots.forEach(dot => dot.classList.remove('active'));
+            
+            const index = sections.indexOf(current);
+            if (index !== -1) {
+                navDots[index].classList.add('active');
+            }
+        });
+
+        // Fade in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

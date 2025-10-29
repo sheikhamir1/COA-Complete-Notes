@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Management Hardware</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/computer-memory/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .memory-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .mmu { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .functions { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .components { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .translation { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .diagram { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .benefits { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Memory Hierarchy Styles */
+        .hierarchy-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .hierarchy-level {
+            width: 80%;
+            padding: 20px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hierarchy-level::after {
+            content: "↓";
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        .hierarchy-level:last-child::after {
+            display: none;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Process Flow Styles */
+        .process-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .process-step {
+            width: 90%;
+            padding: 20px;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .process-step::after {
+            content: "↓";
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        .process-step:last-child::after {
+            display: none;
+        }
+        .step-number {
+            background: rgba(255, 255, 255, 0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 20px;
+        }
+        .step-content {
+            flex: 1;
+        }
+        .step-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        /* Diagram Styles */
+        .diagram-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .diagram-box {
+            width: 80%;
+            padding: 20px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .diagram-arrow {
+            font-size: 2rem;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('intro')"></div>
+        <div class="nav-dot" onclick="scrollToSection('mmu')"></div>
+        <div class="nav-dot" onclick="scrollToSection('functions')"></div>
+        <div class="nav-dot" onclick="scrollToSection('components')"></div>
+        <div class="nav-dot" onclick="scrollToSection('translation')"></div>
+        <div class="nav-dot" onclick="scrollToSection('diagram')"></div>
+        <div class="nav-dot" onclick="scrollToSection('benefits')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section id="header" class="header">
+        <div class="container">
+            <h1>Memory Management Hardware</h1>
+            <p>Exploring the essential components and operations of memory management in computer systems</p>
+            <div class="memory-character">💾</div>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section id="intro" class="section intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to Memory Management</h2>
+            <div class="card fade-in">
+                <p>In the realm of computer systems, effective memory management is crucial for ensuring optimal performance, efficient data access, and seamless execution of applications. Memory management involves a variety of hardware components and algorithms designed to manage the flow of data between the computer's main memory and other storage devices.</p>
+            </div>
+            <div class="card fade-in">
+                <p>This unit delves into the essential aspects of memory management hardware, including the Memory Management Unit (MMU), paging, segmentation, and the Translation Lookaside Buffer (TLB).</p>
+            </div>
+            <div class="card fade-in">
+                <p>Furthermore, the unit explores the performance implications of memory management, focusing on the hit/miss ratio, a critical metric for assessing the efficiency of memory access. The role of magnetic storage devices, such as magnetic disks and tapes, in providing reliable and high-capacity data storage is also examined.</p>
+            </div>
+            <div class="card fade-in">
+                <p>Understanding these components and their interplay is fundamental for anyone looking to grasp the complexities of modern computer architectures. By the end of this unit, readers will gain a comprehensive understanding of how memory management hardware functions, the significance of different memory access strategies, and the performance considerations associated with various storage media.</p>
+            </div>
+            <div class="card fade-in">
+                <p>This knowledge is essential for both designing efficient computer systems and troubleshooting performance issues in existing setups.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MMU Section -->
+    <section id="mmu" class="section mmu">
+        <div class="container">
+            <h2 class="section-title fade-in">Memory Management Unit (MMU)</h2>
+            <div class="card fade-in">
+                <p>The Memory Management Unit (MMU) is a crucial hardware component in a computer system responsible for handling memory and caching operations. It primarily translates virtual addresses to physical addresses, enabling processes to utilize memory efficiently and securely.</p>
+            </div>
+            <div class="card fade-in">
+                <p>The MMU plays a key role in implementing virtual memory, which allows a system to use more memory than is physically available by swapping data to and from the disk.</p>
+            </div>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🔄</div>
+                    <div class="feature-content">
+                        <h3>Address Translation</h3>
+                        <p>Translates virtual addresses to physical addresses</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔒</div>
+                    <div class="feature-content">
+                        <h3>Memory Protection</h3>
+                        <p>Prevents unauthorized access to memory regions</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">📄</div>
+                    <div class="feature-content">
+                        <h3>Paging</h3>
+                        <p>Divides memory into manageable pages</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Functions of MMU Section -->
+    <section id="functions" class="section functions">
+        <div class="container">
+            <h2 class="section-title fade-in">Functions of the MMU</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🔄</div>
+                    <div class="feature-content">
+                        <h3>Address Translation</h3>
+                        <p>The MMU translates virtual addresses generated by the CPU into physical addresses in the main memory.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔒</div>
+                    <div class="feature-content">
+                        <h3>Memory Protection</h3>
+                        <p>It ensures that a process cannot access the memory allocated to another process, thus providing isolation and security.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">📄</div>
+                    <div class="feature-content">
+                        <h3>Paging</h3>
+                        <p>The MMU divides virtual memory into pages and maps these pages to physical memory frames. This helps in efficient memory allocation and management.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🧩</div>
+                    <div class="feature-content">
+                        <h3>Segmentation</h3>
+                        <p>The MMU can support segmentation, where memory is divided into segments of varying lengths, each associated with specific permissions and attributes.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">⚡</div>
+                    <div class="feature-content">
+                        <h3>Cache Control</h3>
+                        <p>It manages the translation lookaside buffer (TLB), which caches recent address translations to speed up memory access.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Components of MMU Section -->
+    <section id="components" class="section components">
+        <div class="container">
+            <h2 class="section-title fade-in">Components of an MMU</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">📋</div>
+                    <div class="feature-content">
+                        <h3>Page Table</h3>
+                        <p>The page table is a data structure used by the MMU to keep track of the mapping between virtual pages and physical frames. Each entry in the page table contains information such as the frame number, access permissions, and status bits.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">📊</div>
+                    <div class="feature-content">
+                        <h3>Segment Table</h3>
+                        <p>If segmentation is used, the MMU maintains a segment table containing base addresses and limits for each segment, along with access control information.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🗂️</div>
+                    <div class="feature-content">
+                        <h3>Translation Lookaside Buffer (TLB)</h3>
+                        <p>The TLB is a cache that stores recent translations of virtual addresses to physical addresses. It helps speed up the address translation process by reducing the need to access the page table frequently.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">⚙️</div>
+                    <div class="feature-content">
+                        <h3>Control Registers</h3>
+                        <p>These registers hold configuration and status information related to the MMU, such as base addresses for page tables and segment tables, and control bits for enabling or disabling features.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Address Translation Process Section -->
+    <section id="translation" class="section translation">
+        <div class="container">
+            <h2 class="section-title fade-in">Address Translation Process</h2>
+            <div class="process-flow fade-in">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">Virtual Address Generation</div>
+                        <p>The CPU generates a virtual address for accessing memory.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">TLB Lookup</div>
+                        <p>The MMU first checks the TLB to see if the translation for the virtual address is already cached.</p>
+                        <p><strong>TLB Hit:</strong> If the translation is found in the TLB, the physical address is obtained quickly, and memory access proceeds.</p>
+                        <p><strong>TLB Miss:</strong> If the translation is not found, the MMU accesses the page table to find the corresponding physical address.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">Page Table Access</div>
+                        <p>The MMU uses the virtual address to index into the page table and retrieve the physical address. If paging is used, this involves locating the appropriate page table entry.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-title">Address Translation</div>
+                        <p>The MMU translates the virtual address into a physical address using the information from the page table.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <div class="step-title">Memory Access</div>
+                        <p>The physical address is used to access the desired memory location.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Components of an MMU Diagram Section -->
+    <section id="diagram" class="section diagram">
+        <div class="container">
+            <h2 class="section-title fade-in">Components of an MMU Diagram</h2>
+            <div class="card fade-in">
+                <p>To illustrate the components of an MMU, here is a simplified block diagram:</p>
+            </div>
+            <div class="diagram-container fade-in">
+                <div class="diagram-box">
+                    <h3>CPU</h3>
+                    <p>Generates virtual addresses</p>
+                </div>
+                <div class="diagram-arrow">⬇️</div>
+                <div class="diagram-box">
+                    <h3>TLB</h3>
+                    <p>Stores recent address translations</p>
+                </div>
+                <div class="diagram-arrow">⬇️</div>
+                <div class="diagram-box">
+                    <h3>Page Table</h3>
+                    <p>Maps virtual pages to physical frames</p>
+                </div>
+                <div class="diagram-arrow">⬇️</div>
+                <div class="diagram-box">
+                    <h3>Physical Memory</h3>
+                    <p>Actual memory locations accessed using physical addresses</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits of MMU Section -->
+    <section id="benefits" class="section benefits">
+        <div class="container">
+            <h2 class="section-title fade-in">Benefits of MMU</h2>
+            <div class="metrics-grid fade-in">
+                <div class="metric-card">
+                    <div class="metric-icon">💡</div>
+                    <div class="metric-title">Efficient Memory Utilization</div>
+                    <p>The MMU allows for efficient use of physical memory by mapping only the necessary pages, reducing fragmentation.</p>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">🔒</div>
+                    <div class="metric-title">Security</div>
+                    <p>By isolating processes, the MMU ensures that one process cannot interfere with another, providing memory protection.</p>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">🔄</div>
+                    <div class="metric-title">Flexibility</div>
+                    <p>Virtual memory enables running larger applications than the available physical memory by swapping pages in and out of disk storage.</p>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">⚡</div>
+                    <div class="metric-title">Performance</div>
+                    <p>The TLB and caching mechanisms within the MMU help improve the speed of address translation and memory access.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 style="text-align: center; margin-bottom: 15px;">Figure: MMU Address Translation</h3>
+                <div style="display: flex; justify-content: center; align-items: center;">
+                    <div style="font-size: 4rem;">🧠</div>
+                    <div style="font-size: 2rem; margin: 0 20px;">➡️</div>
+                    <div style="font-size: 4rem;">🔄</div>
+                    <div style="font-size: 2rem; margin: 0 20px;">➡️</div>
+                    <div style="font-size: 4rem;">💾</div>
+                </div>
+                <p style="text-align: center; margin-top: 15px;">CPU → MMU → Physical Memory</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update active navigation dot based on scroll position
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - sectionHeight / 3)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            if (current) {
+                document.querySelector(`.nav-dot[onclick="scrollToSection('${current}')"]`).classList.add('active');
+            }
+        });
+
+        // Fade-in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

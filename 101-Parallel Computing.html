@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parallel Computing and Computer Architecture Classification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/parallel-computing/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .classification { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .instruction { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .flynn { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .feng { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .handler { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Architecture Diagram Styles */
+        .architecture-diagram {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .arch-container {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+        }
+        .arch-component {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .arch-component:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.4);
+        }
+        .arch-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .arch-center {
+            background: rgba(255, 99, 71, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+            transition: transform 0.3s ease;
+        }
+        .arch-center:hover {
+            transform: scale(1.05);
+            background: rgba(255, 99, 71, 0.5);
+        }
+        /* Flynn's Taxonomy Styles */
+        .taxonomy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .taxonomy-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .taxonomy-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.25);
+        }
+        .taxonomy-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .taxonomy-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Feng's Classification Styles */
+        .feng-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .feng-table th, .feng-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .feng-table th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        .feng-table tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        /* Handler's Classification Styles */
+        .handler-example {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            transition: transform 0.3s ease;
+        }
+        .handler-example:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.25);
+        }
+        .handler-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ff9a9e;
+        }
+        .handler-formula {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            margin-top: 10px;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('intro')"></div>
+        <div class="nav-dot" onclick="scrollToSection('classification')"></div>
+        <div class="nav-dot" onclick="scrollToSection('instruction')"></div>
+        <div class="nav-dot" onclick="scrollToSection('flynn')"></div>
+        <div class="nav-dot" onclick="scrollToSection('feng')"></div>
+        <div class="nav-dot" onclick="scrollToSection('handler')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section id="header" class="header">
+        <div class="container">
+            <h1>Parallel Computing</h1>
+            <p>Understanding Computer Architecture Classification Systems</p>
+            <div class="metrics-character">🖥️</div>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section id="intro" class="section intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction</h2>
+            <div class="card fade-in">
+                <p>Parallel computing has become an essential technology in modern computers, driven by the constantly increasing demands for higher performance, lower costs, and sustained productivity in real applications. There are concurrent events taking place in today's high performance computers due to the common practices of multiprogramming, multiprocessing, or multi-computing.</p>
+                <br>
+                <p>Parallelism can take the form of look ahead, pipelining, vectorization, concurrency, simultaneity, data parallelism, partitioning, interleaving, overlapping, multiplicity, replication, time sharing, space sharing, multitasking, multiprogramming, multithreading, and distributed computing at different processing levels.</p>
+            </div>
+            <div class="card fade-in">
+                <p>Parallel computing is a type of computation where many calculations are performed at the same time, operating under the principle that large problems can often be divided into smaller ones, which are then solved together concurrently.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Types of Classification Section -->
+    <section id="classification" class="section classification">
+        <div class="container">
+            <h2 class="section-title fade-in">Types of Classification</h2>
+            <div class="card fade-in">
+                <p>The following classifications of parallel computers have been identified:</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Classification based on the instruction and data streams</h3>
+                            <p>Focuses on how instructions and data flow through the system</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🏗️</div>
+                        <div class="feature-content">
+                            <h3>Classification based on the structure of computers</h3>
+                            <p>Examines the physical organization and architecture</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">💾</div>
+                        <div class="feature-content">
+                            <h3>Classification based on how the memory is accessed</h3>
+                            <p>Analyzes memory access patterns and organization</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📏</div>
+                        <div class="feature-content">
+                            <h3>Classification based on grain size</h3>
+                            <p>Considers the size of data chunks processed in parallel</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Basic Types of Architectural Classification Section -->
+    <section id="instruction" class="section instruction">
+        <div class="container">
+            <h2 class="section-title fade-in">Basic Types of Architectural Classification</h2>
+            <div class="card fade-in">
+                <p>This categorization of computers was initially researched and suggested by Michael Flynn in 1971. Flynn did not take into account the machine design when classifying parallel computers. Instead, he presented the ideas of instruction and data flows to categorize computers. Not all the computers classified by Flynn are parallel, but to understand parallel computers, it is essential to comprehend all kinds of Flynn's classification.</p>
+                <br>
+                <p>Because this classification relies on instruction and data flows, we first need to grasp how the instruction cycle functions.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔄</span>Instruction Cycle</h3>
+                <p>The instruction cycle consists of a sequence of steps needed for the execution of an instruction in a program. A typical instruction in a program is composed of two parts: Opcode and Operand. The Operand part specifies the data on which the specified operation is to be done.</p>
+                <br>
+                <p>The Operand part is divided into two parts: addressing mode and the Operand. The addressing mode specifies the method of determining the addresses of the actual data on which the operation is to be performed and the operand part is used as an argument by the method in determining the actual address.</p>
+            </div>
+            <div class="card fade-in">
+                <p>The control unit of the central processing unit (CPU) in the computer sequentially obtains instructions from the program, one instruction at a time. The obtained instruction is then interpreted by the decoder, which is part of the control unit, and the processor carries out the interpreted instructions. The outcome of the execution is briefly stored in the Memory Buffer Register (MBR), also known as the Memory Data Register.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📊</span>Instruction Stream and Data Stream</h3>
+                <p>The term 'stream' refers to a sequence or flow of either instructions or data operated on by the computer. In the complete cycle of instruction execution, a flow of instructions from main memory to the CPU is established. This flow of instructions is called instruction stream. Similarly, there is a flow of operands between processor and memory bi-directionally. This flow of operands is called data stream.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Flynn's Taxonomy Section -->
+    <section id="flynn" class="section flynn">
+        <div class="container">
+            <h2 class="section-title fade-in">Flynn's Taxonomy of Computer Architecture</h2>
+            <div class="card fade-in">
+                <p>Parallel computing is a form of computation where tasks are divided into separate pieces that can be worked on at the same time. Each part is further split into a sequence of instructions. The instructions from each part are executed simultaneously on different CPUs.</p>
+                <br>
+                <p>Parallel systems involve the concurrent use of multiple computer resources, which can include a single computer with multiple processors, several computers linked by a network to create a parallel processing cluster, or a mix of both. Parallel systems are harder to program than single-processor computers because the architecture varies based on the parallel computer and the processes across multiple CPUs need to be coordinated and synchronized.</p>
+            </div>
+            <div class="card fade-in">
+                <p>CPUs are at the core of parallel processing. Based on the number of instruction and data streams that can be handled at the same time, computing systems are categorized into four major types:</p>
+                <div class="taxonomy-grid">
+                    <div class="taxonomy-card">
+                        <div class="taxonomy-icon">📝</div>
+                        <div class="taxonomy-title">SISD</div>
+                        <p>Single-Instruction Single-Data Stream</p>
+                    </div>
+                    <div class="taxonomy-card">
+                        <div class="taxonomy-icon">📊</div>
+                        <div class="taxonomy-title">SIMD</div>
+                        <p>Single-Instruction Multiple-Data Stream</p>
+                    </div>
+                    <div class="taxonomy-card">
+                        <div class="taxonomy-icon">🔄</div>
+                        <div class="taxonomy-title">MISD</div>
+                        <p>Multiple-Instruction Single-Data Stream</p>
+                    </div>
+                    <div class="taxonomy-card">
+                        <div class="taxonomy-icon">📊🔄</div>
+                        <div class="taxonomy-title">MIMD</div>
+                        <p>Multiple-Instruction Multiple-Data Stream</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📝</span>SISD (Single Instruction Single Data Stream)</h3>
+                <p>Traditional sequential computers are classified as SISD - [single instruction stream over single data stream] machines. Instructions in these computers are carried out one after another, but their execution phases may overlap (pipelining).</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📊</span>SIMD (Single Instruction Multiple Data Stream)</h3>
+                <p>This represents computers with both vector/array processing capabilities as well as scalar hardware. There are multiple processing elements overseen by one control unit. All the processing elements get the same instruction from the control unit but work on different data sets from separate data streams.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔄</span>MISD (Multiple Instruction Single Data Stream)</h3>
+                <p>The same data stream flows through a linear array of processors executing different instruction streams. This architecture is also known as systolic arrays for pipelined execution of specific algorithms.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📊🔄</span>MIMD (Multiple Instruction Multiple Data Stream)</h3>
+                <p>Most popular model. Parallel computers are reserved for MIMD. Of the four machine models, most parallel computers constructed in the past were based on the MIMD model for general purpose computing tasks. The SIMD and MISD models are better suited for specific computations. As a result, MIMD is the most widely used model, followed by SIMD, while MISD is the least common model implemented in commercial machines.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feng's Classification Section -->
+    <section id="feng" class="section feng">
+        <div class="container">
+            <h2 class="section-title fade-in">Feng's Classification</h2>
+            <div class="card fade-in">
+                <p>Feng suggested the use of degree of parallelism to classify various computer architectures. Tse-yun Feng suggested the use of degree of parallelism to classify various computer architectures.</p>
+                <ul style="margin-left: 20px; margin-top: 15px;">
+                    <li>The maximum number of binary digits that can be processed within a unit time by a computer system is called the maximum parallelism degree P.</li>
+                    <li>A bit slice is a string of bits one from each of the words at the same vertical position.</li>
+                </ul>
+            </div>
+            <div class="card fade-in">
+                <p>Under above classification:</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>Word Serial and Bit Serial (WSBS)</h3>
+                            <p>One bit is processed at a time</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>Word Parallel and Bit Serial (WPBS)</h3>
+                            <p>m-bit slice is processed at a time</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>Word Serial and Bit Parallel (WSBP)</h3>
+                            <p>One word of n bit processed at a time</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>Word Parallel and Bit Parallel (WPBP)</h3>
+                            <p>An array of n x m bits is processed at one time</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📊</span>Feng's Classification Table</h3>
+                <div class="feng-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mode</th>
+                                <th>Computer Model</th>
+                                <th>Degree of Parallelism</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>WSBS</td>
+                                <td>N = 1, M = 1</td>
+                                <td>The "MINIMA" (1, 1)</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>WPBS</td>
+                                <td>N = 1, M > 1</td>
+                                <td>(1, 256), (1, 16384), (1, 4096)</td>
+                                <td>STARAN, MPP, DAP</td>
+                            </tr>
+                            <tr>
+                                <td>WSBP</td>
+                                <td>N > 1, M = 1</td>
+                                <td>(64, 1), (60, 1), (48, 1), (16/32, 1)</td>
+                                <td>IBM 370/168 UP, CDC 660, Burrough 7700, VAX 11/780</td>
+                            </tr>
+                            <tr>
+                                <td>WPBP</td>
+                                <td>N > 1, M > 1</td>
+                                <td>(64, 64)</td>
+                                <td>Illiav IV</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Handler's Classification Section -->
+    <section id="handler" class="section handler">
+        <div class="container">
+            <h2 class="section-title fade-in">Handler's Classification</h2>
+            <div class="card fade-in">
+                <p>In 1977, Wolfgang Handler proposed an elaborate notation for expressing the pipelining and parallelism of computers. Handler's classification addresses the computer at three distinct levels:</p>
+                <ul style="margin-left: 20px; margin-top: 15px;">
+                    <li>Processor control unit (PCU)</li>
+                    <li>Arithmetic logic unit (ALU)</li>
+                    <li>Bit-level circuit (BLC)</li>
+                </ul>
+                <br>
+                <p>The PCU corresponds to a processor or CPU, the ALU corresponds to a functional unit or a processing element and the BLC corresponds to the logic circuit needed to perform one-bit operations in the ALU.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📝</span>Handler's Notation</h3>
+                <p>Handler's classification uses the following three pairs of integers to describe a computer:</p>
+                <div class="handler-formula">
+                    Computer = (p * p', a * a', b * b')
+                </div>
+                <p>Where:</p>
+                <ul style="margin-left: 20px; margin-top: 15px;">
+                    <li>p = number of PCUs</li>
+                    <li>p' = number of PCUs that can be pipelined</li>
+                    <li>a = number of ALUs controlled by each PCU</li>
+                    <li>a' = number of ALUs that can be pipelined</li>
+                    <li>b = number of bits in ALU or processing element (PE) word</li>
+                    <li>b' = number of pipeline segments on all ALUs or in a single PE</li>
+                </ul>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔧</div>Operators and Rules</h3>
+                <p>The following rules and operators are used to show the relationship between various elements of the computer:</p>
+                <ul style="margin-left: 20px; margin-top: 15px;">
+                    <li>The '*' operator is used to indicate that the units are pipelined or macro-pipelined with a stream of data running through all the units.</li>
+                    <li>The '+' operator is used to indicate that the units are not pipelined but work on independent streams of data.</li>
+                    <li>The 'v' operator is used to indicate that the computer hardware can work in one of several modes.</li>
+                    <li>The '~' symbol is used to indicate a range of values for any one of the parameters.</li>
+                    <li>Peripheral processors are shown before the main processor using another three pairs of integers. If the value of the second element of any pair is 1, it may be omitted for brevity.</li>
+                </ul>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">💻</span>Handler's Classification Examples</h3>
+                <div class="handler-example">
+                    <div class="handler-title">CDC 6600</div>
+                    <p>The CDC 6600 has a solitary central processor upheld by 10 I/O processors. One control unit coordinates one ALU with a 60-bit word length. The ALU has 10 functional units which can be assembled into a pipeline. The 10 peripheral I/O processors may work at the same time with one another and with the CPU. Each I/O processor contains one 12-bit ALU.</p>
+                    <div class="handler-formula">
+                        CDC 6600 = (I/O processors) * (central processor) = (10, 1, 12) * (1, 1 * 10, 60)
+                    </div>
+                </div>
+                <div class="handler-example">
+                    <div class="handler-title">Texas Instrument's Advanced Scientific Computer (ASC)</div>
+                    <p>ASC has one controller coordinating four arithmetic units. Each arithmetic unit is an eight stage pipeline with 64-bit words.</p>
+                    <div class="handler-formula">
+                        ASC = (1, 4, 64 * 8)
+                    </div>
+                </div>
+                <div class="handler-example">
+                    <div class="handler-title">Cray-1</div>
+                    <p>Cray-1 is a 64-bit single processor computer whose ALU has twelve functional units, eight of which can be chained together from a pipeline. Different functional units have from 1 to 14 segments, which can also be pipelined.</p>
+                    <div class="handler-formula">
+                        Cray-1 = (1, 12 * 8, 64 * (1 ~ 14))
+                    </div>
+                </div>
+                <div class="handler-example">
+                    <div class="handler-title">C.mmp multiprocessor</div>
+                    <p>The C.mmp was designed to facilitate research into parallel computer architectures, so it can be extensively reconfigured. The system consists of 16 PDP-11 minicomputers with 16-bit word lengths, interconnected by a crossbar switching network.</p>
+                    <div class="handler-formula">
+                        C.mmp = (16, 1, 16) v (1, 16, 16) v (1 * 16, 1, 16)
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <p>The '*' and '+' operators are utilized to bring together multiple separate hardware components. The 'v' operator differs from the other two in that it is employed to combine the various operating modes of a single hardware piece.</p>
+                <br>
+                <p>While Flynn's categorization is straightforward, Handler's classification is unwieldy. The direct application of numbers in the nomenclature of Handler's classification makes it much more abstract and thus difficult. Handler's classification is highly oriented towards depicting pipelines and chains. Although it can adequately illustrate the parallelism in a single processor, the diversity of parallelism in multiprocessor computers is not well addressed.</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Scroll to section function
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update active navigation dot based on scroll position
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            if (current) {
+                document.querySelector(`.nav-dot[onclick="scrollToSection('${current}')"]`).classList.add('active');
+            }
+        });
+
+        // Fade in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

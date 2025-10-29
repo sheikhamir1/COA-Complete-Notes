@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Management Hardware: The City Planners of Computing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/memory-city/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .journey { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .mmu { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .paging { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .segmentation { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .tlb { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .hit-miss { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .disk { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .tape { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .coa { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+        .summary { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 152, 80, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Hierarchy Styles */
+        .hierarchy-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .hierarchy-level {
+            width: 80%;
+            padding: 20px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hierarchy-level::after {
+            content: "↓";
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        .hierarchy-level:last-child::after {
+            display: none;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" data-section="header"></div>
+        <div class="nav-dot" data-section="journey"></div>
+        <div class="nav-dot" data-section="mmu"></div>
+        <div class="nav-dot" data-section="paging"></div>
+        <div class="nav-dot" data-section="segmentation"></div>
+        <div class="nav-dot" data-section="tlb"></div>
+        <div class="nav-dot" data-section="hit-miss"></div>
+        <div class="nav-dot" data-section="disk"></div>
+        <div class="nav-dot" data-section="tape"></div>
+        <div class="nav-dot" data-section="coa"></div>
+        <div class="nav-dot" data-section="summary"></div>
+    </div>
+
+    <!-- Header Section -->
+    <header class="header" id="header">
+        <div class="container">
+            <h1>Memory Management Hardware: The City Planners of Computing</h1>
+            <div class="metrics-character">🏙️</div>
+            <p>How computers manage memory like a well-organized city with efficient transportation and storage systems</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </header>
+
+    <!-- Journey Section -->
+    <section class="section journey" id="journey">
+        <div class="container">
+            <h2 class="section-title fade-in">A Journey Through the Memory Kingdom</h2>
+            <div class="card fade-in">
+                <p>Imagine a modern computer as a bustling city. Programs are its citizens, each needing a safe home (memory) and quick roads to travel on (data paths). If everyone tried to move around without order, chaos would reign. That's where <strong>memory management hardware</strong> steps in: the city planners, traffic cops, and builders of high-speed expressways.</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🏘️</div>
+                        <div class="metric-title">Programs</div>
+                        <p>Citizens needing homes</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🏠</div>
+                        <div class="metric-title">Memory</div>
+                        <p>Safe housing for programs</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🛣️</div>
+                        <div class="metric-title">Data Paths</div>
+                        <p>Quick roads for travel</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🚦</div>
+                        <div class="metric-title">Memory Management</div>
+                        <p>City planners & traffic cops</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🏗️</span>The Need for Organization</h3>
+                    <p class="fade-in">Without proper memory management, programs would overwrite each other's data, causing crashes and security vulnerabilities. The memory management hardware ensures each program stays in its designated area while allowing efficient access to needed data.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MMU Section -->
+    <section class="section mmu" id="mmu">
+        <div class="container">
+            <h2 class="section-title fade-in">1. The Gatekeeper: Memory Management Unit (MMU)</h2>
+            <div class="card fade-in">
+                <p>The MMU is like the city's master map reader. Programs speak in <em>virtual addresses</em> (like "apartment 5B"), but the hardware needs <em>physical addresses</em> (actual street numbers).</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Address Translation</h3>
+                            <p>Converting apartment numbers into real street addresses</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔒</div>
+                        <div class="feature-content">
+                            <h3>Protection</h3>
+                            <p>Ensuring one program can't barge into another's house</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📈</div>
+                        <div class="feature-content">
+                            <h3>Virtual Memory</h3>
+                            <p>Temporarily storing less-used data on disk to feel like there's more RAM</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">📚</span>Inside the MMU</h3>
+                    <p class="fade-in">Inside the MMU live key components that make memory management possible:</p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📖</div>
+                            <div class="feature-content">
+                                <h3>Page Table</h3>
+                                <p>The official street directory mapping virtual to physical addresses</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Segment Table</h3>
+                                <p>For programs organized by code/data/stack districts</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🗒️</div>
+                            <div class="feature-content">
+                                <h3>TLB (Translation Lookaside Buffer)</h3>
+                                <p>A quick-reference notepad to speed up address translation</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Paging Section -->
+    <section class="section paging" id="paging">
+        <div class="container">
+            <h2 class="section-title fade-in">2. Paging: Breaking the City into Blocks</h2>
+            <div class="card fade-in">
+                <p>Instead of giving each program a single giant land plot, the city is divided into equal-size blocks called <strong>pages</strong>.</p>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🧩</span>How Paging Works</h3>
+                    <p class="fade-in">A program's virtual pages can live anywhere in physical memory, avoiding wasted gaps. When the CPU wants data, the MMU first checks the TLB for a shortcut. If it's not there (a "miss"), it consults the page table to find the right block.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🏢</span>Benefits of Paging</h3>
+                    <p class="fade-in">This keeps memory tidy and flexible, much like high-rise apartments instead of sprawling houses. Paging eliminates external fragmentation and allows efficient use of physical memory.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔄</span>Page Fault Handling</h3>
+                    <p class="fade-in">When a program tries to access a page not in physical memory, a page fault occurs. The operating system then:</p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🛑</div>
+                            <div class="feature-content">
+                                <h3>Stops the Program</h3>
+                                <p>Temporarily halts execution</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">💾</div>
+                            <div class="feature-content">
+                                <h3>Loads Required Page</h3>
+                                <p>Brings the needed page from disk to RAM</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">▶️</div>
+                            <div class="feature-content">
+                                <h3>Resumes Execution</h3>
+                                <p>Restarts the program where it left off</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Segmentation Section -->
+    <section class="section segmentation" id="segmentation">
+        <div class="container">
+            <h2 class="section-title fade-in">3. Segmentation: Neighborhoods with Personality</h2>
+            <div class="card fade-in">
+                <p>Some programs like natural neighborhoods: code here, data there, stack elsewhere. <strong>Segmentation</strong> respects those logical groupings, giving each segment its own base address and size limit.</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📝</div>
+                        <div class="feature-content">
+                            <h3>Code Segment</h3>
+                            <p>Contains the program's executable instructions</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>Data Segment</h3>
+                            <p>Holds global and static variables</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">📚</div>
+                        <div class="feature-content">
+                            <h3>Stack Segment</h3>
+                            <p>Manages function calls and local variables</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔗</div>
+                        <div class="feature-content">
+                            <h3>Heap Segment</h3>
+                            <p>For dynamically allocated memory</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🏘️</span>Zoning Laws</h3>
+                    <p class="fade-in">It's like zoning laws—separate districts for industry, homes, and parks—so programs can grow or shrink sections independently while staying safe.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔐</span>Segmentation vs. Paging</h3>
+                    <p class="fade-in">While paging divides memory into fixed-size blocks, segmentation uses variable-sized segments that correspond to logical program units. Modern systems often combine both approaches for optimal memory management.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TLB Section -->
+    <section class="section tlb" id="tlb">
+        <div class="container">
+            <h2 class="section-title fade-in">4. TLB: The Speedy Shortcut</h2>
+            <div class="card fade-in">
+                <p>The <strong>Translation Lookaside Buffer</strong> is a tiny, super-fast cache of recent address translations.</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🎯</div>
+                        <div class="metric-title">TLB Hit</div>
+                        <p>Instant directions, no delay</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">❌</div>
+                        <div class="metric-title">TLB Miss</div>
+                        <p>Slower page-table lookup</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">⚡</span>Performance Impact</h3>
+                    <p class="fade-in">A high hit rate keeps traffic flowing; a low one causes delays. TLB is one of the most critical performance components in modern processors.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔄</span>TLB Management</h3>
+                    <p class="fade-in">TLB entries are managed using replacement policies like LRU (Least Recently Used) or random replacement. When the TLB is full and a new translation is needed, an existing entry is evicted to make room.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔍</span>Multi-level TLBs</h3>
+                    <p class="fade-in">Modern processors often have multiple TLB levels (L1 TLB, L2 TLB) similar to caches, with smaller but faster L1 TLB and larger but slower L2 TLB.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hit/Miss Ratio Section -->
+    <section class="section hit-miss" id="hit-miss">
+        <div class="container">
+            <h2 class="section-title fade-in">5. Hit/Miss Ratio: Grading the Traffic Flow</h2>
+            <div class="card fade-in">
+                <p>Caches everywhere—TLBs, CPU caches—are judged by their <strong>hit/miss ratio</strong>.</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">✅</div>
+                        <div class="feature-content">
+                            <h3>Hits</h3>
+                            <p>Data was already waiting close by</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">❌</div>
+                        <div class="feature-content">
+                            <h3>Misses</h3>
+                            <p>Long trip to main memory or disk needed</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">📊</span>Performance Impact</h3>
+                    <p class="fade-in">Better ratios equal faster programs, just like fewer traffic jams mean a quicker commute. High hit ratios indicate efficient cache design and good locality in program access patterns.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">📈</span>Measuring Performance</h3>
+                    <p class="fade-in">Hit/miss ratios are calculated as:</p>
+                    <div class="card fade-in">
+                        <p>Hit Ratio = Number of Hits / (Number of Hits + Number of Misses)</p>
+                        <p>Miss Ratio = Number of Misses / (Number of Hits + Number of Misses)</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🎯</span>Optimization Strategies</h3>
+                    <p class="fade-in">To improve hit/miss ratios, system designers employ techniques like:</p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📏</div>
+                            <div class="feature-content">
+                                <h3>Larger Cache Size</h3>
+                                <p>Can store more data for potential hits</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Better Replacement Policies</h3>
+                                <p>Keep more useful data in cache</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔀</div>
+                            <div class="feature-content">
+                                <h3>Prefetching</h3>
+                                <p>Load data before it's actually needed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Magnetic Disk Section -->
+    <section class="section disk" id="disk">
+        <div class="container">
+            <h2 class="section-title fade-in">6. Magnetic Disk: The Long-Term Warehouse</h2>
+            <div class="card fade-in">
+                <p>Beneath the fast streets of RAM lies the long-term warehouse: the <strong>hard disk</strong>.</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item fade-in">
+                        <div class="emoji">💿</div>
+                        <div class="feature-content">
+                            <h3>Platters</h3>
+                            <p>Spin at high speeds (5400-15000 RPM)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">🔍</div>
+                        <div class="feature-content">
+                            <h3>Read/Write Heads</h3>
+                            <p>Hover above platters to access data</p>
+                        </div>
+                    </div>
+                    <div class="feature-item fade-in">
+                        <div class="emoji">⭕</div>
+                        <div class="feature-content">
+                            <h3>Tracks & Sectors</h3>
+                            <p>Data organized in concentric circles and pie slices</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">⏱️</span>Performance Factors</h3>
+                    <p class="fade-in">Speed depends on how fast the heads move (seek time) and how quickly the platter rotates (latency).</p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🎯</div>
+                            <div class="feature-content">
+                                <h3>Seek Time</h3>
+                                <p>Time to move heads to correct track</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Rotational Latency</div>
+                                <p>Time for correct sector to rotate under head</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>Transfer Rate</div>
+                                <p>Speed of reading/writing data once positioned</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔗</span>RAID: Redundant Array of Independent Disks</h3>
+                    <p class="fade-in">To boost performance or reliability, disks can work together using <strong>RAID</strong>—like several trucks moving goods in parallel or carrying backups.</p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>RAID 0</h3>
+                                <p>Striping for performance (no redundancy)</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🪞</div>
+                            <div class="feature-content">
+                                <h3>RAID 1</h3>
+                                <p>Mirroring for redundancy (exact copy)</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">⚖️</div>
+                            <div class="feature-content">
+                                <h3>RAID 5/6</h3>
+                                <p>Striping with parity for both performance and redundancy</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Magnetic Tape Section -->
+    <section class="section tape" id="tape">
+        <div class="container">
+            <h2 class="section-title fade-in">7. Magnetic Tape: The Historical Archive</h2>
+            <div class="card fade-in">
+                <p>For giant, rarely needed archives, magnetic tape still shines. Think of it as a giant library basement: enormous capacity and very low cost, but you must wind through the reels to reach a specific book, so it's slower than disks.</p>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">📦</div>
+                        <div class="metric-title">Huge Capacity</div>
+                        <p>Can store terabytes of data</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">💰</div>
+                        <div class="metric-title">Low Cost</div>
+                        <p>Cheapest per-byte storage option</p>
+                    </div>
+                    <div class="metric-card fade-in">
+                        <div class="metric-icon">🐌</div>
+                        <div class="metric-title">Sequential Access</div>
+                        <p>Must wind through tape to find data</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🏢</span>Modern Uses</h3>
+                    <p class="fade-in">Despite being one of the oldest storage technologies, magnetic tape is still widely used for:</p>
+                    <div class="feature-list">
+                        <div class="feature-item fade-in">
+                            <div class="emoji">💾</div>
+                            <div class="feature-content">
+                                <h3>Backup Systems</h3>
+                                <p>Long-term archival of large datasets</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">🏛️</div>
+                            <div class="feature-content">
+                                <h3>Compliance & Regulatory</div>
+                                <p>Storing records for legal requirements</p>
+                            </div>
+                        </div>
+                        <div class="feature-item fade-in">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Big Data & Scientific</div>
+                                <p>Archiving massive research datasets</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🔄</span>Evolution of Tape Technology</h3>
+                    <p class="fade-in">Modern tape systems have evolved significantly, with higher capacities, faster access times, and automation through robotic tape libraries that can manage thousands of cartridges.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It All Fits Into COA Section -->
+    <section class="section coa" id="coa">
+        <div class="container">
+            <h2 class="section-title fade-in">How It All Fits Into COA</h2>
+            <div class="card fade-in">
+                <p>In the grand map of <strong>Computer Organization & Architecture</strong>, memory management sits between the CPU and storage.</p>
+                
+                <div class="hierarchy-container">
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">⬆️</span>
+                            <strong>Above</strong>
+                        </div>
+                        <div>CPU's control unit and instruction set</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">🔄</span>
+                            <strong>Memory Management</strong>
+                        </div>
+                        <div>Address translation, protection, virtual memory</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">↔️</span>
+                            <strong>Beside</strong>
+                        </div>
+                        <div>I/O systems and buses</div>
+                    </div>
+                    
+                    <div class="hierarchy-level fade-in">
+                        <div>
+                            <span class="register-icon">⬇️</span>
+                            <strong>Below</strong>
+                        </div>
+                        <div>Physical RAM, caches, disks, and tapes</div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🏗️</span>The Hierarchy Ensures Smooth Operation</h3>
+                    <p class="fade-in">This hierarchy ensures the CPU keeps working smoothly even when programs need more memory than what physically exists. The memory management hardware acts as the essential bridge between the processor's needs and the physical storage capabilities.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Summary Table Section -->
+    <section class="section summary" id="summary">
+        <div class="container">
+            <h2 class="section-title fade-in">Quick Summary Table</h2>
+            <div class="card fade-in">
+                <table>
+                    <tr>
+                        <th>Concept</th>
+                        <th>Role in the Story</th>
+                        <th>COA Connection</th>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🔄</span> MMU</td>
+                        <td>Translates virtual to physical addresses, protects processes</td>
+                        <td>Core CPU–memory interface</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🧩</span> Paging</td>
+                        <td>Splits memory into fixed pages to reduce fragmentation</td>
+                        <td>Virtual memory mechanism</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">📊</span> Segmentation</td>
+                        <td>Groups code/data logically with variable sizes</td>
+                        <td>Alternative to pure paging</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🗒️</span> TLB</td>
+                        <td>Cache of address translations for speed</td>
+                        <td>Part of MMU's fast path</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">📈</span> Hit/Miss Ratio</td>
+                        <td>Measures cache efficiency</td>
+                        <td>Key performance metric</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">💿</span> Magnetic Disk & RAID</td>
+                        <td>High-capacity, non-volatile storage</td>
+                        <td>Secondary storage design</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">📼</span> Magnetic Tape</td>
+                        <td>Low-cost archival storage</td>
+                        <td>Backup & long-term data</td>
+                    </tr>
+                </table>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title fade-in"><span class="emoji">🏙️</span>The Complete Picture</h3>
+                    <p class="fade-in">Seen as a whole, this unit shows how computers juggle speed, cost, and safety in their memory systems. From lightning-fast TLB lookups to slow but steady magnetic tapes, every piece ensures that when you open an app, it feels instant—even though a whole hidden city is working behind the scenes.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        const navDots = document.querySelectorAll('.nav-dot');
+        const sections = document.querySelectorAll('.section, .header');
+        
+        // Update active nav dot on scroll
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+                if (dot.getAttribute('data-section') === current) {
+                    dot.classList.add('active');
+                }
+            });
+            
+            // Fade in animation
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        });
+        
+        // Nav dot click functionality
+        navDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const targetId = dot.getAttribute('data-section');
+                const targetSection = document.getElementById(targetId);
+                
+                window.scrollTo({
+                    top: targetSection.offsetTop - 50,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Initial check for fade-in elements
+        const fadeElements = document.querySelectorAll('.fade-in');
+        fadeElements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top;
+            const elementVisible = 150;
+            
+            if (elementTop < window.innerHeight - elementVisible) {
+                element.classList.add('visible');
+            }
+        });
+    </script>
+</body>
+</html>

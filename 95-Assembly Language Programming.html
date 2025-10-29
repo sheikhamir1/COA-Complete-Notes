@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assembly Language Programming</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* background: url('https://picsum.photos/seed/assembly-programming/1920/1080.jpg') center/cover; */
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .simple { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .advantages { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .assembler { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .examples { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Code Block Styles */
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .code-line {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .code-line:last-child {
+            margin-bottom: 0;
+        }
+        .line-number {
+            width: 30px;
+            color: #ff9a9e;
+            margin-right: 10px;
+            text-align: right;
+        }
+        .code-content {
+            flex: 1;
+        }
+        .comment {
+            color: #a0a0a0;
+            margin-left: 10px;
+        }
+        /* Assembler Diagram Styles */
+        .assembler-diagram {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .assembler-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+        }
+        .flow-box {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: center;
+            width: 100%;
+            transition: transform 0.3s ease;
+        }
+        .flow-box:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .flow-arrow {
+            font-size: 2rem;
+            margin: 5px 0;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('intro')"></div>
+        <div class="nav-dot" onclick="scrollToSection('simple')"></div>
+        <div class="nav-dot" onclick="scrollToSection('advantages')"></div>
+        <div class="nav-dot" onclick="scrollToSection('assembler')"></div>
+        <div class="nav-dot" onclick="scrollToSection('examples')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section id="header" class="header">
+        <div class="container">
+            <h1>Assembly Language Programming</h1>
+            <p>Exploring the Fundamentals of 8085 Assembly Programming</p>
+            <div class="metrics-character">💻</div>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section id="intro" class="section intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction</h2>
+            <div class="card fade-in">
+                <p>After covering directives, program development tools, and Input/Output in assembly language programming, let's delve deeper into assembly language programs. This unit will begin by exploring simple assembly programs, which handle basic tasks such as data transfer, arithmetic operations, and shifts. A fundamental example includes determining the larger of two numbers. Subsequently, we'll progress to more intricate programs demonstrating the use of loops and various comparisons to accomplish tasks such as code conversion, character coding, and finding the largest value in an array. Additionally, this unit delves into more advanced arithmetic and string operations, as well as modular programming. For further details on these programming concepts, additional readings are recommended.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Simple Assembly Programs Section -->
+    <section id="simple" class="section simple">
+        <div class="container">
+            <h2 class="section-title fade-in">Simple Assembly Programs</h2>
+            <div class="card fade-in">
+                <p>The 0–1 combinations that the computer decodes directly make up machine language code. However, the following issues with the machine language exist:</p>
+                <ul style="margin-left: 20px; margin-top: 15px;">
+                    <li>Writing in 0-1 forms is challenging for most individuals and heavily relies on the computer.</li>
+                    <li>Debugging is challenging.</li>
+                    <li>The machine code is incredibly hard to decipher. As a result, it will be difficult to understand program logic.</li>
+                </ul>
+                <br>
+                <p>Computer manufacturers have created English-like terms to describe a machine's binary instruction in order to get around these problems. A mnemonic is a symbolic code that corresponds to each instruction. A specific instruction's mnemonic is made up of letters that allude to the task that the instruction is supposed to complete. The ADD mnemonic, for instance, is used to add two numbers. Machine language instructions can be written in symbolic form using these mnemonics, with one corresponding symbolic instruction for each machine instruction. We refer to this as an assembly language.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Advantages and Disadvantages Section -->
+    <section id="advantages" class="section advantages">
+        <div class="container">
+            <h2 class="section-title fade-in">Advantages and Disadvantages</h2>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">✅</span>Advantages</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔧</div>
+                        <div class="feature-content">
+                            <h3>Hardware Control</h3>
+                            <p>Assembly language provides extensive control over specific hardware and software components, enabling in-depth exploration of instruction sets, addressing modes, interrupts, and more.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🚀</div>
+                        <div class="feature-content">
+                            <h3>Compact Executables</h3>
+                            <p>Programs written in assembly generate smaller, more compact executable modules due to their close proximity to the machine. This proximity allows for the creation of highly optimized programs, resulting in faster execution.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📦</div>
+                        <div class="feature-content">
+                            <h3>Code Density</h3>
+                            <p>Assembly language programs tend to be at least 30% denser than equivalent programs written in high-level languages. This density arises from the fact that compilers often produce lengthy code sequences for each instruction, whereas assembly language typically employs a single line of code for each instruction, particularly noticeable in string-related programs.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔓</div>
+                        <div class="feature-content">
+                            <h3>Programming Freedom</h3>
+                            <p>Assembly language offers programmers significant freedom, as it imposes few restrictions or rules, allowing for flexible system construction.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">❌</span>Disadvantages</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🖥️</div>
+                        <div class="feature-content">
+                            <h3>Machine Dependency</h3>
+                            <p>Assembly language is inherently machine-dependent, with each microprocessor featuring its own unique set of instructions. Consequently, assembly programs lack portability.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🧠</div>
+                        <div class="feature-content">
+                            <h3>Complexity</h3>
+                            <p>Programming in assembly requires a deep understanding of underlying hardware architecture, making it more complex and time-consuming compared to high-level languages.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🐛</div>
+                        <div class="feature-content">
+                            <h3>Debugging Challenges</h3>
+                            <p>Debugging and maintaining assembly code can be challenging due to its intricate and less readable nature compared to code written in higher-level languages.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⏱️</div>
+                        <div class="feature-content">
+                            <h3>Development Effort</h3>
+                            <p>Development in assembly language often demands more effort and expertise, potentially increasing development time and costs, and making it less accessible to beginners.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What the Assembler Does Section -->
+    <section id="assembler" class="section assembler">
+        <div class="container">
+            <h2 class="section-title fade-in">What the Assembler Does</h2>
+            <div class="card fade-in">
+                <p>A source program is required before using the assembler. Instructions written in assembly language by the programmer make up the source program. These instructions have been written with mnemonic labels and opcodes. Programs written in assembly language and sent to the assembler must be machine-readable. You can keep source programs as paper tape or diskette files with the help of the text editor included in the Intellect development system. After that, you can give the assembler the generated source program file. The 8080 and 8085 microprocessors can run object code thanks to the assembler program, which handles the tedious operation of converting symbolic code.</p>
+                <br>
+                <p>The output of the assembler can be found in three different files: the object file, which is your program translated into object code; the list file, which is a printout of your source code, the object code produced by the assembler, and the symbol table; and the symbol-cross reference file, which is a list of such records.</p>
+            </div>
+            <div class="assembler-diagram fade-in">
+                <h3>Function of an Assembler</h3>
+                <div class="assembler-flow">
+                    <div class="flow-box">Source Program<br>(Assembly Language)</div>
+                    <div class="flow-arrow">⬇️</div>
+                    <div class="flow-box">Assembler</div>
+                    <div class="flow-arrow">⬇️</div>
+                    <div class="flow-box">Object File<br>(Machine Code)</div>
+                    <div class="flow-arrow">⬇️</div>
+                    <div class="flow-box">Executable Program</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Example Programs Section -->
+    <section id="examples" class="section examples">
+        <div class="container">
+            <h2 class="section-title fade-in">Example Programs</h2>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">💾</span>Example 1: Store Data Byte</h3>
+                <p><strong>Statement:</strong> Store the data byte 32H into memory location 4000H.</p>
+                
+                <h4 style="margin-top: 20px; margin-bottom: 10px;">Program 1</h4>
+                <div class="code-block">
+                    <div class="code-line">
+                        <div class="line-number">1</div>
+                        <div class="code-content">MVI A, 32H<span class="comment">; Store 32H in the accumulator</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">2</div>
+                        <div class="code-content">STA 4000H<span class="comment">; Copy accumulator contents at address 4000H</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">3</div>
+                        <div class="code-content">HLT<span class="comment">; Terminate program execution</span></div>
+                    </div>
+                </div>
+                
+                <h4 style="margin-top: 20px; margin-bottom: 10px;">Program 2</h4>
+                <div class="code-block">
+                    <div class="code-line">
+                        <div class="line-number">1</div>
+                        <div class="code-content">LXI H, 4000H<span class="comment">; Load HL with 4000H</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">2</div>
+                        <div class="code-content">MVI M, 32H<span class="comment">; Store 32H in memory location pointed by HL register pair (4000H)</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">3</div>
+                        <div class="code-content">HLT<span class="comment">; Terminate program execution</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔄</span>Example 2: Exchange Memory Contents</h3>
+                <p><strong>Statement:</strong> Exchange the contents of memory locations 2000H and 4000H.</p>
+                
+                <h4 style="margin-top: 20px; margin-bottom: 10px;">Program 1</h4>
+                <div class="code-block">
+                    <div class="code-line">
+                        <div class="line-number">1</div>
+                        <div class="code-content">LDA 2000H<span class="comment">; Get the contents of memory location 2000H into accumulator</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">2</div>
+                        <div class="code-content">MOV B, A<span class="comment">; Save the contents into B register</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">3</div>
+                        <div class="code-content">LDA 4000H<span class="comment">; Get the contents of memory location 4000H into accumulator</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">4</div>
+                        <div class="code-content">STA 2000H<span class="comment">; Store the contents of accumulator at address 2000H</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">5</div>
+                        <div class="code-content">MOV A, B<span class="comment">; Get the saved contents back into A register</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">6</div>
+                        <div class="code-content">STA 4000H<span class="comment">; Store the contents of accumulator at address 4000H</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">7</div>
+                        <div class="code-content">HLT<span class="comment">; Terminate program execution</span></div>
+                    </div>
+                </div>
+                
+                <h4 style="margin-top: 20px; margin-bottom: 10px;">Program 2</h4>
+                <div class="code-block">
+                    <div class="code-line">
+                        <div class="line-number">1</div>
+                        <div class="code-content">LXI H, 2000H<span class="comment">; Initialize HL register pair as a pointer to memory location 2000H</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">2</div>
+                        <div class="code-content">LXI D, 4000H<span class="comment">; Initialize DE register pair as a pointer to memory location 4000H</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">3</div>
+                        <div class="code-content">MOV B, M<span class="comment">; Get the contents of memory location 2000H into B register</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">4</div>
+                        <div class="code-content">LDAX D<span class="comment">; Get the contents of memory location 4000H into A register</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">5</div>
+                        <div class="code-content">MOV M, A<span class="comment">; Store the contents of A register into memory location 2000H</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">6</div>
+                        <div class="code-content">MOV A, B<span class="comment">; Copy the contents of B register into accumulator</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">7</div>
+                        <div class="code-content">STAX D<span class="comment">; Store the contents of A register into memory location 4000H</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">8</div>
+                        <div class="code-content">HLT<span class="comment">; Terminate program execution</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">➕</span>Example 3: Add Two 8-bit Numbers</h3>
+                <p><strong>Statement:</strong> Add the contents of memory location 4000H and 4001H and store the result in 4002H.</p>
+                
+                <h4 style="margin-top: 20px; margin-bottom: 10px;">Sample problem</h4>
+                <p>(4000H) = 14H<br>
+                (4001H) = 89H<br>
+                Result = 14H + 89H = 9DH</p>
+                
+                <h4 style="margin-top: 20px; margin-bottom: 10px;">Source program</h4>
+                <div class="code-block">
+                    <div class="code-line">
+                        <div class="line-number">1</div>
+                        <div class="code-content">LXI H, 4000H<span class="comment">; HL points 4000H</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">2</div>
+                        <div class="code-content">MOV A, M<span class="comment">; Get first operand</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">3</div>
+                        <div class="code-content">INX H<span class="comment">; HL points 4001H</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">4</div>
+                        <div class="code-content">ADD M<span class="comment">; Add second operand</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">5</div>
+                        <div class="code-content">INX H<span class="comment">; HL points 4002H</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">6</div>
+                        <div class="code-content">MOV M, A<span class="comment">; Store result at 4002H</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">7</div>
+                        <div class="code-content">HLT<span class="comment">; Terminate program execution</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">➖</span>Example 4: Subtract Two 8-bit Numbers</h3>
+                <p><strong>Statement:</strong> Subtract the contents of memory location 4001H from the memory location 2000H and place the result in memory location 4002H.</p>
+                
+                <h4 style="margin-top: 20px; margin-bottom: 10px;">Sample problem</h4>
+                <p>(4000H) = 51H<br>
+                (4001H) = 19H<br>
+                Result = 51H - 19H = 38H</p>
+                
+                <h4 style="margin-top: 20px; margin-bottom: 10px;">Source program</h4>
+                <div class="code-block">
+                    <div class="code-line">
+                        <div class="line-number">1</div>
+                        <div class="code-content">LXI H, 4000H<span class="comment">; HL points 4000H</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">2</div>
+                        <div class="code-content">MOV A, M<span class="comment">; Get first operand</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">3</div>
+                        <div class="code-content">INX H<span class="comment">; HL points 4001H</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">4</div>
+                        <div class="code-content">SUB M<span class="comment">; Subtract second operand</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">5</div>
+                        <div class="code-content">INX H<span class="comment">; HL points 4002H</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">6</div>
+                        <div class="code-content">MOV M, A<span class="comment">; Store result at 4002H</span></div>
+                    </div>
+                    <div class="code-line">
+                        <div class="line-number">7</div>
+                        <div class="code-content">HLT<span class="comment">; Terminate program execution</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Scroll to section function
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update active navigation dot based on scroll position
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            if (current) {
+                document.querySelector(`.nav-dot[onclick="scrollToSection('${current}')"]`).classList.add('active');
+            }
+        });
+
+        // Fade in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8085 Microprocessor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* background: url('https://picsum.photos/seed/8085-microprocessor/1920/1080.jpg') center/cover; */
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .architecture { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .components { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .flags { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .instruction { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .timing { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .interrupt { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .serial { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .bus { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Flag Register Styles */
+        .flag-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .flag-register {
+            width: 80%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        .flag {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        .flag:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.5);
+        }
+        /* Architecture Diagram Styles */
+        .architecture-diagram {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .arch-component {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px;
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+            transition: all 0.3s ease;
+        }
+        .arch-component:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .arch-row {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('intro')"></div>
+        <div class="nav-dot" onclick="scrollToSection('architecture')"></div>
+        <div class="nav-dot" onclick="scrollToSection('components')"></div>
+        <div class="nav-dot" onclick="scrollToSection('flags')"></div>
+        <div class="nav-dot" onclick="scrollToSection('instruction')"></div>
+        <div class="nav-dot" onclick="scrollToSection('timing')"></div>
+        <div class="nav-dot" onclick="scrollToSection('interrupt')"></div>
+        <div class="nav-dot" onclick="scrollToSection('serial')"></div>
+        <div class="nav-dot" onclick="scrollToSection('bus')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section id="header" class="header">
+        <div class="container">
+            <h1>8085 Microprocessor</h1>
+            <p>An 8-bit Microprocessor by Intel</p>
+            <div class="metrics-character">🔌</div>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section id="intro" class="section intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to 8085</h2>
+            <div class="card fade-in">
+                <p>Intel introduced the Intel 8085, an 8-bit microprocessor, in 1977. Because it needed less auxiliary hardware and was binary compatible with the more well-known Intel 8080, simpler and less expensive microcomputer systems could be constructed.</p>
+                <br>
+                <p>The model number "5" was derived from the fact that the 8085 only needed a +5-Volt (V) power supply, as opposed to the +5 V, −5 V, and +12 V supplies that the 8080 required.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔑</span>Key Characteristics</h3>
+                <ul style="margin-left: 20px;">
+                    <li>It's a microprocessor with eight bits.</li>
+                    <li>It is produced utilizing N-MOS technology.</li>
+                    <li>Because of its 16-bit address bus, it can access memory locations through A0–A15, or 2<sup>16</sup> = 65536 bytes (64KB).</li>
+                    <li>AD0–AD7 is the multiplex of the first eight address bus lines and the first eight data bus lines.</li>
+                    <li>Data bus consists of 8 lines, D0 through D7.</li>
+                    <li>External interrupt requests are supported.</li>
+                    <li>A 16-bit stack pointer (SP) with a 16-bit program counter (PC)</li>
+                    <li>Six general purpose registers with eight bits each, paired off as BC, DE, and HL.</li>
+                    <li>It runs at 3.2 MHZ single phase clock and needs a signal +5V power supply.</li>
+                    <li>It has 40 DIP (Dual in line package) pins enclosed.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture" class="section architecture">
+        <div class="container">
+            <h2 class="section-title fade-in">8085 Architecture</h2>
+            <div class="card fade-in">
+                <p>As seen in Fig. 1, 8085 is made up of several units, each of which carries out a specific duty. The following is a list of a microprocessor's different units:</p>
+                <div class="architecture-diagram">
+                    <div class="arch-row">
+                        <div class="arch-component">Program Counter</div>
+                        <div class="arch-component">Stack Pointer</div>
+                    </div>
+                    <div class="arch-row">
+                        <div class="arch-component">Timing and Control Unit</div>
+                        <div class="arch-component">Interrupt Control</div>
+                    </div>
+                    <div class="arch-row">
+                        <div class="arch-component">Temporary Register</div>
+                        <div class="arch-component">Accumulator</div>
+                    </div>
+                    <div class="arch-row">
+                        <div class="arch-component">Arithmetic and Logic Unit</div>
+                        <div class="arch-component">General Purpose Registers</div>
+                    </div>
+                    <div class="arch-row">
+                        <div class="arch-component">Address Buffer</div>
+                        <div class="arch-component">Address-Data Buffer</div>
+                    </div>
+                    <div class="arch-row">
+                        <div class="arch-component">Flags</div>
+                        <div class="arch-component">Instruction Register & Decoder</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Components Section -->
+    <section id="components" class="section components">
+        <div class="container">
+            <h2 class="section-title fade-in">Key Components</h2>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📦</span>Accumulator</h3>
+                <p>A register that can store 8-bit data is all an Accumulator is. Accumulator makes it easier to store two quantities simultaneously. An accumulator stores the data that will be processed by an arithmetic and logic unit. The outcome of the operation performed by the Arithmetic and Logic unit is likewise stored there. An 8-bit register is another name for the accumulator. The ALU (arithmetic and logic unit) and Internal Data Bus are connected to the accumulator. The Internal Data Bus can be utilized to transmit and receive data through the accumulator.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🧮</span>Arithmetic and Logic Unit</h3>
+                <p>Arithmetic operations such as +, -, *, and /, as well as logical operations such as AND, OR, NOT, and so forth, are always required. Thus, the creation of a distinct unit capable of carrying out these kinds of tasks is required. The Arithmetic and Logic Unit (ALU) handles these functions. These procedures are carried out via ALU on 8-bit data. However, without an input (or) set of data on which to perform the intended operation, these operations cannot be carried out. Where do these inputs come from then to get to the ALU? An accumulator is utilized in this situation. The accumulator and temporary register provide the input for the ALU. Once the required processes have been completed, the outcome is returned to the accumulator.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🗃️</span>General Purpose Registers</h3>
+                <p>Six unique register types known as General Purpose Registers make up 8085, aside from the accumulator. As with other registers, data is stored in these general-purpose registers. The 8085 processors have the following general-purpose registers: B, C, D, E, H, and L. A register can store up to 8 bits of data. These registers can be used in pairs to store 16-bit data in addition to the previously mentioned function. To hold 16-bit data, they can function in pairs like B-C, D-E, and H-L. As a memory pointer, the H-L pair is functional. An individual memory location's address is stored in a memory pointer. In their pairwork, they are able to store 16-bit addresses.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📍</span>Program Counter and Stack Pointer</h3>
+                <p>Program counter is a special purpose register. Consider that an instruction is being executed by processor. As soon as the ALU finished executing the instruction, the processor looks for the next instruction to be executed. So, there is a necessity for holding the address of the next instruction to be executed in order to save time. This is taken care by the program counter. A program counter stores the address of the next instruction to be executed. In other words, the program counter keeps track of the memory address of the instructions that are being executed by the microprocessor and the memory address of the next instruction that is going to be executed. Microprocessor increments the program whenever an instruction is being executed, so that the program counter points to the memory address of the next instruction that is going to be executed. Program counter is a 16-bit register.</p>
+                <br>
+                <p>Stack pointer is also a 16-bit register which is used as a memory pointer. A stack is nothing but the portion of RAM (Random access memory). So, does that mean the stack pointer points to portion of RAM? Yes. The address of the most recent byte added to the stack is kept track of by the stack pointer. The stack pointer is decreased each time data is added to the stack. On the other hand, when data is taken out of the stack, it is increased.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔄</span>Temporary Register</h3>
+                <p>During arithmetic and logical processes, this register serves as a temporary memory, as its name implies. This temporary register is totally inaccessible to programmers and is solely accessible by the microprocessor, in contrast to other registers. An 8-bit register is a temporary register.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Flags Section -->
+    <section id="flags" class="section flags">
+        <div class="container">
+            <h2 class="section-title fade-in">Flags</h2>
+            <div class="card fade-in">
+                <p>All that Flags are is a collection of single Flip-flops. The flags are mostly connected to operations in logic and arithmetic. Depending on the data conditions in the accumulator and other registers, the flags will display a logical (0 or 1), or a set or reset. In reality, a flag is just a latch that can store data. It notifies the processor that an event has occurred.</p>
+                <div class="flag-container">
+                    <div class="flag-register">
+                        <div class="flag">S</div>
+                        <div class="flag">Z</div>
+                        <div class="flag">AC</div>
+                        <div class="flag">P</div>
+                        <div class="flag">CY</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🚩</span>Types of Flags</h3>
+                <p>Intel processors have a set of 5 flags:</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Carry flag</h3>
+                            <p>Set when there is a carry out of the most significant bit (MSB) after an arithmetic operation.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔢</div>
+                        <div class="feature-content">
+                            <h3>Parity flag</h3>
+                            <p>Set if the result has even parity (even number of 1 bits), reset for odd parity.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">➕</div>
+                        <div class="feature-content">
+                            <h3>Auxiliary carry flag</h3>
+                            <p>Set when there is a carry from the 3rd bit to 4th bit after an arithmetic operation.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">0️⃣</div>
+                        <div class="feature-content">
+                            <h3>Zero flag</h3>
+                            <p>Set if the result of an operation is zero, reset otherwise.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">+/-</div>
+                        <div class="feature-content">
+                            <h3>Sign flag</h3>
+                            <p>Set if the result is negative (MSB is 1), reset if positive (MSB is 0).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🧮</span>Flag Examples</h3>
+                <p><strong>Carry Flag Example:</strong></p>
+                <p>Consider two binary numbers:</p>
+                <p>1100 0000<br>
+                1000 0000</p>
+                <p>The most significant bit generates a carry when the two values above are added. The most significant bit is the number on the extreme left, and the least significant bit is the number on the extreme right. Thus, the carry results in the generation of a ninth bit. Then, how can the ninth bit be used in an eight-bit register? This is the use of the Carry flag. Every time a carry is generated, the carry flag is set; it is reset when there isn't a carry.</p>
+                <br>
+                <p><strong>Auxiliary Carry Flag Example:</strong></p>
+                <p>Take a look at the two numbers below:</p>
+                <p>0000 1100<br>
+                0000 1001</p>
+                <p>The fourth bit from the least significant bit generates a carry when we add the two values. Auxiliary carry flag is set as a result. The secondary carry flag is reset in the event that there is no carry. The carry flag is thus set whenever there is a carry in the most important bit. Conversely, a carry that is created in bits other than the most significant bit only results in the setting of an auxiliary carry flag.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instruction Register Section -->
+    <section id="instruction" class="section instruction">
+        <div class="container">
+            <h2 class="section-title fade-in">Instruction Register and Decoder</h2>
+            <div class="card fade-in">
+                <p>Like all other microprocessor registers, the instruction register is an 8-bit register. Think of a directive. The instructions could be anything from copying a data to moving a data or adding two data, among other things. An instruction of this type is sent to the instruction register when it is retrieved from memory. Thus, the purpose of the instruction registers is to hold the instructions that are retrieved from memory. The data contained in the instruction register is decoded by an instruction decoder so that it can be processed further.</p>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">📥</div>
+                        <div class="metric-title">Instruction Fetch</div>
+                        <p>Retrieved from memory</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📋</div>
+                        <div class="metric-title">Instruction Register</div>
+                        <p>Holds the instruction</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🔍</div>
+                        <div class="metric-title">Instruction Decoder</div>
+                        <p>Decodes for execution</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timing and Control Section -->
+    <section id="timing" class="section timing">
+        <div class="container">
+            <h2 class="section-title fade-in">Timing and Control Unit</h2>
+            <div class="card fade-in">
+                <p>Because it synchronizes the registers and data flow through many registers and other units, the timing and control unit is a crucial component of the system. This unit transmits control signals required for both internal and external control of data and other units. It is composed of an oscillator and a controller sequencer. The oscillator produces two-phase clock impulses that help the 8085 microprocessor's registers all synchronize.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🎛️</span>Control Signals</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">RD</div>
+                        <div class="feature-content">
+                            <h3>RD' (Read)</h3>
+                            <p>Active low signal to indicate reading data from memory or I/O device.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">WR</div>
+                        <div class="feature-content">
+                            <h3>WR' (Write)</h3>
+                            <p>Active low signal to indicate writing data to memory or I/O device.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">ALE</div>
+                        <div class="feature-content">
+                            <h3>ALE (Address Latch Enable)</h3>
+                            <p>Control signal to synchronize the microprocessor's components and timing for instructions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📊</span>Status Signals</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">S0</div>
+                        <div class="feature-content">
+                            <h3>Status Signal 0</h3>
+                            <p>Used with S1 and IO/M' to indicate the type of operation.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">S1</div>
+                        <div class="feature-content">
+                            <h3>Status Signal 1</h3>
+                            <p>Used with S0 and IO/M' to indicate the type of operation.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">IO/M</div>
+                        <div class="feature-content">
+                            <h3>IO/M' (Input/Output/Memory)</h3>
+                            <p>Used to indicate whether the operation belongs to the memory or peripherals.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔄</span>DMA Signals</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">HOLD</div>
+                        <div class="feature-content">
+                            <h3>HOLD</h3>
+                            <p>Denotes a request for address and data bus usage from another master. The CPU will give up bus usage as soon as the current bus transfer is finished after receiving the hold request.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">HLDA</div>
+                        <div class="feature-content">
+                            <h3>HLDA (Hold Acknowledge)</h3>
+                            <p>Indicates that the CPU has received the HOLD request and will release the bus in the subsequent clock cycle.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">READY</div>
+                        <div class="feature-content">
+                            <h3>READY</h3>
+                            <p>This signal brings the slow peripherals and fast CPU into sync. The memory or peripheral is prepared to send or receive data if READY is high during a read or write cycle.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔄</span>Reset Signals</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">RESET IN</div>
+                        <div class="feature-content">
+                            <h3>RESET IN</h3>
+                            <p>When this pin is low:
+                                <ul style="margin-left: 20px; margin-top: 10px;">
+                                    <li>Zeroes out the program counter (0000H)</li>
+                                    <li>Resets the HLDA flip-flops and interrupt enables</li>
+                                    <li>The data bus, address bus, and control bus are tri-stated</li>
+                                    <li>Randomly modifies the contents of the internal registers of the CPU</li>
+                                </ul>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">RESET OUT</div>
+                        <div class="feature-content">
+                            <h3>RESET OUT</h3>
+                            <p>The processor is being reset, as indicated by this active high signal. This signal can be used to reset other system-connected devices and is synced with the processor clock.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interrupt Control Section -->
+    <section id="interrupt" class="section interrupt">
+        <div class="container">
+            <h2 class="section-title fade-in">Interrupt Control</h2>
+            <div class="card fade-in">
+                <p>This control stops a process, as its name implies. The main program is being run by a microprocessor, consider. Currently, the microprocessor switches over to handle incoming requests when the interrupt signal is activated or requested. Once the request is processed, the microprocessor returns control to the main program. To indicate that the data is prepared for entry, an input/output device can, for instance, emit an interrupt signal.</p>
+                <br>
+                <p>The microprocessor gives the I/O device control while momentarily stopping the main program's execution. The control is returned to the main program once the input data has been collected. The following interrupt signals are found in 8085: INTR, RST 7.5, RST 6.5, and RST 5.5.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">⚡</span>Types of Interrupts</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">INTR</div>
+                        <div class="feature-content">
+                            <h3>INTR</h3>
+                            <p>Maskable 8080A compatible interrupt. When an interrupt happens, the CPU retrieves one instruction from the bus:
+                                <ul style="margin-left: 20px; margin-top: 10px;">
+                                    <li>One of the eight RST commands (RST0–RST7)</li>
+                                    <li>Call instruction (3-byte instruction)</li>
+                                </ul>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">RST 5.5</div>
+                        <div class="feature-content">
+                            <h3>RST 5.5</h3>
+                            <p>Maskable interrupt. Upon receiving this interruption, the Hexadecimal address 2CH is where the processor branches after saving the contents of the PC register into a stack.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">RST 6.5</div>
+                        <div class="feature-content">
+                            <h3>RST 6.5</h3>
+                            <p>Maskable interrupt. Upon receiving this interrupt, the CPU branches to the 34H (hexadecimal) address and stores the contents of the PC register in the stack.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">RST 7.5</div>
+                        <div class="feature-content">
+                            <h3>RST 7.5</h3>
+                            <p>Maskable interrupt. Upon receiving this interrupt, the CPU branches to the 3CH (hexadecimal) address and stores the contents of the PC register in the stack.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">TRAP</div>
+                        <div class="feature-content">
+                            <h3>TRAP</h3>
+                            <p>Non-maskable interrupt. Upon receiving this interrupt, the CPU branches to the 24H (hexadecimal) address and stores the contents of the PC register in the stack.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔧</span>Interrupt Control</h3>
+                <p>With the use of EI and DI commands, all maskable interrupts can be activated or disabled. SIM instructions can be used to independently enable or disable RST5.5, RST6.5, and RST7.5 interrupts.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Serial I/O Section -->
+    <section id="serial" class="section serial">
+        <div class="container">
+            <h2 class="section-title fade-in">Serial Input/Output Control</h2>
+            <div class="card fade-in">
+                <p>The input and output of serial data can be carried out using 2 instructions in 8085.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">SID</div>
+                        <div class="feature-content">
+                            <h3>SID (Serial Input Data)</h3>
+                            <p>Used for serial data input</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">SOD</div>
+                        <div class="feature-content">
+                            <h3>SOD (Serial Output Data)</h3>
+                            <p>Used for serial data output</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔄</span>Serial-Parallel Conversion</h3>
+                <p>Two more instructions are used to perform serial-parallel conversion needed for serial I/O devices.</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">SIM</div>
+                        <div class="feature-content">
+                            <h3>SIM (Set Interrupt Mask)</h3>
+                            <p>Used to set the interrupt mask and to output data through SOD line</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">RIM</div>
+                        <div class="feature-content">
+                            <h3>RIM (Read Interrupt Mask)</h3>
+                            <p>Used to read the interrupt mask and to input data through SID line</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bus System Section -->
+    <section id="bus" class="section bus">
+        <div class="container">
+            <h2 class="section-title fade-in">Address Buffer, Address-Data Buffer, and Bus System</h2>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📡</span>Address Buffer and Address-Data Buffer</h3>
+                <p>The address buffer and address-data buffer are filled with the contents of the program counter and stack pointer. The address-data bus and external address bus are then driven by these buffers. The CPU may exchange desired data with the memory and I/O chips since they are connected to these busses.</p>
+                <br>
+                <p>The internal data bus, which has eight bits, and the external data bus are both connected to the address-data buffer. Data from the internal data bus can be sent and received via the address data buffer.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🚌</span>Data Bus and the Address Bus</h3>
+                <p>It is known that the 8085 microprocessor has eight bits. Consequently, the microprocessor's data bus has an 8-bit width. Thus, eight bits of data can be sent. Either to or from the CPU. However, because memory addresses are 16 bits wide, the 8085 CPU needs a 16-bit address bus. The eight most important components of the address bus is used to communicate addresses, while the multiplexed address/data bus is used to transmit the eight least significant bits. The eight least significant bits of the address bus are multiplexed with the eight-bit data bus.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">⏱️</span>Time Multiplexing</h3>
+                <p>The data bus and address bus are time multiplexed. This indicates that the data is created by the same pin for a few seconds after the eight least significant bits of the address are generated for a few microseconds. We refer to this as time multiplexing.</p>
+                <br>
+                <p>However, there are instances in which it's necessary to send data and an address at the same time. The signal known as ALE (address latch enables) is utilized for this purpose. The address is also available at the output latch when the CPU sends the data again because the ALE signal retains the received address in its latch until the data is obtained. We refer to this method as Address/Data demultiplexing.</p>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">🔄</div>
+                        <div class="metric-title">Time Multiplexing</div>
+                        <p>Same pins used for address and data at different times</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🔒</div>
+                        <div class="metric-title">ALE Signal</div>
+                        <p>Latches address while data is being transmitted</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📡</div>
+                        <div class="metric-title">Demultiplexing</div>
+                        <p>Separates address and data signals</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Scroll to section function
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update active navigation dot based on scroll position
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            if (current) {
+                document.querySelector(`.nav-dot[onclick="scrollToSection('${current}')"]`).classList.add('active');
+            }
+        });
+
+        // Fade in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

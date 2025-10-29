@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intel 8085 Programming: The Heart of Computer Organization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/intel-8085-chip/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .processor-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .big-picture { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .why-assembly { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .programming-model { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .grammar { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .day-life { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .memory { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .connection { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .summary { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Code Block Styles */
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        .code-comment {
+            color: #8ab4f8;
+            font-style: italic;
+        }
+        .code-keyword {
+            color: #fdd663;
+        }
+        .code-instruction {
+            color: #81c995;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" data-section="header"></div>
+        <div class="nav-dot" data-section="big-picture"></div>
+        <div class="nav-dot" data-section="why-assembly"></div>
+        <div class="nav-dot" data-section="programming-model"></div>
+        <div class="nav-dot" data-section="grammar"></div>
+        <div class="nav-dot" data-section="day-life"></div>
+        <div class="nav-dot" data-section="memory"></div>
+        <div class="nav-dot" data-section="connection"></div>
+        <div class="nav-dot" data-section="summary"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section class="header" id="header">
+        <div class="container">
+            <h1>Intel 8085 Programming</h1>
+            <div class="processor-character">💻</div>
+            <p>The Heart of Computer Organization & Architecture</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Big Picture Section -->
+    <section class="section big-picture" id="big-picture">
+        <div class="container">
+            <h2 class="section-title fade-in">The Big Picture: Where This Fits in COA</h2>
+            <div class="card fade-in">
+                <p>Think of <strong>Computer Organization & Architecture</strong> like building a city:</p>
+            </div>
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🏗️</div>
+                        <div class="feature-content">
+                            <h3>Architecture</h3>
+                            <p>The city's blueprint—the grand design of CPU, memory, buses.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔧</div>
+                        <div class="feature-content">
+                            <h3>Organization</h3>
+                            <p>How all those streets, power lines, and traffic lights are actually built and connected.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🧠</div>
+                        <div class="feature-content">
+                            <h3>Process Organization</h3>
+                            <p>The neighborhood where the CPU's actual work happens, teaching you how to speak directly to the hardware using assembly language.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Assembly Section -->
+    <section class="section why-assembly" id="why-assembly">
+        <div class="container">
+            <h2 class="section-title fade-in">Setting the Stage: Why Assembly?</h2>
+            <div class="card fade-in">
+                <p>Long ago, programmers only had <strong>machine language</strong>—strings of 0s and 1s. That's like giving directions in pure GPS coordinates—accurate but painful.</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔤</span>The Birth of Assembly</h3>
+                    <p>Assembly language came as a blessing: short English-like words (mnemonics) such as <code>ADD</code> or <code>MOV</code> that the computer can convert into those 0s and 1s.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>The Translator</h3>
+                    <p>An <strong>Assembler</strong> acts like a translator:</p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">✏️</div>
+                            <div class="feature-content">
+                                <h3>You Write</h3>
+                                <p>Code in mnemonics (ADD, MOV, etc.)</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Assembler Converts</h3>
+                                <p>Translates to machine code (0s and 1s)</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">💻</div>
+                            <div class="feature-content">
+                                <h3>CPU Runs</h3>
+                                <p>Executes the machine code instructions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Programming Model Section -->
+    <section class="section programming-model" id="programming-model">
+        <div class="container">
+            <h2 class="section-title fade-in">Meet the Hero: Intel 8085 Programming Model</h2>
+            <div class="card fade-in">
+                <p>The 8085 microprocessor is like a small but smart clerk with specific "drawers" to store things:</p>
+            </div>
+            <div class="card fade-in">
+                <table>
+                    <tr>
+                        <th><span class="register-icon">🧩</span>Part</th>
+                        <th><span class="register-icon">📝</span>Role (Story Version)</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Accumulator (A)</strong></td>
+                        <td>The main calculator's tray—every add, subtract, AND, OR result lands here.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Registers B,C,D,E,H,L</strong></td>
+                        <td>Six little notepads to keep temporary numbers; some can pair up for 16-bit tasks.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Flag Register</strong></td>
+                        <td>Mood indicators: <em>Zero</em>, <em>Carry</em>, <em>Sign</em>—telling if the last math was zero, overflowed, etc.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Program Counter (PC)</strong></td>
+                        <td>A bookmark pointing to the next instruction to read.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Stack Pointer (SP)</strong></td>
+                        <td>Manages a vertical pile (stack) for saving return addresses when we jump to subroutines.</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🌐</span>Real-World Analogy</h3>
+                    <p>Think of the 8085 as a small office with a main desk (Accumulator), several notepads (registers), a flag system to track status (Flag Register), a bookmark for where you left off (Program Counter), and a stack of papers to save your place when working on different tasks (Stack Pointer).</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Grammar Section -->
+    <section class="section grammar" id="grammar">
+        <div class="container">
+            <h2 class="section-title fade-in">Learning the 8085 "Grammar"</h2>
+            <div class="card fade-in">
+                <p>The 8085 understands instructions grouped like this:</p>
+            </div>
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Data Transfer</h3>
+                            <p>Move or copy data (<code>MOV</code>, <code>MVI</code>, <code>LDA</code>, <code>STA</code>)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">➕</div>
+                        <div class="feature-content">
+                            <h3>Arithmetic</h3>
+                            <p>Add, subtract, increment, decrement (<code>ADD</code>, <code>SUB</code>, <code>INR</code>, <code>DCR</code>)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔗</div>
+                        <div class="feature-content">
+                            <h3>Logical</h3>
+                            <p>AND, OR, XOR, compare (<code>ANA</code>, <code>ORA</code>, <code>CMP</code>)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔀</div>
+                        <div class="feature-content">
+                            <h3>Branching</h3>
+                            <p>Change the story's flow—jumps, calls, returns (<code>JMP</code>, <code>CALL</code>, <code>RET</code>)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⏸️</div>
+                        <div class="feature-content">
+                            <h3>Control/Stack/I-O</h3>
+                            <p>Halt, enable interrupts, push/pop data</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📏</span>Instruction Lengths</h3>
+                    <p>Instructions can be <strong>1, 2, or 3 bytes</strong> long depending on how much extra info (like addresses) they carry:</p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">1️⃣</div>
+                            <div class="feature-content">
+                                <h3>1-Byte Instructions</h3>
+                                <p>Operations that don't need extra data, like <code>MOV A,B</code> or <code>RLC</code></p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">2️⃣</div>
+                            <div class="feature-content">
+                                <h3>2-Byte Instructions</h3>
+                                <p>Operations that need an 8-bit data value, like <code>MVI A,05H</code></p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">3️⃣</div>
+                            <div class="feature-content">
+                                <h3>3-Byte Instructions</h3>
+                                <p>Operations that need a 16-bit address, like <code>LDA 2050H</code></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Day in Life Section -->
+    <section class="section day-life" id="day-life">
+        <div class="container">
+            <h2 class="section-title fade-in">A Day in the Life of a Program</h2>
+            <div class="card fade-in">
+                <p>Imagine you need the 8085 to <strong>add two numbers from memory</strong>:</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>The Execution Cycle</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📥</div>
+                            <div class="feature-content">
+                                <h3>Fetch</h3>
+                                <p>Program Counter tells CPU where to look for the next instruction</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔍</div>
+                            <div class="feature-content">
+                                <h3>Decode</h3>
+                                <p>Instruction is read, e.g., <code>ADD M</code>, and the CPU understands what to do</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>Execute</h3>
+                                <p>ALU adds the number from memory to the Accumulator</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🚩</div>
+                            <div class="feature-content">
+                                <h3>Update Flags</h3>
+                                <p>Zero or Carry flags flip if needed based on the result</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📖</div>
+                            <div class="feature-content">
+                                <h3>Next Step</h3>
+                                <p>PC moves to the next instruction—unless a jump changes the path</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Example Program</h3>
+                    <p>Here's a simple program that adds two numbers stored at memory locations 2050H and 2051H:</p>
+                    <div class="code-block">
+                        <span class="code-keyword">LDA</span> <span class="code-instruction">2050H</span>    <span class="code-comment">; Load first number into Accumulator</span><br>
+                        <span class="code-keyword">MOV</span> <span class="code-instruction">B,A</span>        <span class="code-comment">; Move it to register B</span><br>
+                        <span class="code-keyword">LDA</span> <span class="code-instruction">2051H</span>    <span class="code-comment">; Load second number into Accumulator</span><br>
+                        <span class="code-keyword">ADD</span> <span class="code-instruction">B</span>         <span class="code-comment">; Add first number to second</span><br>
+                        <span class="code-keyword">STA</span> <span class="code-instruction">2052H</span>    <span class="code-comment">; Store result at 2052H</span><br>
+                        <span class="code-keyword">HLT</span>              <span class="code-comment">; Halt the program</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📝</span>Program Development Steps</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔍</div>
+                            <div class="feature-content">
+                                <h3>Analyze</h3>
+                                <p>Understand the problem requirements</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Algorithm</h3>
+                                <p>Develop a step-by-step solution</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Flowchart</h3>
+                                <p>Create a visual representation of the algorithm</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">💻</div>
+                            <div class="feature-content">
+                                <h3>Assembly Code</h3>
+                                <p>Write the program using 8085 mnemonics</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔧</div>
+                            <div class="feature-content">
+                                <h3>Assemble & Execute</h3>
+                                <p>Convert to machine code and run on the processor</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Memory Interfacing Section -->
+    <section class="section memory" id="memory">
+        <div class="container">
+            <h2 class="section-title fade-in">Memory Interfacing: The City's Roads</h2>
+            <div class="card fade-in">
+                <p>For the CPU to talk to memory smoothly, <strong>memory interfacing</strong> is the roadway design:</p>
+            </div>
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">📍</div>
+                        <div class="feature-content">
+                            <h3>Address Bus</h3>
+                            <p>Tells <em>where</em> in memory to read from or write to</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📊</div>
+                        <div class="feature-content">
+                            <h3>Data Bus</h3>
+                            <p>Carries the actual <em>what</em>—the data being transferred</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🚦</div>
+                        <div class="feature-content">
+                            <h3>Control Signals</h3>
+                            <p>Read/Write, Chip Select signals act like traffic lights</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🌐</span>Real-World Example</h3>
+                    <p>Think of memory interfacing like a city's transportation system. The address bus is like street signs telling you where to go, the data bus is the vehicles carrying people or goods, and the control signals are traffic lights and road signs that direct the flow. Efficient interfacing means fast, reliable data flow—critical for program speed and overall system performance.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔧</span>Key Considerations</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔌</div>
+                            <div class="feature-content">
+                                <h3>Address Decoding</h3>
+                                <p>Ensuring the correct memory chip is selected for each address range</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⏱️</div>
+                            <div class="feature-content">
+                                <h3>Timing</h3>
+                                <p>Coordinating the timing of signals to ensure reliable data transfer</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔋</div>
+                            <div class="feature-content">
+                                <h3>Power Requirements</h3>
+                                <p>Ensuring proper power supply to memory chips for stable operation</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Connection Section -->
+    <section class="section connection" id="connection">
+        <div class="container">
+            <h2 class="section-title fade-in">How It Connects to COA</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🏗️</span>Hardware Level</h3>
+                    <p>8085 registers, buses, and memory connections show you CPU internals. When you program the 8085, you're directly manipulating these hardware components, giving you a ground-level view of how computers work at the most fundamental level.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Instruction Cycle</h3>
+                    <p>The fetch-decode-execute cycle reveals how any processor, not just 8085, runs software. Understanding this cycle is essential to grasping how computers perform tasks at the most basic level. Every modern CPU, no matter how complex, still follows this same fundamental process.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">⚡</span>Optimization</h3>
+                    <p>Writing assembly teaches how high-level languages eventually translate to efficient hardware operations. When you write in C++ or Python, the code is compiled down to machine instructions similar to what you write in 8085 assembly. Understanding this connection helps you write more efficient high-level code.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🌐</span>Bridging Software and Hardware</h3>
+                    <p>8085 programming demonstrates the critical interface between software and hardware. It shows how abstract software concepts are implemented in physical hardware, a fundamental concept in computer architecture that remains relevant regardless of how technology advances.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Summary Section -->
+    <section class="section summary" id="summary">
+        <div class="container">
+            <h2 class="section-title fade-in">Summary</h2>
+            <div class="card fade-in">
+                <p>In short, this unit is like a guided adventure into the heart of a microprocessor. By writing assembly for the Intel 8085, you learn to think like the CPU itself—seeing how every high-level program eventually becomes a precise dance of instructions, buses, and memory.</p>
+            </div>
+            <div class="card fade-in">
+                <table>
+                    <tr>
+                        <th><span class="register-icon">📋</span>Aspect</th>
+                        <th><span class="register-icon">📝</span>Key Points</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Purpose</strong></td>
+                        <td>Control hardware directly, write optimized code.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8085 Core</strong></td>
+                        <td>Accumulator, six registers, PC, SP, Flag register.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Instruction Types</strong></td>
+                        <td>Data transfer, arithmetic, logical, branching, control.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Memory Interfacing</strong></td>
+                        <td>CPU ↔ Memory communication using buses & control lines.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Program Steps</strong></td>
+                        <td>Analyze → Algorithm → Flowchart → Assembly code → Assemble → Execute.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>COA Link</strong></td>
+                        <td>Demonstrates CPU organization, instruction cycle, hardware–software bridge.</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🧠</span>Key Takeaway</h3>
+                    <p>Learning 8085 assembly programming is like learning the native language of computers. It gives you a fundamental understanding of how software interacts with hardware at the most basic level. This knowledge forms the foundation for understanding more complex computer architectures and for writing efficient, optimized code in any programming language.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔮</span>Future Applications</h3>
+                    <p>While modern processors are vastly more complex, the principles you learn with the 8085 remain relevant. Understanding assembly language helps in fields like embedded systems programming, operating system development, compiler design, and performance-critical applications where direct hardware control is essential.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const navDots = document.querySelectorAll('.nav-dot');
+            const sections = document.querySelectorAll('section');
+            
+            // Function to update active navigation dot
+            function updateActiveNav() {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (scrollY >= (sectionTop - 200)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                
+                navDots.forEach(dot => {
+                    dot.classList.remove('active');
+                    if (dot.getAttribute('data-section') === current) {
+                        dot.classList.add('active');
+                    }
+                });
+            }
+            
+            // Add click event to navigation dots
+            navDots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-section');
+                    const targetSection = document.getElementById(targetId);
+                    window.scrollTo({
+                        top: targetSection.offsetTop,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+            
+            // Update active navigation on scroll
+            window.addEventListener('scroll', updateActiveNav);
+            
+            // Fade-in animation on scroll
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            function checkFade() {
+                fadeElements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    
+                    if (elementTop < window.innerHeight - elementVisible) {
+                        element.classList.add('visible');
+                    }
+                });
+            }
+            
+            // Initial check and add scroll event listener
+            checkFade();
+            window.addEventListener('scroll', checkFade);
+        });
+    </script>
+</body>
+</html>

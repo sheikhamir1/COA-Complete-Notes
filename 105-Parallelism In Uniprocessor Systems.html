@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parallelism In Uniprocessor Systems</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/parallel-processing/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .architecture { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .parallelism { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .advantages { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .disadvantages { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .applications { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .hardware { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .software { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .conclusion { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Diagram Styles */
+        .diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+        }
+        .diagram-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .diagram-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            position: relative;
+        }
+        .processor {
+            width: 100px;
+            height: 100px;
+            background: rgba(100, 200, 255, 0.3);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+        }
+        .memory {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 200, 100, 0.3);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+        }
+        .interconnect {
+            width: 150px;
+            height: 150px;
+            background: rgba(200, 100, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+        }
+        .connector {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            z-index: 1;
+        }
+        .horizontal-connector {
+            height: 4px;
+            width: 50px;
+        }
+        .vertical-connector {
+            width: 4px;
+            height: 50px;
+        }
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        .highlight {
+            color: #ffcc80;
+            font-weight: bold;
+        }
+        /* Hierarchy Styles */
+        .hierarchy-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .hierarchy-level {
+            width: 80%;
+            padding: 20px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hierarchy-level::after {
+            content: "↓";
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        .hierarchy-level:last-child::after {
+            display: none;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('intro-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('architecture-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('parallelism-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('advantages-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('disadvantages-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('applications-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('hardware-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('software-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('conclusion-section')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <div class="header" id="header">
+        <div class="container">
+            <h1>Parallelism In Uniprocessor Systems</h1>
+            <p>Enhancing Performance in Single Processor Computing</p>
+            <div class="metrics-character">⚡🔄💻</div>
+            <p>Exploring how parallel processing techniques can be implemented in single processor systems to improve performance and efficiency</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </div>
+
+    <!-- Introduction Section -->
+    <div class="section intro" id="intro-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to Parallel Processing 📚</h2>
+            <div class="card fade-in">
+                <p>In the realm of modern computing, the pursuit of enhanced performance and efficiency has led to significant advancements in parallel processing techniques. Parallelism, a key concept in computing, involves executing multiple processes or tasks simultaneously to optimize computational speed and resource utilization.</p>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Serial vs. Parallel Processing</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📝</div>
+                            <div class="feature-content">
+                                <h3>Serial Processing</h3>
+                                <p>Tasks are executed sequentially, one after the other</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>Parallel Processing</h3>
+                                <p>Multiple tasks executed simultaneously to optimize speed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🏗️</span>Forms of Parallel Processing</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">💻</div>
+                            <div class="feature-content">
+                                <h3>Uniprocessor Systems</h3>
+                                <p>Single processor with parallel capabilities</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔢</div>
+                            <div class="feature-content">
+                                <h3>Multi-processor Systems</h3>
+                                <p>Multiple processors working together</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🧩</div>
+                            <div class="feature-content">
+                                <h3>Multi-core Architectures</div>
+                                <p>Multiple cores on a single processor chip</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📊</span>Key Concepts</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📈</div>
+                            <div class="feature-content">
+                                <h3>Scalability</h3>
+                                <p>System's ability to handle increasing workloads by adding more resources</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⚖️</div>
+                            <div class="feature-content">
+                                <h3>Load Balancing</h3>
+                                <p>Effective utilization of resources without overloading any single component</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Basic Architecture Section -->
+    <div class="section architecture" id="architecture-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Basic Uni-processor Architecture 🏗️</h2>
+            <div class="card fade-in">
+                <p>A usual single processor computer has three major parts: main memory, a central processing unit, and input/output devices.</p>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🖥️</span>VAX-11/780 Super-minicomputer Example</h3>
+                    <div class="diagram">
+                        <div class="diagram-title">System Architecture of VAX-11/780</div>
+                        <div class="diagram-content">
+                            <div class="processor">CPU</div>
+                            <div class="interconnect">Synchronous Backplane Interconnect</div>
+                            <div class="memory">Main Memory</div>
+                            <div class="processor">I/O Devices</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🧩</span>Components of VAX-11/780</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🧠</div>
+                            <div class="feature-content">
+                                <h3>CPU</h3>
+                                <p>Main controller with sixteen 32-bit general purpose registers, one register as program counter</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📊</div>
+                            <div class="feature-content">
+                                <h3>Status Register</h3>
+                                <p>Special register with information about current state of processor and program</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🧮</div>
+                            <div class="feature-content">
+                                <h3>ALU</h3>
+                                <p>Arithmetic logic unit with optional floating point accelerator and local cache memory</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔌</div>
+                            <div class="feature-content">
+                                <h3>Console</div>
+                                <p>Operator interface connected to floppy disk</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔗</span>Interconnection</h3>
+                    <p>The CPU, main memory, and I/O devices all connect to a common bus called the synchronous backplane interconnect. Through this bus, all I/O devices can communicate with each other, the CPU, or memory. Peripheral storage and I/O devices can connect directly to the bus through a controller.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parallelism Section -->
+    <div class="section parallelism" id="parallelism-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Parallelism in Uniprocessor Systems ⚡</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">❓</span>What is Parallelism?</h3>
+                    <p>Parallel computing is the method done by computer systems to execute multiple instructions at the same time by allocating each task to different processors. This capability is done in a uniprocessor system through various techniques such as utilizing multi-core processors or multiple cores within a single processor chip, separating a job into smaller sub-tasks that can be processed concurrently, or leveraging specialized hardware or software to coordinate parallel processing.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Parallelism Techniques in Uniprocessor</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🚰</div>
+                            <div class="feature-content">
+                                <h3>Pipelining</h3>
+                                <p>Technique that allows a processor to execute a set of instructions simultaneously by dividing the instructions execution process into several stages</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Multitasking</h3>
+                                <p>Method that permits a single processor to run multiple tasks at the same time by dividing processor's time into short intervals</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🚰</span>Pipelining in Detail</h3>
+                    <p>Pipelining allows a processor to carry out multiple instructions at the same time by dividing the execution process into several phases. Each stage in the pipeline operates on a different instruction concurrently, allowing one instruction to be fetched from memory while another is being executed.</p>
+                    
+                    <div class="diagram">
+                        <div class="diagram-title">Pipelining Process</div>
+                        <div class="hierarchy-container">
+                            <div class="hierarchy-level">
+                                <span>Instruction 1: Fetch</span>
+                                <span>📥</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Instruction 1: Decode | Instruction 2: Fetch</span>
+                                <span>🔄</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Instruction 1: Execute | Instruction 2: Decode | Instruction 3: Fetch</span>
+                                <span>⚙️</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Instruction 1: Write Back | Instruction 2: Execute | Instruction 3: Decode | Instruction 4: Fetch</span>
+                                <span>✅</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p>This parallelism enhances the throughput of the processor and improves performance.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Multitasking in Detail</h3>
+                    <p>Multitasking works by dividing the processor's time into short intervals and rapidly changing between tasks. Each task gets allocated a particular time slot to execute. Although the processor executes only one task at a time, this rapid switching creates the illusion of parallel processing.</p>
+                    
+                    <div class="diagram">
+                        <div class="diagram-title">Multitasking Process</div>
+                        <div class="hierarchy-container">
+                            <div class="hierarchy-level">
+                                <span>Task 1: Executes for time slice</span>
+                                <span>⏱️</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Task 2: Executes for time slice</span>
+                                <span>⏱️</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Task 3: Executes for time slice</span>
+                                <span>⏱️</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Task 1: Executes again (cycle repeats)</span>
+                                <span>🔄</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📈</span>Performance Considerations</h3>
+                    <p>These methods enhance the performance of a single processor. However, as the number of tasks or instructions running at the same time grows, the performance eventually decreases. Therefore, a multiprocessor is required here to boost performance for highly parallel tasks.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advantages Section -->
+    <div class="section advantages" id="advantages-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Advantages of Uniprocessor Parallelism ✅</h2>
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Improves Performance</h3>
+                            <p>Improves the performance of a uniprocessor by allowing it to execute multiple tasks or instructions simultaneously. This is achieved by increasing throughput which reduces the time required to complete a particular task.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">💰</div>
+                        <div class="feature-content">
+                            <h3>Cost Effective</h3>
+                            <p>Parallelism in uniprocessor is cost-effective for applications that do not require the performance of a multiprocessing system. The cost of a uniprocessor with parallelism is often lower compared to a multiprocessing system.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔋</div>
+                        <div class="feature-content">
+                            <h3>Low Power Consumption</h3>
+                            <p>A uniprocessor consumes less power than a multiprocessor system which makes it suitable for mobile and battery powered devices.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Real-World Example: Smartphone Processors</h3>
+                    <p>Modern smartphones use uniprocessor chips with multiple cores (e.g., octa-core processors). These chips implement parallelism through pipelining and multitasking to provide smooth user experience while maintaining low power consumption for battery life.</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📱</div>
+                            <div class="feature-content">
+                                <h3>Apple A16 Bionic</h3>
+                                <p>6-core processor with 2 performance cores and 4 efficiency cores, using pipelining for parallel execution</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🤖</div>
+                            <div class="feature-content">
+                                <h3>Qualcomm Snapdragon 8 Gen 2</h3>
+                                <p>8-core processor with advanced pipelining and multitasking capabilities for Android devices</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disadvantages Section -->
+    <div class="section disadvantages" id="disadvantages-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Disadvantages of Uniprocessor Parallelism ❌</h2>
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">📊</div>
+                        <div class="feature-content">
+                            <h3>Limited Scalability</h3>
+                            <p>Parallelism is achieved in a very limited way and as the number of tasks or instructions being executed simultaneously increases the performance decrease. This makes it unsuitable for applications that require high levels of parallelism.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Limited Processing Power</h3>
+                            <p>It has limited processing power as compared to a multiprocessing system hence it is not suitable for applications that require high computational power like scientific simulations and large-scale data processing.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔧</div>
+                        <div class="feature-content">
+                            <h3>Complex Design</h3>
+                            <p>Implementing parallelism in a uniprocessor can be complex as it requires careful design and optimization to ensure that the system operates correctly and efficiently this increases the development and maintenance costs of the system.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🖥️</span>Real-World Example: Gaming Laptops</h3>
+                    <p>While gaming laptops with high-end uniprocessor chips can handle most games well, they struggle with extremely demanding tasks like real-time ray tracing or complex physics simulations at high settings. These tasks require the massive parallel processing power of dedicated GPUs or multi-processor systems.</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🎮</div>
+                            <div class="feature-content">
+                                <h3>Cyberpunk 2077</h3>
+                                <p>Runs well on high-end uniprocessor systems but requires GPU acceleration for advanced ray tracing features</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🌊</div>
+                            <div class="feature-content">
+                                <h3>Fluid Dynamics Simulations</h3>
+                                <p>Complex simulations require multi-processor systems for real-time processing</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applications Section -->
+    <div class="section applications" id="applications-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Applications of Parallelism in Uniprocessor 📱</h2>
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🎬</div>
+                        <div class="feature-content">
+                            <h3>Multimedia Applications</h3>
+                            <p>In multimedia applications such as video and audio playback, image processing, and 3D graphics rendering it helps in increasing performance.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🌐</div>
+                        <div class="feature-content">
+                            <h3>Web Servers</h3>
+                            <p>Provides assistance to web servers by allowing them to handle multiple requests simultaneously which makes it more reliable.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🤖</div>
+                        <div class="feature-content">
+                            <h3>AI and Machine Learning</h3>
+                            <p>It improves performance in artificial intelligence and machine learning applications allowing them to process large amounts of data more quickly.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🌡️</div>
+                        <div class="feature-content">
+                            <h3>Scientific Simulations</h3>
+                            <p>Parallelism performs scientific simulations such as weather forecasting, fluid dynamics, and molecular modeling.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">💾</div>
+                        <div class="feature-content">
+                            <h3>Database Management Systems</h3>
+                            <p>Parallelism in uniprocessors is used to improve the performance of database management systems by allowing them to handle large volumes of data more efficiently.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📱</span>Real-World Application Examples</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🎬</div>
+                            <div class="feature-content">
+                                <h3>Video Editing Software</h3>
+                                <p>Applications like Adobe Premiere Pro use uniprocessor parallelism for real-time video preview and rendering</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🎮</div>
+                            <div class="feature-content">
+                                <h3>Game Engines</h3>
+                                <p>Unity and Unreal Engine utilize pipelining in uniprocessors for smooth game performance</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🌐</div>
+                            <div class="feature-content">
+                                <h3>Web Browsers</h3>
+                                <p>Chrome and Firefox use multitasking to handle multiple tabs and web processes simultaneously</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hardware Approaches Section -->
+    <div class="section hardware" id="hardware-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Hardware Approaches for Parallelism 🔧</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔢</span>Multiplicity of Functional Unit</h3>
+                    <p>In earlier computers, the central processing unit (CPU) had just one arithmetic logic unit that could only carry out one function at a time. This slowed down the execution of long sequences of arithmetic instructions. To improve this, the number of functional units in the CPU was increased so that parallel and simultaneous arithmetic operations could be performed.</p>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title"><span class="emoji">💻</span>CDC-6600 Computer Example</h3>
+                        <p>The CDC-6600 computer has ten different functional units built into its central processing unit:</p>
+                        
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <div class="emoji">➕</div>
+                                <div class="feature-content">
+                                    <h3>Fixed Add</h3>
+                                    <p>Handles fixed-point addition operations</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">➖</div>
+                                <div class="feature-content">
+                                    <h3>Fixed Multiply</h3>
+                                    <p>Handles fixed-point multiplication operations</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">÷</div>
+                                <div class="feature-content">
+                                    <h3>Fixed Divide</h3>
+                                    <p>Handles fixed-point division operations</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">🔢</div>
+                                <div class="feature-content">
+                                    <h3>Floating Add</h3>
+                                    <p>Handles floating-point addition operations</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">🔢×</div>
+                                <div class="feature-content">
+                                    <h3>Floating Multiply</h3>
+                                    <p>Handles floating-point multiplication operations</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">🔢÷</div>
+                                <div class="feature-content">
+                                    <h3>Floating Divide</h3>
+                                    <p>Handles floating-point division operations</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">🔄</div>
+                                <div class="feature-content">
+                                    <h3>Increment</h3>
+                                    <p>Handles increment operations</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">🔄</div>
+                                <div class="feature-content">
+                                    <h3>Shift</h3>
+                                    <p>Handles shift operations</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">🔀</div>
+                                <div class="feature-content">
+                                    <h3>Boolean</h3>
+                                    <p>Handles boolean operations</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">🔗</div>
+                                <div class="feature-content">
+                                    <h3>Branch</h3>
+                                    <p>Handles branch operations</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <p>These ten units work independently and can run at the same time. A scoreboard keeps track of which functional units and registers are available. With 10 functional units and 24 registers, the instruction issue rate can be greatly increased.</p>
+                    </div>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title"><span class="emoji">💻</span>IBM 360/91 Example</h3>
+                        <p>Another great example of a multifunction uniprocessor is the IBM 360/91. It has two parallel execution units: one for integer arithmetic and one for floating point arithmetic. The floating point unit has two functional units inside it - one for float add/subtract and one for float multiply/divide. The IBM 360/91 is a highly pipelined, multifunction scientific processor.</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🚰</span>Parallelism and Pipelining within CPU</h3>
+                    <p>Parallel adders that use methods like carry-lookahead and carry-save are not integrated into all arithmetic logic units, unlike the bit-serial adders used in early computers. Techniques like high-speed multiplier recoding and convergent division allow parallel processing and sharing of hardware components for multiply and divide operations.</p>
+                    
+                    <p>The execution of instructions is now divided into multiple pipeline stages, including fetching the instruction, decoding it, fetching operands, executing the arithmetic logic, and storing the result. To allow overlapped execution of instructions through the pipeline, techniques like instruction prefetching and data buffering have been developed.</p>
+                    
+                    <div class="diagram">
+                        <div class="diagram-title">Instruction Pipeline Stages</div>
+                        <div class="hierarchy-container">
+                            <div class="hierarchy-level">
+                                <span>Stage 1: Instruction Fetch</span>
+                                <span>📥</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Stage 2: Instruction Decode</span>
+                                <span>🔍</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Stage 3: Operand Fetch</span>
+                                <span>📊</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Stage 4: Execute</span>
+                                <span>⚙️</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Stage 5: Write Back</span>
+                                <span>✅</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Overlapped CPU and I/O Operation</h3>
+                    <p>The input/output (I/O) operations can be carried out at the same time as the CPU computations through the use of separate I/O controllers, channels, or I/O processors. A direct memory access (DMA) channel enables direct transfer of information between the I/O devices and main memory. DMA operates by cycle stealing, which is transparent to the CPU. Additionally, I/O multiprocessing such as utilizing I/O processors in the CDC-6600 can accelerate data transfer between the CPU and external devices.</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>DMA (Direct Memory Access)</h3>
+                                <p>Allows I/O devices to transfer data directly to/from memory without CPU intervention</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⏱️</div>
+                            <div class="feature-content">
+                                <h3>Cycle Stealing</div>
+                                <p>DMA uses bus cycles when CPU is not using them, making it transparent to CPU operations</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔌</div>
+                            <div class="feature-content">
+                                <h3>I/O Processors</div>
+                                <p>Specialized processors that handle I/O operations independently of main CPU</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🗄️</span>Use Hierarchical Memory System</h3>
+                    <p>The CPU is about 1000 times faster than memory access. A hierarchical memory system can be used to close up the speed gap.</p>
+                    
+                    <div class="diagram">
+                        <div class="diagram-title">Memory Hierarchy</div>
+                        <div class="hierarchy-container">
+                            <div class="hierarchy-level">
+                                <span>Registers (Fastest, Smallest)</span>
+                                <span>📝</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Cache Memory</span>
+                                <span>⚡</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Main Memory (RAM)</span>
+                                <span>💾</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Secondary Storage (SSD/HDD)</span>
+                                <span>💿</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Tertiary Storage (Tape/Cloud)</span>
+                                <span>☁️</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p>The most internal level is the register files that can be directly accessed by the ALU. The cache memory can function as a buffer between the CPU and main memory. Block access of main memory can be accomplished through multiway interleaving across parallel memory modules.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">⚖️</span>Balancing of Subsystem Bandwidth</h3>
+                    <p>In general, the CPU is the fastest unit in computer with a processor cycle of tp of tens of nanoseconds. The main memory has a cycle time tm of hundreds of nanoseconds and I/O devices are the slowest with an average of access time td of few milliseconds. It is observed that:</p>
+                    
+                    <div class="code-block">
+                        <pre>td > tm > tp</pre>
+                    </div>
+                    
+                    <p>For example, the IBM 370/168 has td of 8 ms, tm = 360 ns and tp = 90 ns. With these speed gaps between the subsystems, we need to match their processing bandwidth in order to avoid a system bottleneck problem.</p>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title"><span class="emoji">📊</span>Bandwidth Definitions</h3>
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <div class="emoji">💾</div>
+                                <div class="feature-content">
+                                    <h3>Memory Bandwidth (Bm)</h3>
+                                    <p>Number of memory words that can be accessed per unit time: Bm = W / tm</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">⚡</div>
+                                <div class="feature-content">
+                                    <h3>Processor Bandwidth (Bp)</h3>
+                                    <p>Maximum CPU computation rate (e.g., 160 megaflops in Cray-1, 12.5 million instructions per second in IBM 370/168)</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">📈</div>
+                                <div class="feature-content">
+                                    <h3>Utilized CPU Rate (Bu)</h3>
+                                    <p>Actual performance achieved: Bu ≤ Bp</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title"><span class="emoji">⚖️</span>Bandwidth Balancing Strategies</h3>
+                        
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <div class="emoji">⚡</div>
+                                <div class="feature-content">
+                                    <h3>CPU-Memory Balancing</h3>
+                                    <p>Use fast cache memory between CPU and main memory with access time similar to CPU</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">💾</div>
+                                <div class="feature-content">
+                                    <h3>Cache Function</h3>
+                                    <p>Acts as data/instruction buffer, transferring blocks of memory words from main memory</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">🔄</div>
+                                <div class="feature-content">
+                                    <h3>Memory-I/O Balancing</h3>
+                                    <p>Use communication channels with different speeds between slow I/O devices and main memory</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">🔀</div>
+                                <div class="feature-content">
+                                    <h3>Buffering and Multiplexing</h3>
+                                    <p>I/O channels execute buffering and multiplexing functions to move data from multiple devices</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">🗃️</div>
+                                <div class="feature-content">
+                                    <h3>Advanced Controllers</h3>
+                                    <p>Disk controllers or database machines can filter non-relevant data directly from tracks</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Software Approaches Section -->
+    <div class="section software" id="software-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Software Approaches for Parallelism 💻</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Multiprogramming</h3>
+                    <p>Within a given time period, multiple processes may be running concurrently in a computer system. These processes compete for memory, input/output, and CPU resources. We know that some programs are CPU-intensive while others are I/O-intensive. We can execute a mix of program types to balance usage across different hardware components. Interleaving program execution is meant to enable better utilization through overlapping of I/O and CPU operations.</p>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title"><span class="emoji">🔄</span>Multiprogramming Process</h3>
+                        <p>When a process P1 is occupied with I/O, the scheduler can switch the CPU to process P2. This allows multiple programs to run simultaneously. When P2 finishes, the CPU can switch to P3. Note that interleaving I/O and CPU work and CPU wait times are greatly reduced.</p>
+                        
+                        <div class="diagram">
+                            <div class="diagram-title">Multiprogramming Example</div>
+                            <div class="hierarchy-container">
+                                <div class="hierarchy-level">
+                                    <span>Process P1: CPU Time (c)</span>
+                                    <span>⚙️</span>
+                                </div>
+                                <div class="hierarchy-level">
+                                    <span>Process P1: I/O Time (i) - CPU switches to P2</span>
+                                    <span>🔄</span>
+                                </div>
+                                <div class="hierarchy-level">
+                                    <span>Process P2: CPU Time (c)</span>
+                                    <span>⚙️</span>
+                                </div>
+                                <div class="hierarchy-level">
+                                    <span>Process P2: I/O Time (i) - CPU switches to P3</span>
+                                    <span>🔄</span>
+                                </div>
+                                <div class="hierarchy-level">
+                                    <span>Process P3: CPU Time (c)</span>
+                                    <span>⚙️</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <p>The interleaving of CPU and I/O operations across multiple programs is called multiprogramming.</p>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">⏱️</span>Time Sharing</h3>
+                    <p>Multiprogramming on a single processor involves the CPU being shared by many programs. Sometimes, a high priority program may occupy the CPU for a long time which prevents other programs from sharing it. This issue can be resolved through a method called timesharing.</p>
+                    
+                    <p>Timesharing builds on multiprogramming by assigning fixed or variable time slots to multiple programs. This provides equal opportunities for all programs competing to use the CPU.</p>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title"><span class="emoji">👥</span>Virtual Processors</h3>
+                        <p>The timesharing use of the CPU by multiple programs on a single processor computer creates the concept of virtual processors. Each program behaves as if it has its own dedicated processor, even though they're all sharing the same physical CPU.</p>
+                    </div>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title"><span class="emoji">💻</span>Applications of Time Sharing</h3>
+                        <p>Timesharing is especially effective for computer systems connected to many interactive terminals. Each user at a terminal can interact with the computer. Timesharing was first developed for single processor systems. It has also been extended to multi-processor systems.</p>
+                        
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <div class="emoji">💻</div>
+                                <div class="feature-content">
+                                    <h3>Unix/Linux Systems</h3>
+                                    <p>Use time sharing to allow multiple users to interact with the system simultaneously</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">🖥️</div>
+                                <div class="feature-content">
+                                    <h3>Mainframe Computers</h3>
+                                    <p>Early mainframes used time sharing to serve multiple terminal users</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="emoji">🌐</div>
+                                <div class="feature-content">
+                                    <h3>Web Servers</h3>
+                                    <p>Modern web servers use time sharing concepts to handle multiple client requests</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Multiprogramming vs. Time Sharing</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Multiprogramming</th>
+                                <th>Time Sharing</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Primary Goal</td>
+                                <td>Maximize CPU utilization by overlapping I/O and CPU operations</td>
+                                <td>Provide responsive interactive computing to multiple users</td>
+                            </tr>
+                            <tr>
+                                <td>CPU Allocation</td>
+                                <td>Based on I/O operations (CPU switches when process waits for I/O)</td>
+                                <td>Based on fixed/variable time slices (quantum)</td>
+                            </tr>
+                            <tr>
+                                <td>User Interaction</td>
+                                <td>Not primarily designed for interactive use</td>
+                                <td>Designed for interactive use with terminals</td>
+                            </tr>
+                            <tr>
+                                <td>Response Time</td>
+                                <td>May vary significantly depending on system load</td>
+                                <td>More consistent response time for interactive users</td>
+                            </tr>
+                            <tr>
+                                <td>Examples</td>
+                                <td>Early batch processing systems</td>
+                                <td>Unix, Multics, modern interactive systems</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conclusion Section -->
+    <div class="section conclusion" id="conclusion-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Conclusion 🏁</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔍</span>Key Takeaways</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>Parallelism in Uniprocessors</h3>
+                                <p>Single processor systems can achieve parallelism through various hardware and software techniques</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔧</div>
+                            <div class="feature-content">
+                                <h3>Hardware Approaches</h3>
+                                <p>Include multiple functional units, pipelining, hierarchical memory, and overlapped I/O operations</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">💻</div>
+                            <div class="feature-content">
+                                <h3>Software Approaches</h3>
+                                <p>Include multiprogramming and time sharing to maximize resource utilization</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⚖️</div>
+                            <div class="feature-content">
+                                <h3>Performance Considerations</h3>
+                                <p>Bandwidth balancing between subsystems is crucial for optimal performance</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📈</span>Real-World Impact</h3>
+                    <p>Parallel processing techniques in uniprocessor systems have revolutionized computing by enabling significant performance improvements without the need for multiple processors. These techniques are fundamental to modern computing devices, from smartphones to supercomputers.</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📱</div>
+                            <div class="feature-content">
+                                <h3>Consumer Electronics</h3>
+                                <p>Smartphones, tablets, and laptops use uniprocessor parallelism for smooth user experience</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🖥️</div>
+                            <div class="feature-content">
+                                <h3>Enterprise Systems</h3>
+                                <p>Servers and workstations utilize these techniques for efficient resource management</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔬</div>
+                            <div class="feature-content">
+                                <h3>Scientific Computing</h3>
+                                <p>Even in single-processor systems, parallelism enables complex calculations and simulations</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🚀</span>Future Directions</h3>
+                    <p>As computing demands continue to grow, the principles of parallelism in uniprocessor systems remain relevant. However, for extremely high-performance requirements, multi-processor and multi-core systems become necessary. The future lies in hybrid approaches that combine the best of both worlds.</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔀</div>
+                            <div class="feature-content">
+                                <h3>Hybrid Architectures</h3>
+                                <p>Combining uniprocessor parallelism techniques with multi-core designs</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>Advanced Pipelining</h3>
+                                <p>More sophisticated pipeline designs with deeper and wider stages</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🤖</div>
+                            <div class="feature-content">
+                                <h3>AI-Optimized Processors</h3>
+                                <p>Specialized uniprocessor designs optimized for artificial intelligence workloads</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">💡</span>Final Thought</h3>
+                    <p>Parallelism in uniprocessor systems demonstrates that even with a single processing unit, significant performance improvements can be achieved through clever hardware and software design. These techniques form the foundation of modern computing and continue to evolve to meet the ever-increasing demands for computational power.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Scroll to section function
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+            
+            // Update active nav dot
+            const navDots = document.querySelectorAll('.nav-dot');
+            navDots.forEach(dot => dot.classList.remove('active'));
+            
+            const sections = ['header', 'intro-section', 'architecture-section', 'parallelism-section', 
+                             'advantages-section', 'disadvantages-section', 'applications-section', 
+                             'hardware-section', 'software-section', 'conclusion-section'];
+            
+            const index = sections.indexOf(sectionId);
+            if (index !== -1) {
+                navDots[index].classList.add('active');
+            }
+        }
+
+        // Update active nav dot on scroll
+        window.addEventListener('scroll', () => {
+            const sections = ['header', 'intro-section', 'architecture-section', 'parallelism-section', 
+                             'advantages-section', 'disadvantages-section', 'applications-section', 
+                             'hardware-section', 'software-section', 'conclusion-section'];
+            
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (scrollY >= (sectionTop - 200)) {
+                    current = sectionId;
+                }
+            });
+            
+            navDots.forEach(dot => dot.classList.remove('active'));
+            
+            const index = sections.indexOf(current);
+            if (index !== -1) {
+                navDots[index].classList.add('active');
+            }
+        });
+
+        // Fade in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

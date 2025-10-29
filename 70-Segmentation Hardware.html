@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segmentation Hardware - Memory Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/segmentation-hardware/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .segmentation-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .components { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .process { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .detailed { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .diagram { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .benefits { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Process Flow Styles */
+        .process-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .process-step {
+            width: 90%;
+            padding: 20px;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .process-step::after {
+            content: "↓";
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        .process-step:last-child::after {
+            display: none;
+        }
+        .step-number {
+            background: rgba(255, 255, 255, 0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 20px;
+        }
+        .step-content {
+            flex: 1;
+        }
+        .step-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        /* Diagram Styles */
+        .diagram-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .diagram-box {
+            width: 80%;
+            padding: 20px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .diagram-arrow {
+            font-size: 2rem;
+            margin: 5px 0;
+        }
+        /* Key Points Styles */
+        .key-points {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .key-point {
+            flex: 1;
+            min-width: 250px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .key-point .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('intro')"></div>
+        <div class="nav-dot" onclick="scrollToSection('components')"></div>
+        <div class="nav-dot" onclick="scrollToSection('process')"></div>
+        <div class="nav-dot" onclick="scrollToSection('detailed')"></div>
+        <div class="nav-dot" onclick="scrollToSection('diagram')"></div>
+        <div class="nav-dot" onclick="scrollToSection('benefits')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section id="header" class="header">
+        <div class="container">
+            <h1>Segmentation Hardware</h1>
+            <p>Understanding memory management through segmentation mechanisms</p>
+            <div class="segmentation-character">🧩</div>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section id="intro" class="section intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to Segmentation</h2>
+            <div class="card fade-in">
+                <p>Segmentation is a memory management technique that divides the memory into different segments based on the logical divisions of a program, such as code, data, and stack. Each segment has its own base address and limit, which helps in accessing and managing memory efficiently.</p>
+            </div>
+            <div class="card fade-in">
+                <p>Unlike paging, which divides memory into fixed-size blocks, segmentation deals with variable-sized segments that correspond to logical units of a program.</p>
+            </div>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🧩</div>
+                    <div class="feature-content">
+                        <h3>Variable-sized Segments</h3>
+                        <p>Segments can grow or shrink based on program needs</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">📊</div>
+                    <div class="feature-content">
+                        <h3>Logical Organization</h3>
+                        <p>Aligns with program structure (code, data, stack)</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔄</div>
+                    <div class="feature-content">
+                        <h3>Address Translation</h3>
+                        <p>Logical addresses mapped to physical addresses</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Components of Segmentation Hardware Section -->
+    <section id="components" class="section components">
+        <div class="container">
+            <h2 class="section-title fade-in">Components of Segmentation Hardware</h2>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">📋</span>Segment Table</h3>
+                <div class="card">
+                    <p><strong>Definition:</strong> A data structure that maintains information about all segments of a process.</p>
+                    <p><strong>Function:</strong> Each entry in the segment table holds the base address and limit of a segment.</p>
+                    <p><strong>Structure:</strong> Contains entries with fields for the segment base address, segment limit, and status bits (e.g., valid/invalid bit, access permissions).</p>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">📝</span>Segment Table Register (STR)</h3>
+                <div class="card">
+                    <p><strong>Definition:</strong> A special register that holds the base address of the segment table.</p>
+                    <p><strong>Function:</strong> Points to the segment table in memory, enabling the CPU to access segment information.</p>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">🧠</span>Memory Management Unit (MMU)</h3>
+                <div class="card">
+                    <p><strong>Definition:</strong> The hardware component responsible for translating logical addresses to physical addresses using the segment table.</p>
+                    <p><strong>Function:</strong> Facilitates address translation by accessing the segment table and combining the segment base address with the offset.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Segmentation Process Section -->
+    <section id="process" class="section process">
+        <div class="container">
+            <h2 class="section-title fade-in">Segmentation Process</h2>
+            <div class="process-flow fade-in">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">Logical Address Generation</div>
+                        <p>The CPU generates a logical address that consists of a segment number and an offset within that segment.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">Segment Table Access</div>
+                        <p>The MMU uses the segment number to index into the segment table and retrieve the base address and limit of the segment.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">Address Translation</div>
+                        <p>The MMU checks if the offset is within the segment limit. If valid, the logical address is translated into a physical address by adding the offset to the segment base address.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-title">Memory Access</div>
+                        <p>The physical address is used to access the desired memory location.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Steps in Segmentation Section -->
+    <section id="detailed" class="section detailed">
+        <div class="container">
+            <h2 class="section-title fade-in">Detailed Steps in Segmentation</h2>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">🖥️</span>CPU Generates Logical Address</h3>
+                <div class="card">
+                    <p>The logical address is composed of a segment number (SN) and an offset (O).</p>
+                    <p><strong>Example:</strong> If the logical address is SN:O = 3:0x456 and the segment size is 4KB, SN is 3 and the offset is 0x456.</p>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔍</span>Segment Table Lookup</h3>
+                <div class="card">
+                    <p>The MMU uses the segment number to index into the segment table.</p>
+                    <p>Retrieves the base address and limit for the segment.</p>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔄</span>Address Translation</h3>
+                <div class="card">
+                    <p>The MMU checks if the offset is within the segment limit.</p>
+                    <p>If the offset is valid, the physical address is calculated by adding the segment base address to the offset.</p>
+                    <p><strong>Example:</strong> If the segment base address is 0x2000 and the offset is 0x456, the physical address is 0x2000 + 0x456 = 0x2456.</p>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">💾</span>Memory Access</h3>
+                <div class="card">
+                    <p>The physical address is used to access the desired data in RAM.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Diagram of Segmentation Hardware Section -->
+    <section id="diagram" class="section diagram">
+        <div class="container">
+            <h2 class="section-title fade-in">Diagram of Segmentation Hardware</h2>
+            <div class="card fade-in">
+                <p>Here is a simplified block diagram of segmentation hardware:</p>
+            </div>
+            <div class="diagram-container fade-in">
+                <div class="diagram-box">
+                    <h3>CPU</h3>
+                    <p>Generates logical address (Segment Number + Offset)</p>
+                </div>
+                <div class="diagram-arrow">⬇️</div>
+                <div class="diagram-box">
+                    <h3>Segment Table Register (STR)</h3>
+                    <p>Points to the segment table in memory</p>
+                </div>
+                <div class="diagram-arrow">⬇️</div>
+                <div class="diagram-box">
+                    <h3>Segment Table</h3>
+                    <p>Contains base address and limit for each segment</p>
+                </div>
+                <div class="diagram-arrow">⬇️</div>
+                <div class="diagram-box">
+                    <h3>MMU</h3>
+                    <p>Translates logical address to physical address</p>
+                </div>
+                <div class="diagram-arrow">⬇️</div>
+                <div class="diagram-box">
+                    <h3>Physical Memory</h3>
+                    <p>Accessed using physical address</p>
+                </div>
+            </div>
+            
+            <div class="key-points fade-in">
+                <div class="key-point">
+                    <div class="emoji">📋</div>
+                    <div>
+                        <h3>Segment Table</h3>
+                        <p>Maps segment numbers to base addresses and limits</p>
+                    </div>
+                </div>
+                <div class="key-point">
+                    <div class="emoji">📝</div>
+                    <div>
+                        <h3>Segment Table Register</h3>
+                        <p>Holds the base address of the segment table</p>
+                    </div>
+                </div>
+                <div class="key-point">
+                    <div class="emoji">🧠</div>
+                    <div>
+                        <h3>MMU</h3>
+                        <p>Translates logical addresses to physical addresses using segment table entries</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits of Segmentation Hardware Section -->
+    <section id="benefits" class="section benefits">
+        <div class="container">
+            <h2 class="section-title fade-in">Benefits of Segmentation Hardware</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🧩</div>
+                    <div class="feature-content">
+                        <h3>Logical Organization</h3>
+                        <p>Aligns with the logical divisions of a program, making it easier to manage code, data, and stack separately</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔒</div>
+                    <div class="feature-content">
+                        <h3>Memory Protection</h3>
+                        <p>Each segment can have its own access permissions, enhancing security</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">📏</div>
+                    <div class="feature-content">
+                        <h3>Dynamic Memory Allocation</h3>
+                        <p>Segments can grow or shrink as needed, reducing fragmentation</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 style="text-align: center; margin-bottom: 15px;">Segmentation Hardware Benefits Overview</h3>
+                <table>
+                    <tr>
+                        <th>Benefit</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🧩</span>Logical Structure</td>
+                        <td>Memory is divided according to the logical structure of the program, making it more intuitive for programmers</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🔒</span>Segment Protection</td>
+                        <td>Each segment can have different access rights (read, write, execute), providing fine-grained security</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">📏</span>Variable Size</td>
+                        <td>Segments can be of variable sizes, matching the actual needs of different program components</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🔄</span>Dynamic Growth</td>
+                        <p>Segments can grow or shrink during program execution, allowing for more efficient memory use</p>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update active navigation dot based on scroll position
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - sectionHeight / 3)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            if (current) {
+                document.querySelector(`.nav-dot[onclick="scrollToSection('${current}')"]`).classList.add('active');
+            }
+        });
+
+        // Fade-in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

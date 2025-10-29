@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System-Level Organization: The City of Computers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/computer-city-network/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .system-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .big-picture { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .single-processor { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .multiprocessor { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .distributed { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .scalability { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .fits-coa { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .summary { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" data-section="header"></div>
+        <div class="nav-dot" data-section="big-picture"></div>
+        <div class="nav-dot" data-section="single-processor"></div>
+        <div class="nav-dot" data-section="multiprocessor"></div>
+        <div class="nav-dot" data-section="distributed"></div>
+        <div class="nav-dot" data-section="scalability"></div>
+        <div class="nav-dot" data-section="fits-coa"></div>
+        <div class="nav-dot" data-section="summary"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section class="header" id="header">
+        <div class="container">
+            <h1>System-Level Organization</h1>
+            <div class="system-character">🏙️</div>
+            <p>The City of Computers: A Journey Through System Architectures</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Big Picture Section -->
+    <section class="section big-picture" id="big-picture">
+        <div class="container">
+            <h2 class="section-title fade-in">The Big Picture: A City of Computers</h2>
+            <div class="card fade-in">
+                <p>Imagine you're designing a city. You need roads, houses, power lines, and rules so everything works together. In COA, that "city plan" is called <strong>System Architecture</strong>—the master design of how CPUs, memory, and networks are arranged so a computer system runs smoothly.</p>
+            </div>
+            <div class="card fade-in">
+                <p>This unit explores three main city layouts:</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🏢</div>
+                        <div class="feature-content">
+                            <h3>Single-Processor City</h3>
+                            <p>One powerful mayor runs everything</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">👥</div>
+                        <div class="feature-content">
+                            <h3>Multiprocessor City</h3>
+                            <p>Many mayors share duties inside the same city</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🌐</div>
+                        <div class="feature-content">
+                            <h3>Distributed City</h3>
+                            <p>Several towns cooperate across a region through fast highways (networks)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🗺️</span>The Journey Ahead</h3>
+                    <p>Learning these structures shows how computers grow from a simple desktop to huge global networks. Each architecture represents a different approach to organizing computational resources, with unique advantages and challenges. As we explore each "city layout," you'll see how computer architects solve problems of performance, scalability, and reliability.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Single-Processor Section -->
+    <section class="section single-processor" id="single-processor">
+        <div class="container">
+            <h2 class="section-title fade-in">Chapter 1: The Single-Processor Era</h2>
+            <div class="card fade-in">
+                <p>In the beginning, every computer was like a small village with a single mayor—the <strong>CPU</strong>—doing every job:</p>
+            </div>
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🧠</div>
+                        <div class="feature-content">
+                            <h3>CPU Responsibilities</h3>
+                            <p>Fetching instructions, crunching numbers, and managing memory</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📦</div>
+                        <div class="feature-content">
+                            <h3>Memory & Storage</h3>
+                            <p>RAM as the village warehouse and disks as long-term storage</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📡</div>
+                        <div class="feature-content">
+                            <h3>I/O Devices</h3>
+                            <p>Like post offices and marketplaces for communication and exchange</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">✅</span>Advantages</h3>
+                    <p>This design is <strong>simple and cheap</strong>, great for personal laptops or embedded gadgets like washing machines. The straightforward architecture makes it easy to design, manufacture, and maintain.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">⚠️</span>Limitations</h3>
+                    <p>But when the population (data) grows, the mayor becomes a bottleneck. No matter how fast he works, he's still one person. True parallel work is impossible, and heavy multitasking slows everything down. This architecture hits physical limits as computational demands increase.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🌐</span>Real-World Examples</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">💻</div>
+                            <div class="feature-content">
+                                <h3>Personal Computers</h3>
+                                <p>Early desktops and laptops with single-core processors</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔌</div>
+                            <div class="feature-content">
+                                <h3>Embedded Systems</h3>
+                                <p>Microwaves, digital cameras, and home appliances</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🖨️</div>
+                            <div class="feature-content">
+                                <h3>Simple Devices</h3>
+                                <p>Printers, routers, and basic networking equipment</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Multiprocessor Section -->
+    <section class="section multiprocessor" id="multiprocessor">
+        <div class="container">
+            <h2 class="section-title fade-in">Chapter 2: Multiprocessor Powerhouses</h2>
+            <div class="card fade-in">
+                <p>Next came the idea of hiring <strong>many mayors</strong> for one big city. A multiprocessor system has <strong>multiple CPUs or cores</strong> working together:</p>
+            </div>
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🧠</div>
+                        <div class="feature-content">
+                            <h3>Shared Memory</h3>
+                            <p>They share a common memory so each mayor can access the same information</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🚇</div>
+                        <div class="feature-content">
+                            <h3>Interconnection Network</h3>
+                            <p>A fast "express subway" allowing quick communication between processors</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Parallel Processing</h3>
+                            <p>Different mayors handle different tasks at the same time</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Types of Multiprocessor Systems</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">⚖️</div>
+                            <div class="feature-content">
+                                <h3>Symmetric Multiprocessing (SMP)</h3>
+                                <p>All CPUs are equals, sharing memory and I/O devices equally</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">👑</div>
+                            <div class="feature-content">
+                                <h3>Asymmetric Multiprocessing (AMP)</h3>
+                                <p>One master CPU gives orders, helpers do the work</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔗</div>
+                            <div class="feature-content">
+                                <h3>Clusters</h3>
+                                <p>Separate computers connected to act as one giant city</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">✅</span>Advantages</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🚀</div>
+                            <div class="feature-content">
+                                <h3>Performance Boost</h3>
+                                <p>Multiple processors can handle more work simultaneously</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📈</div>
+                            <div class="feature-content">
+                                <h3>Scalability</h3>
+                                <p>Just add more mayors (processors) as needed</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🛡️</div>
+                            <div class="feature-content">
+                                <h3>Reliability</h3>
+                                <p>If one mayor gets sick, others keep the city running</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">⚠️</span>Drawbacks</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">💸</div>
+                            <div class="feature-content">
+                                <h3>Higher Cost</h3>
+                                <p>More processors mean more expensive hardware</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🧩</div>
+                            <div class="feature-content">
+                                <h3>Complex Coordination</h3>
+                                <p>Mayors must constantly share information so they don't trip over each other</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔧</div>
+                            <div class="feature-content">
+                                <h3>Design Complexity</h3>
+                                <p>More sophisticated hardware and software required</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Distributed Section -->
+    <section class="section distributed" id="distributed">
+        <div class="container">
+            <h2 class="section-title fade-in">Chapter 3: Distributed Worlds</h2>
+            <div class="card fade-in">
+                <p>Finally, computers learned to <strong>spread the city itself across the map.</strong> A <strong>distributed system</strong> is a network of independent computers appearing as a single, seamless system:</p>
+            </div>
+            <div class="card fade-in">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🌍</div>
+                        <div class="feature-content">
+                            <h3>Geographic Distribution</h3>
+                            <p>Each "town" can be in a different building, city, or country</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🌐</div>
+                        <div class="feature-content">
+                            <h3>Network Communication</h3>
+                            <p>They communicate through networks like the internet</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">👁️</div>
+                        <div class="feature-content">
+                            <h3>Single System Illusion</h3>
+                            <p>Users see it as one unified system despite the distributed nature</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">❓</span>Why Bother?</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📈</div>
+                            <div class="feature-content">
+                                <h3>Scalability</h3>
+                                <p>You can keep adding towns (nodes) to handle bigger populations</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🛡️</div>
+                            <div class="feature-content">
+                                <h3>Reliability</h3>
+                                <p>If one town loses power, the rest keep working</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Resource Sharing</h3>
+                                <p>Towns share data, storage, and processing power</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🌐</span>Real-World Examples</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">☁️</div>
+                            <div class="feature-content">
+                                <h3>Cloud Computing</h3>
+                                <p>Amazon AWS, Google Cloud, Microsoft Azure</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🗄️</div>
+                            <div class="feature-content">
+                                <h3>Distributed Databases</h3>
+                                <p>Replicated across continents for fast access and reliability</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔬</div>
+                            <div class="feature-content">
+                                <h3>Grid Computing</h3>
+                                <p>For big science projects like CERN's Large Hadron Collider</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">⚠️</span>Design Challenges</h3>
+                    <p>Designing these networks is tricky: you must handle latency, security, and make the system feel like one unified city to users. The complexity increases with geographic distribution, requiring sophisticated protocols for communication, synchronization, and fault tolerance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scalability Section -->
+    <section class="section scalability" id="scalability">
+        <div class="container">
+            <h2 class="section-title fade-in">Chapter 4: Scalability & Reliability—The Lifelines</h2>
+            <div class="card fade-in">
+                <p>As any city grows, it must expand without chaos. That's <strong>scalability</strong>:</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📈</span>Types of Scaling</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">⬆️</div>
+                            <div class="feature-content">
+                                <h3>Vertical Scaling (Up)</h3>
+                                <p>Build taller buildings—add more CPU or RAM to one node</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">➕</div>
+                            <div class="feature-content">
+                                <h3>Horizontal Scaling (Out)</h3>
+                                <p>Add more towns (nodes) to the network</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🛡️</span>Reliability</h3>
+                    <p><strong>Reliability</strong> is making sure the city never sleeps:</p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔧</div>
+                            <div class="feature-content">
+                                <h3>Fault Tolerance</h3>
+                                <p>Backup generators, duplicate roads—systems that keep working when parts fail</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Redundancy</h3>
+                                <p>Spare servers and data copies—having backups ready to take over</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔍</div>
+                            <div class="feature-content">
+                                <h3>Error Detection & Recovery</h3>
+                                <p>Monitoring systems that spot and fix problems automatically</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🧪</span>Testing for Resilience</h3>
+                    <p>Engineers test for load limits, stress conditions, and recovery speed to ensure high uptime. They simulate failures to see how the system responds and measure metrics like Mean Time Between Failures (MTBF) and Mean Time To Repair (MTTR) to quantify reliability.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fits COA Section -->
+    <section class="section fits-coa" id="fits-coa">
+        <div class="container">
+            <h2 class="section-title fade-in">How This Fits in COA</h2>
+            <div class="card fade-in">
+                <p>COA studies how the hardware and its organization let software actually run. System-level organization shows how these concepts scale from single processors to global networks:</p>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🏢</span>Single-Processor Design</h3>
+                    <p>Teaches the fundamental CPU–memory–I/O relationship. Understanding this basic architecture is essential before moving to more complex systems. It establishes the building blocks of all computer systems.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">👥</span>Multiprocessor Systems</h3>
+                    <p>Show how parallelism boosts throughput. These systems demonstrate how multiple processing units can work together to solve problems faster than a single processor, introducing concepts like shared memory, synchronization, and interconnection networks.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🌐</span>Distributed Systems</h3>
+                    <p>Extend COA concepts to global scale, where networks become the system bus. These systems introduce new challenges like latency, partial failures, and security while demonstrating how to build massive, reliable systems from individual components.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📈🛡️</span>Scalability and Reliability</h3>
+                    <p>Link it all, showing how to design machines that grow with demand and rarely fail. These concepts are crucial for modern computing systems, from personal devices to global cloud infrastructure.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Summary Section -->
+    <section class="section summary" id="summary">
+        <div class="container">
+            <h2 class="section-title fade-in">Quick Reference</h2>
+            <div class="card fade-in">
+                <table>
+                    <tr>
+                        <th><span class="register-icon">🏗️</span>System Type</th>
+                        <th><span class="register-icon">💡</span>Core Idea</th>
+                        <th><span class="register-icon">✅</span>Strengths</th>
+                        <th><span class="register-icon">⚠️</span>Limits</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Single Processor</strong></td>
+                        <td>One CPU handles everything</td>
+                        <td>Simple, low cost, low power</td>
+                        <td>Limited parallelism, scalability</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Multiprocessor</strong></td>
+                        <td>Many CPUs share memory</td>
+                        <td>High performance, redundancy</td>
+                        <td>Higher cost, complex design</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Distributed</strong></td>
+                        <td>Independent computers cooperate</td>
+                        <td>Massive scalability, fault tolerance</td>
+                        <td>Network latency, complex security</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="card fade-in">
+                <table>
+                    <tr>
+                        <th><span class="register-icon">🔑</span>Concept</th>
+                        <th><span class="register-icon">📝</span>Meaning</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Scalability</strong></td>
+                        <td>Grow capacity without slowdown</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reliability</strong></td>
+                        <td>Keep running despite failures</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🧠</span>Key Takeaway</h3>
+                    <p>Unit 16 is the story of computers growing from a lone CPU to powerful global networks. It shows how careful organization—like planning a city—lets machines scale, share work, and stay reliable, which is the heart of Computer Organization & Architecture.</p>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔮</span>Future Directions</h3>
+                    <p>As technology continues to evolve, system-level organization principles will remain essential. Emerging technologies like quantum computing, edge computing, and the Internet of Things (IoT) will build upon these foundational concepts, creating new challenges and opportunities for computer architects.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const navDots = document.querySelectorAll('.nav-dot');
+            const sections = document.querySelectorAll('section');
+            
+            // Function to update active navigation dot
+            function updateActiveNav() {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (scrollY >= (sectionTop - 200)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                
+                navDots.forEach(dot => {
+                    dot.classList.remove('active');
+                    if (dot.getAttribute('data-section') === current) {
+                        dot.classList.add('active');
+                    }
+                });
+            }
+            
+            // Add click event to navigation dots
+            navDots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-section');
+                    const targetSection = document.getElementById(targetId);
+                    window.scrollTo({
+                        top: targetSection.offsetTop,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+            
+            // Update active navigation on scroll
+            window.addEventListener('scroll', updateActiveNav);
+            
+            // Fade-in animation on scroll
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            function checkFade() {
+                fadeElements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementVisible = 150;
+                    
+                    if (elementTop < window.innerHeight - elementVisible) {
+                        element.classList.add('visible');
+                    }
+                });
+            }
+            
+            // Initial check and add scroll event listener
+            checkFade();
+            window.addEventListener('scroll', checkFade);
+        });
+    </script>
+</body>
+</html>

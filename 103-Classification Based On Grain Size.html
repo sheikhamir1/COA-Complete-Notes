@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classification Based On Grain Size</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/parallel-computing-grain/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .parallelism { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .bernstein { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .grain { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .levels { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .summary { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Diagram Styles */
+        .diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+        }
+        .diagram-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .diagram-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            position: relative;
+        }
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        .highlight {
+            color: #ffcc80;
+            font-weight: bold;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('intro-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('parallelism-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('bernstein-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('grain-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('levels-section')"></div>
+        <div class="nav-dot" onclick="scrollToSection('summary-section')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <div class="header" id="header">
+        <div class="container">
+            <h1>Classification Based On Grain Size</h1>
+            <p>Understanding Parallelism in Computer Programs</p>
+            <div class="metrics-character">🔍📊⚡</div>
+            <p>Exploring how to identify and classify parallelism in programs based on grain size</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </div>
+
+    <!-- Introduction Section -->
+    <div class="section intro" id="intro-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to Grain Size Classification 📚</h2>
+            <div class="card fade-in">
+                <p>This classification is based on recognizing the parallelism in a program to be executed on a multiprocessor system. The idea is to identify the sub-tasks or instructions in a program that can be executed in parallel.</p>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Parallel Execution Example</h3>
+                    <p>For example, there are 3 statements in a program and statements S1 and S2 can be exchanged. That means, these are not sequential as shown in the figure. Then S1 and S2 can be executed in parallel.</p>
+                    
+                    <div class="diagram">
+                        <div class="diagram-title">Parallel Execution for S1 and S2</div>
+                        <div class="code-block">
+                            <pre>Sequential Execution:
+S1: a = b + c
+S2: d = e + f
+S3: g = a + d
+
+Parallel Execution:
+S1: a = b + c    S2: d = e + f
+      ↓                  ↓
+S3: g = a + d</pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">⚖️</span>Factors Affecting Parallelism</h3>
+                    <p>But it is not sufficient to check for the parallelism between statements or processes in a program. The decision of parallelism also depends on the following factors:</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🖥️</div>
+                            <div class="feature-content">
+                                <h3>Architectural Features</h3>
+                                <p>Number and types of processors available</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">💾</div>
+                            <div class="feature-content">
+                                <h3>Memory Organization</h3>
+                                <p>How memory is structured and accessed</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔗</div>
+                            <div class="feature-content">
+                                <h3>Dependencies</h3>
+                                <p>Data, control, and resource dependencies</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parallelism Conditions Section -->
+    <div class="section parallelism" id="parallelism-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Parallelism Conditions 🔗</h2>
+            <div class="card fade-in">
+                <p>As mentioned earlier, parallel computing necessitates that the segments to be run concurrently must be autonomous of one another. Therefore, before implementing parallelism, all the prerequisites of parallelism between the segments need to be examined.</p>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📊</span>Dependency Relations</h3>
+                    <p>In this part, we talk about three kinds of dependency circumstances between the segments:</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">💾</div>
+                            <div class="feature-content">
+                                <h3>Data Dependency</h3>
+                                <p>When two or more commands use the same information</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🎛️</div>
+                            <div class="feature-content">
+                                <h3>Control Dependency</h3>
+                                <p>Dependencies within control structures</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔧</div>
+                            <div class="feature-content">
+                                <h3>Resource Dependency</h3>
+                                <p>When instructions utilize the same shared resource</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">💾</span>Data Dependency</h3>
+                    <p>Data dependency refers to the condition where two or more commands use the same information. The following kinds of data dependencies are identified:</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">➡️</div>
+                            <div class="feature-content">
+                                <h3>Flow Dependence</h3>
+                                <p>If instruction I2 follows I1 and output of I1 becomes input of I2, then I2 is said to be flow dependent on I1</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">⬅️</div>
+                            <div class="feature-content">
+                                <h3>Anti-dependence</h3>
+                                <p>When instruction I2 follows I1 such that output of I2 overlaps with the input of I1 on the same data</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Output Dependence</h3>
+                                <p>When output of the two instructions I1 and I2 overlap on the same data</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📁</div>
+                            <div class="feature-content">
+                                <h3>I/O Dependence</h3>
+                                <p>When read and write operations by two instructions are invoked on the same file</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title"><span class="emoji">💻</span>Data Dependency Example</h3>
+                        <div class="code-block">
+                            <pre>I1: a = b
+I2: c = a + d
+I3: a = c</pre>
+                        </div>
+                        <p>This program segment contains instructions I1, I2, and I3 that have various dependencies:</p>
+                        <ul>
+                            <li><span class="highlight">I1 and I2</span> are flow dependent because I1 generates variable <span class="highlight">a</span> as output, which is then used by I2 as input</li>
+                            <li><span class="highlight">I2 and I3</span> are anti-dependent since I3 generates variable <span class="highlight">a</span> but I2 uses it, and I2 comes before I3 in the sequence</li>
+                            <li><span class="highlight">I3</span> is flow dependent on <span class="highlight">I2</span> due to variable <span class="highlight">c</span></li>
+                            <li><span class="highlight">I3 and I1</span> are output dependent because both instructions generate variable <span class="highlight">a</span></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🎛️</span>Control Dependence</h3>
+                    <p>Instructions or segments in a program often contain control structures. As a result, dependency among the statements can also occur within control structures. However, the order in which instructions in control structures will execute is not known until run time.</p>
+                    
+                    <div class="code-block">
+                        <pre>For (i = 1; i <= n; i++) {
+    if (x[i - 1] == 0)
+        x[i] = 0
+    else
+        x[i] = 1;
+}</pre>
+                    </div>
+                    <p>In the above control structure, the successive iterations are dependent on one another because the value of <span class="highlight">x[i]</span> in iteration <span class="highlight">i</span> depends on the value of <span class="highlight">x[i-1]</span> from the previous iteration.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔧</span>Resource Dependence</h3>
+                    <p>The similarity between the instructions can also be influenced because of the shared resources. If two instructions are utilizing the same shared resource then there is a resource dependency situation.</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🧮</div>
+                            <div class="feature-content">
+                                <h3>ALU Dependency</h3>
+                                <p>When floating point units or registers are shared</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">💾</div>
+                            <div class="feature-content">
+                                <h3>Storage Dependency</h3>
+                                <p>When memory is being shared</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bernstein Conditions Section -->
+    <div class="section bernstein" id="bernstein-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Bernstein Conditions for Detection of Parallelism 📐</h2>
+            <div class="card fade-in">
+                <p>For execution of instructions or block of instructions in parallel, it should be ensured that the instructions are independent of each other. These instructions can be data dependent / control dependent / resource dependent on each other. Here we consider only data dependency among the statements for taking decisions of parallel execution.</p>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📝</span>Bernstein's Sets</h3>
+                    <p>A.J. Bernstein has elaborated the work of data dependency and derived some conditions based on which we can decide the parallelism of instructions or processes. Bernstein conditions are based on the following two sets of variables:</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📖</div>
+                            <div class="feature-content">
+                                <h3>Read Set (R<sub>I</sub>)</h3>
+                                <p>The input set that consists of memory locations read by the statement of instruction I<sub>1</sub></p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">✍️</div>
+                            <div class="feature-content">
+                                <h3>Write Set (W<sub>I</sub>)</h3>
+                                <p>The output set that consists of memory locations written into by instruction I<sub>1</sub></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p>The sets R<sub>I</sub> and W<sub>I</sub> are not disjoint as the same locations are used for reading and writing by S<sub>I</sub>.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📐</span>Bernstein Parallelism Conditions</h3>
+                    <p>The following are Bernstein Parallelism conditions which are used to determine whether statements are parallel or not:</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">1️⃣</div>
+                            <div class="feature-content">
+                                <h3>First Condition</h3>
+                                <p>Locations in R<sub>1</sub> from which S<sub>1</sub> reads and the locations W<sub>2</sub> onto which S<sub>2</sub> writes must be mutually exclusive: <strong>R<sub>1</sub> ∩ W<sub>2</sub> = φ</strong></p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">2️⃣</div>
+                            <div class="feature-content">
+                                <h3>Second Condition</h3>
+                                <p>Locations in R<sub>2</sub> from which S<sub>2</sub> reads and the locations W<sub>1</sub> onto which S<sub>1</sub> writes must be mutually exclusive: <strong>R<sub>2</sub> ∩ W<sub>1</sub> = φ</strong></p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">3️⃣</div>
+                            <div class="feature-content">
+                                <h3>Third Condition</h3>
+                                <p>The memory locations W<sub>1</sub> and W<sub>2</sub> onto which S<sub>1</sub> and S<sub>2</sub> write, should not overlap: <strong>W<sub>1</sub> ∩ W<sub>2</sub> = φ</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">💻</span>Bernstein Conditions Example</h3>
+                    <p>To show the operation of Bernstein's conditions, consider the following instructions of a sequential program:</p>
+                    
+                    <div class="code-block">
+                        <pre>I1: x = (a + b) / (a * b)
+I2: y = (b + c) * d
+I3: z = x² + (a * e)</pre>
+                    </div>
+                    
+                    <p>Now, the read set and write set of I1, I2 and I3 are as follows:</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📖</div>
+                            <div class="feature-content">
+                                <h3>I1 Sets</h3>
+                                <p>R<sub>1</sub> = {a, b}<br>W<sub>1</sub> = {x}</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📖</div>
+                            <div class="feature-content">
+                                <h3>I2 Sets</h3>
+                                <p>R<sub>2</sub> = {b, c, d}<br>W<sub>2</sub> = {y}</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📖</div>
+                            <div class="feature-content">
+                                <h3>I3 Sets</h3>
+                                <p>R<sub>3</sub> = {x, a, e}<br>W<sub>3</sub> = {z}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="subsection">
+                        <h3 class="subsection-title"><span class="emoji">🔍</span>Checking Parallelism</h3>
+                        <p>Now let us find out whether I1 and I2 are parallel or not:</p>
+                        <ul>
+                            <li>R<sub>1</sub> ∩ W<sub>2</sub> = {a, b} ∩ {y} = φ ✓</li>
+                            <li>R<sub>2</sub> ∩ W<sub>1</sub> = {b, c, d} ∩ {x} = φ ✓</li>
+                            <li>W<sub>1</sub> ∩ W<sub>2</sub> = {x} ∩ {y} = φ ✓</li>
+                        </ul>
+                        <p>That means I1 and I2 are independent of each other and can be executed in parallel.</p>
+                        
+                        <p>Similarly for I1 || I3:</p>
+                        <ul>
+                            <li>R<sub>1</sub> ∩ W<sub>3</sub> = {a, b} ∩ {z} = φ ✓</li>
+                            <li>R<sub>3</sub> ∩ W<sub>1</sub> = {x, a, e} ∩ {x} = {x} ≠ φ ✗</li>
+                            <li>W<sub>1</sub> ∩ W<sub>3</sub> = {x} ∩ {z} = φ ✓</li>
+                        </ul>
+                        <p>Hence I1 and I3 are not independent of each other and cannot be executed in parallel.</p>
+                        
+                        <p>For I2 || I3:</p>
+                        <ul>
+                            <li>R<sub>2</sub> ∩ W<sub>3</sub> = {b, c, d} ∩ {z} = φ ✓</li>
+                            <li>R<sub>3</sub> ∩ W<sub>2</sub> = {x, a, e} ∩ {y} = φ ✓</li>
+                            <li>W<sub>3</sub> ∩ W<sub>2</sub> = {z} ∩ {y} = φ ✓</li>
+                        </ul>
+                        <p>Hence, I2 and I3 are independent of each other and can be executed in parallel.</p>
+                        
+                        <div class="diagram">
+                            <div class="diagram-title">Parallelism Results</div>
+                            <div class="metrics-grid">
+                                <div class="metric-card">
+                                    <div class="metric-icon">✅</div>
+                                    <div class="metric-title">I1 || I2</div>
+                                    <p>Can run in parallel</p>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-icon">❌</div>
+                                    <div class="metric-title">I1 || I3</div>
+                                    <p>Cannot run in parallel</p>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-icon">✅</div>
+                                    <div class="metric-title">I2 || I3</div>
+                                    <p>Can run in parallel</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grain Size Section -->
+    <div class="section grain" id="grain-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Parallelism Based On Grain Size 🌾</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📏</span>Definition of Grain Size</h3>
+                    <p>Grain size or Granularity is a measure which determines how much computation is involved in a process. Grain size is determined by counting the number of instructions in a program segment.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📊</span>Types of Grain Sizes</h3>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon">🔬</div>
+                            <div class="metric-title">Fine Grain</div>
+                            <p>Contains approximately less than 20 instructions</p>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">⚖️</div>
+                            <div class="metric-title">Medium Grain</div>
+                            <p>Contains approximately less than 500 instructions</p>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">🏔️</div>
+                            <div class="metric-title">Coarse Grain</div>
+                            <p>Contains approximately greater than or equal to one thousand instructions</p>
+                        </div>
+                    </div>
+                    
+                    <div class="diagram">
+                        <div class="diagram-title">Types of Grain Sizes</div>
+                        <div class="code-block">
+                            <pre>Fine Grain Example:
+a = b + c
+d = e + f
+g = a + d
+
+Medium Grain Example:
+function calculateSum(arr) {
+    let sum = 0;
+    for (let i = 0; i < arr.length; i++) {
+        sum += arr[i];
+    }
+    return sum;
+}
+
+Coarse Grain Example:
+function processImage(image) {
+    // Image processing algorithm
+    // Hundreds or thousands of instructions
+    return processedImage;
+}</pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Parallelism Levels</h3>
+                    <p>According to the grain sizes, parallelism in a program can be categorized into different levels. These parallelism levels make up a hierarchy where processes become finer-grained at lower levels. As the level increases, the degree of parallelism decreases.</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">📝</div>
+                            <div class="feature-content">
+                                <h3>Instruction Level</h3>
+                                <p>The most basic level with the highest degree of parallelism. Fine grain size with just a few instructions per grain.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Loop Level</h3>
+                                <p>Involves parallelizing iterative loop instructions. Also fine grain size. Simple loops are easy to parallelize.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🧩</div>
+                            <div class="feature-content">
+                                <h3>Procedure Level</h3>
+                                <p>Consists of procedures, subroutines or subprograms. Medium grain size with thousands of instructions per procedure.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📚</div>
+                            <div class="feature-content">
+                                <h3>Program Level</h3>
+                                <p>The highest level, consisting of independent programs. Coarse grain size with tens of thousands of instructions per program.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📊</span>Parallelism Levels Characteristics</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parallelism Level</th>
+                                <th>Grain Size</th>
+                                <th>Characteristics</th>
+                                <th>Implementation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Instruction Level</td>
+                                <td>Fine</td>
+                                <td>Highest degree of parallelism, more overhead</td>
+                                <td>Hardware (superscalar, VLIW)</td>
+                            </tr>
+                            <tr>
+                                <td>Loop Level</td>
+                                <td>Fine</td>
+                                <td>Simple loops easy to parallelize, recursive loops difficult</td>
+                                <td>Compilers can achieve automatically</td>
+                            </tr>
+                            <tr>
+                                <td>Procedure Level</td>
+                                <td>Medium</td>
+                                <thousands of instructions, multiprogramming</th>
+                                <td>Programmers have exploited, compilers not yet</td>
+                            </tr>
+                            <tr>
+                                <td>Program Level</td>
+                                <td>Coarse</td>
+                                <td>Tens of thousands of instructions, independent programs</td>
+                                <td>Time sharing, operating system</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parallelism Levels Section -->
+    <div class="section levels" id="levels-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Parallelism Levels and System Types 🏗️</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📊</span>Relation Between Grain Sizes and Parallelism</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Grain Size</th>
+                                <th>Parallelism Level</th>
+                                <th>Typical System Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Fine Grain</td>
+                                <td>Instruction or Loop Level</td>
+                                <td>SIMD organization</td>
+                            </tr>
+                            <tr>
+                                <td>Medium Grain</td>
+                                <td>Procedure or Subprogram Level</td>
+                                <td>Loosely coupled systems</td>
+                            </tr>
+                            <tr>
+                                <td>Coarse Grain</td>
+                                <td>Program Level</td>
+                                <td>Tightly coupled or shared memory multiprocessors (e.g., Cray Y-MP)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🖥️</span>System Types for Different Grain Sizes</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔗</div>
+                            <div class="feature-content">
+                                <h3>Tightly Coupled Systems</h3>
+                                <p>Typically used for coarse grain parallelism. Examples include shared memory multiprocessors like the Cray Y-MP.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📦</div>
+                            <div class="feature-content">
+                                <h3>Loosely Coupled Systems</h3>
+                                <p>Utilized to execute medium grain program segments. Distributed memory systems fall into this category.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔀</div>
+                            <div class="feature-content">
+                                <h3>SIMD Organization</h3>
+                                <p>Fine grain parallelism has been seen in the SIMD (Single Instruction, Multiple Data) organization of computers.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">💡</span>Practical Considerations</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">⚡</div>
+                            <div class="feature-content">
+                                <h3>Communication Overhead</h3>
+                                <p>Fine grain parallelism requires more communication and synchronization overhead</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📈</div>
+                            <div class="feature-content">
+                                <h3>Scalability</h3>
+                                <p>Coarse grain parallelism is generally more scalable to larger systems</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">👨‍💻</div>
+                            <div class="feature-content">
+                                <h3>Programming Complexity</h3>
+                                <p>Fine grain parallelism is often more complex to program effectively</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔄</span>Parallelism Hierarchy</h3>
+                    <div class="diagram">
+                        <div class="diagram-title">Parallelism Levels Hierarchy</div>
+                        <div class="hierarchy-container">
+                            <div class="hierarchy-level">
+                                <span>Program Level (Coarse Grain) - Highest level, lowest parallelism degree</span>
+                                <span>📚</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Procedure Level (Medium Grain) - Medium parallelism degree</span>
+                                <span>🧩</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Loop Level (Fine Grain) - High parallelism degree</span>
+                                <span>🔄</span>
+                            </div>
+                            <div class="hierarchy-level">
+                                <span>Instruction Level (Fine Grain) - Highest parallelism degree, lowest level</span>
+                                <span>📝</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="section summary" id="summary-section">
+        <div class="container">
+            <h2 class="section-title fade-in">Summary 📝</h2>
+            <div class="card fade-in">
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">📚</span>Classification Systems Covered</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔄</div>
+                            <div class="feature-content">
+                                <h3>Flynn's Classification</h3>
+                                <p>Based on instruction and data streams (SISD, SIMD, MISD, MIMD)</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🏗️</div>
+                            <div class="feature-content">
+                                <h3>Handler's Classification</h3>
+                                <p>Categorizes computers at three distinct tiers: PCU, ALU, and BLC</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🔗</div>
+                            <div class="feature-content">
+                                <h3>Structural Classification</h3>
+                                <p>Tightly coupled (shared memory) and loosely coupled (distributed memory) systems</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🌾</div>
+                            <div class="feature-content">
+                                <h3>Grain Size Classification</h3>
+                                <p>Based on the amount of computation in a process (fine, medium, coarse)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">🔍</span>Key Concepts in Grain Size Classification</h3>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="emoji">🔗</div>
+                            <div class="feature-content">
+                                <h3>Dependencies</h3>
+                                <p>Data, control, and resource dependencies affect parallelism</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📐</div>
+                            <div class="feature-content">
+                                <h3>Bernstein Conditions</h3>
+                                <p>Mathematical conditions to determine if instructions can run in parallel</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">📏</div>
+                            <div class="feature-content">
+                                <h3>Grain Sizes</h3>
+                                <p>Fine (&lt;20 instructions), Medium (&lt;500 instructions), Coarse (≥1000 instructions)</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="emoji">🏗️</div>
+                            <div class="feature-content">
+                                <h3>Parallelism Levels</h3>
+                                <p>Instruction, Loop, Procedure, and Program levels with decreasing parallelism degree</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3 class="subsection-title"><span class="emoji">💡</span>Final Thoughts</h3>
+                    <p>Understanding grain size classification is essential for designing efficient parallel computing systems. The choice of grain size affects the system's performance, scalability, and programming complexity. Fine-grained parallelism offers high parallelism but with more overhead, while coarse-grained parallelism is easier to implement but may not utilize all available resources optimally.</p>
+                    
+                    <p>By analyzing dependencies using Bernstein conditions and selecting the appropriate grain size for the target architecture, we can design parallel systems that effectively balance parallelism with overhead, leading to optimal performance for a wide range of applications.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Scroll to section function
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+            
+            // Update active nav dot
+            const navDots = document.querySelectorAll('.nav-dot');
+            navDots.forEach(dot => dot.classList.remove('active'));
+            
+            const sections = ['header', 'intro-section', 'parallelism-section', 'bernstein-section', 
+                             'grain-section', 'levels-section', 'summary-section'];
+            
+            const index = sections.indexOf(sectionId);
+            if (index !== -1) {
+                navDots[index].classList.add('active');
+            }
+        }
+
+        // Update active nav dot on scroll
+        window.addEventListener('scroll', () => {
+            const sections = ['header', 'intro-section', 'parallelism-section', 'bernstein-section', 
+                             'grain-section', 'levels-section', 'summary-section'];
+            
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (scrollY >= (sectionTop - 200)) {
+                    current = sectionId;
+                }
+            });
+            
+            navDots.forEach(dot => dot.classList.remove('active'));
+            
+            const index = sections.indexOf(current);
+            if (index !== -1) {
+                navDots[index].classList.add('active');
+            }
+        });
+
+        // Fade in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

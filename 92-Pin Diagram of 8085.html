@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pin Diagram of 8085 Microprocessor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/8085-pin-diagram/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .power { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .bus { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .instruction { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .addressing { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Pin Diagram Styles */
+        .pin-diagram {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .pin-container {
+            width: 80%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+        }
+        .pin-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+        .pin {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+        .pin:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.5);
+        }
+        .pin-label {
+            position: absolute;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        .pin-label.left {
+            right: calc(100% + 10px);
+        }
+        .pin-label.right {
+            left: calc(100% + 10px);
+        }
+        .pin-label.top {
+            bottom: calc(100% + 10px);
+        }
+        .pin-label.bottom {
+            top: calc(100% + 10px);
+        }
+        /* Instruction Set Styles */
+        .instruction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .instruction-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .instruction-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .instruction-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .instruction-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Addressing Mode Styles */
+        .addressing-diagram {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .addressing-component {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px;
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+            transition: all 0.3s ease;
+        }
+        .addressing-component:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .addressing-row {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+        /* Code Block Styles */
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('intro')"></div>
+        <div class="nav-dot" onclick="scrollToSection('power')"></div>
+        <div class="nav-dot" onclick="scrollToSection('bus')"></div>
+        <div class="nav-dot" onclick="scrollToSection('instruction')"></div>
+        <div class="nav-dot" onclick="scrollToSection('addressing')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section id="header" class="header">
+        <div class="container">
+            <h1>Pin Diagram of 8085</h1>
+            <p>Understanding the 8085 Microprocessor Pin Configuration</p>
+            <div class="metrics-character">🔌</div>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section id="intro" class="section intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Pin Diagram Overview</h2>
+            <div class="card fade-in">
+                <p>The signals of the 8085 microprocessor can be grouped into the following categories:</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Power supply and clock signals</h3>
+                            <p>Essential for the operation of the microprocessor</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📍</div>
+                        <div class="feature-content">
+                            <h3>Address bus</h3>
+                            <p>Used to specify memory locations</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Data bus</h3>
+                            <p>Used for data transfer</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🎛️</div>
+                        <div class="feature-content">
+                            <h3>Control and status signals</h3>
+                            <p>Control the operation of the microprocessor</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⚠️</div>
+                        <div class="feature-content">
+                            <h3>Interrupts and externally initiated signals</h3>
+                            <p>Handle external events</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📡</div>
+                        <div class="feature-content">
+                            <h3>Serial I/O ports</h3>
+                            <p>For serial communication</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pin-diagram fade-in">
+                <div class="pin-container">
+                    <div class="pin-row">
+                        <div class="pin">1</div>
+                        <div class="pin">2</div>
+                        <div class="pin">3</div>
+                        <div class="pin">4</div>
+                        <div class="pin">5</div>
+                        <div class="pin">6</div>
+                        <div class="pin">7</div>
+                        <div class="pin">8</div>
+                        <div class="pin">9</div>
+                        <div class="pin">10</div>
+                    </div>
+                    <div class="pin-row">
+                        <div class="pin">20</div>
+                        <div class="pin">19</div>
+                        <div class="pin">18</div>
+                        <div class="pin">17</div>
+                        <div class="pin">16</div>
+                        <div class="pin">15</div>
+                        <div class="pin">14</div>
+                        <div class="pin">13</div>
+                        <div class="pin">12</div>
+                        <div class="pin">11</div>
+                    </div>
+                    <div class="pin-row">
+                        <div class="pin">21</div>
+                        <div class="pin">22</div>
+                        <div class="pin">23</div>
+                        <div class="pin">24</div>
+                        <div class="pin">25</div>
+                        <div class="pin">26</div>
+                        <div class="pin">27</div>
+                        <div class="pin">28</div>
+                        <div class="pin">29</div>
+                        <div class="pin">30</div>
+                    </div>
+                    <div class="pin-row">
+                        <div class="pin">40</div>
+                        <div class="pin">39</div>
+                        <div class="pin">38</div>
+                        <div class="pin">37</div>
+                        <div class="pin">36</div>
+                        <div class="pin">35</div>
+                        <div class="pin">34</div>
+                        <div class="pin">33</div>
+                        <div class="pin">32</div>
+                        <div class="pin">31</div>
+                    </div>
+                    <div class="pin-label left" style="top: 20px;">A8</div>
+                    <div class="pin-label left" style="top: 60px;">A9</div>
+                    <div class="pin-label left" style="top: 100px;">A10</div>
+                    <div class="pin-label left" style="top: 140px;">A11</div>
+                    <div class="pin-label right" style="top: 20px;">A15</div>
+                    <div class="pin-label right" style="top: 60px;">A14</div>
+                    <div class="pin-label right" style="top: 100px;">A13</div>
+                    <div class="pin-label right" style="top: 140px;">A12</div>
+                    <div class="pin-label top" style="left: 20px;">X1</div>
+                    <div class="pin-label top" style="left: 60px;">X2</div>
+                    <div class="pin-label top" style="left: 100px;">RESET OUT</div>
+                    <div class="pin-label top" style="left: 140px;">SOD</div>
+                    <div class="pin-label top" style="left: 180px;">TRAP</div>
+                    <div class="pin-label top" style="left: 220px;">RST 7.5</div>
+                    <div class="pin-label top" style="left: 260px;">RST 6.5</div>
+                    <div class="pin-label top" style="left: 300px;">RST 5.5</div>
+                    <div class="pin-label top" style="left: 340px;">INTR</div>
+                    <div class="pin-label top" style="left: 380px;">INTA</div>
+                    <div class="pin-label bottom" style="left: 20px;">Vcc</div>
+                    <div class="pin-label bottom" style="left: 60px;">HOLD</div>
+                    <div class="pin-label bottom" style="left: 100px;">HLDA</div>
+                    <div class="pin-label bottom" style="left: 140px;">WR</div>
+                    <div class="pin-label bottom" style="left: 180px;">RD</div>
+                    <div class="pin-label bottom" style="left: 220px;">IO/M</div>
+                    <div class="pin-label bottom" style="left: 260px;">S1</div>
+                    <div class="pin-label bottom" style="left: 300px;">S0</div>
+                    <div class="pin-label bottom" style="left: 340px;">ALE</div>
+                    <div class="pin-label bottom" style="left: 380px;">GND</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Power Supply and Clock Signals Section -->
+    <section id="power" class="section power">
+        <div class="container">
+            <h2 class="section-title fade-in">Power Supply and Clock Signals</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">⚡</div>
+                    <div class="feature-content">
+                        <h3>Vcc</h3>
+                        <p>+5-volt power supply</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">⏚</div>
+                    <div class="feature-content">
+                        <h3>Vss</h3>
+                        <p>Ground reference</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔧</div>
+                    <div class="feature-content">
+                        <h3>X1, X2</h3>
+                        <p>Crystal or R/C network or LC network connections to set the frequency of internal clock generator. The frequency is internally divided by two. Since the basic operating timing frequency is 3 MHz, a 6 MHz crystal is connected externally.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🕒</div>
+                    <div class="feature-content">
+                        <h3>CLK (output)</h3>
+                        <p>Clock Output is used as the system clock for peripheral and devices interfaced with the microprocessor.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Address Bus and Data Bus Section -->
+    <section id="bus" class="section bus">
+        <div class="container">
+            <h2 class="section-title fade-in">Address Bus and Data Bus</h2>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔄</span>AD0-AD7 (Multiplexed Address/Data Bus)</h3>
+                <p>These are data bus and address multiplexed. Therefore, in addition to carrying data, it can also carry a lower order 8-bit address. Usually, the Latch is used to demultiplex these lines.</p>
+                <br>
+                <p>The lines deliver the lower order address bus A0-A7 in the first clock cycle of the opcode fetch operation. It serves as data bus D0-D7 in the IO/M read or write that follows. Data can be read or written by the CPU over these lines.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📍</span>A8-A15 (Address Bus)</h3>
+                <p>Address buses A8 through A15 are used to address memory locations.</p>
+                <div class="addressing-diagram">
+                    <div class="addressing-component">A8-A15: Higher Order Address Bus</div>
+                    <div class="addressing-row">
+                        <div class="addressing-component">AD0-AD7: Multiplexed Lower Order Address/Data Bus</div>
+                    </div>
+                    <div class="addressing-component">Total Address Space: 16 bits (64KB)</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instruction Set Section -->
+    <section id="instruction" class="section instruction">
+        <div class="container">
+            <h2 class="section-title fade-in">Instruction Set</h2>
+            <div class="card fade-in">
+                <p>The following five functional headings apply to the 8085 instruction set:</p>
+                <div class="instruction-grid">
+                    <div class="instruction-card">
+                        <div class="instruction-icon">📤</div>
+                        <div class="instruction-title">Data Transfer Instructions</div>
+                        <p>Instructions for moving (copying) data between registers or between memory locations and registers. Not a single data transfer transaction modifies the contents of the source register. As a result, data transport is a copying process.</p>
+                    </div>
+                    <div class="instruction-card">
+                        <div class="instruction-icon">🧮</div>
+                        <div class="instruction-title">Arithmetic Instructions</div>
+                        <p>Contains instructions for performing operations such as addition, subtraction, increment, and decrement. Following the execution of an instruction in this group, the flag conditions are changed.</p>
+                    </div>
+                    <div class="instruction-card">
+                        <div class="instruction-icon">🔣</div>
+                        <div class="instruction-title">Logical Instructions</div>
+                        <p>This category includes instructions that carry out logical operations such as AND, OR, EXCLUSIVE-OR, complement, compare, and rotate. Following the execution of an instruction in this group, the flag conditions are changed.</p>
+                    </div>
+                    <div class="instruction-card">
+                        <div class="instruction-icon">🔀</div>
+                        <div class="instruction-title">Branching Instructions</div>
+                        <p>This category includes instructions used to move the program's control from one memory region to another.</p>
+                    </div>
+                    <div class="instruction-card">
+                        <div class="instruction-icon">⚙️</div>
+                        <div class="instruction-title">Machine Control Instructions</div>
+                        <p>Contains instructions for stopping program execution and for handling interruptions.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📤</span>Data Transfer Instructions</h3>
+                <p>These instructions transfer information from memory to registers or between registers and memory.</p>
+                <p>These instructions replicate information from one location to another.</p>
+                <p>The contents of the source are not altered throughout the copying process.</p>
+                <div class="code-block">
+                    MOV A, B   ; Move data from register B to accumulator<br>
+                    MVI C, 05H ; Move immediate data 05H to register C<br>
+                    LDA 2000H  ; Load accumulator with data from memory location 2000H<br>
+                    STA 3000H  ; Store accumulator data to memory location 3000H
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🧮</span>Arithmetic Instructions</h3>
+                <p>These instructions perform arithmetic operations such as addition, subtraction, increment, and decrement.</p>
+                <div class="code-block">
+                    ADD B      ; Add register B to accumulator<br>
+                    ADI 05H    ; Add immediate data 05H to accumulator<br>
+                    SUB C      ; Subtract register C from accumulator<br>
+                    INR D      ; Increment register D by 1<br>
+                    DCR E      ; Decrement register E by 1
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔣</span>Logical Instructions</h3>
+                <p>These instructions perform various logical operations with the contents of the accumulator.</p>
+                <div class="code-block">
+                    ANA B      ; AND register B with accumulator<br>
+                    ORA C      ; OR register C with accumulator<br>
+                    XRA D      ; EXCLUSIVE-OR register D with accumulator<br>
+                    CMA        ; Complement accumulator<br>
+                    CMP E      ; Compare register E with accumulator
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔀</span>Branching Instructions</h3>
+                <p>This group of instructions alters the sequence of program execution either conditionally or unconditionally.</p>
+                <div class="code-block">
+                    JMP 2050H  ; Jump to memory location 2050H<br>
+                    JZ 2050H   ; Jump to 2050H if zero flag is set<br>
+                    JNZ 2050H  ; Jump to 2050H if zero flag is not set<br>
+                    CALL 2050H ; Call subroutine at 2050H<br>
+                    RET        ; Return from subroutine
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">⚙️</span>Machine Control Instructions</h3>
+                <p>These instructions control machine functions such as Halt, Interrupt, or do nothing.</p>
+                <div class="code-block">
+                    HLT        ; Halt the microprocessor<br>
+                    NOP        ; No operation<br>
+                    EI         ; Enable interrupts<br>
+                    DI         ; Disable interrupts<br>
+                    SIM        ; Set interrupt mask<br>
+                    RIM        ; Read interrupt mask
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📋</span>SIM and RIM Instructions</h3>
+                <p><strong>SIM (Set Interrupt Mask):</strong> This instruction is used to set the interrupt mask and to output data through SOD line.</p>
+                <p><strong>RIM (Read Interrupt Mask):</strong> This instruction is used to read the interrupt mask and to input data through SID line.</p>
+                <div class="addressing-diagram">
+                    <div class="addressing-component">SIM Instruction Format</div>
+                    <div class="addressing-row">
+                        <div class="addressing-component">SOD<br>SDO<br>I7.5<br>I6.5<br>I5.5<br>IE<br>M7.5<br>M6.5<br>M5.5</div>
+                    </div>
+                    <div class="addressing-component">RIM Instruction Format</div>
+                    <div class="addressing-row">
+                        <div class="addressing-component">SID<br>IID<br>I7.5<br>I6.5<br>I5.5<br>IE<br>M7.5<br>M6.5<br>M5.5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Addressing Modes Section -->
+    <section id="addressing" class="section addressing">
+        <div class="container">
+            <h2 class="section-title fade-in">Addressing Modes</h2>
+            <div class="card fade-in">
+                <p>A program's instructions must all function with data. The process of defining the data that an instruction is to operate on is known as addressing. The 8085 is equipped with five distinct addressing types:</p>
+                <div class="instruction-grid">
+                    <div class="instruction-card">
+                        <div class="instruction-icon">⚡</div>
+                        <div class="instruction-title">Immediate Addressing</div>
+                        <p>The data is given in the instruction itself.</p>
+                    </div>
+                    <div class="instruction-card">
+                        <div class="instruction-icon">📍</div>
+                        <div class="instruction-title">Direct Addressing</div>
+                        <p>The instruction contains the address of the data.</p>
+                    </div>
+                    <div class="instruction-card">
+                        <div class="instruction-icon">📝</div>
+                        <div class="instruction-title">Register Addressing</div>
+                        <p>The instruction identifies the register that contains the data.</p>
+                    </div>
+                    <div class="instruction-card">
+                        <div class="instruction-icon">🔄</div>
+                        <div class="instruction-title">Register Indirect Addressing</div>
+                        <p>The address of the data is available in a register.</p>
+                    </div>
+                    <div class="instruction-card">
+                        <div class="instruction-icon">🔍</div>
+                        <div class="instruction-title">Implied Addressing</div>
+                        <p>The data to be operated is specified in the instruction itself.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">⚡</span>Immediate Addressing</h3>
+                <p>The data is given in the instruction itself when using immediate addressing mode. The information will be included in the program's instructions.</p>
+                <div class="code-block">
+                    MVI B, 3EH   ; Move the data 3EH to the B register<br>
+                    LXI SP, 2700H ; Load the stack pointer with 2700H<br>
+                    ADI 05H      ; Add immediate data 05H to accumulator
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📍</span>Direct Addressing</h3>
+                <p>The instruction contains the address of the data in direct addressing mode. It will be stored in memory. Data and program instructions can be kept in separate memory locations when using this addressing technique.</p>
+                <div class="code-block">
+                    LDA 1050H    ; Load the data into the accumulator at memory address 1050H<br>
+                    STA 2000H    ; Store the accumulator data to memory address 2000H<br>
+                    SHLD 3000H   ; Store H and L registers to memory address 3000H
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📝</span>Register Addressing</h3>
+                <p>When using register addressing mode, the instruction identifies the register that contains the data.</p>
+                <div class="code-block">
+                    SPHL         ; Copy H and L registers to stack pointer<br>
+                    ADD C        ; Add register C to accumulator<br>
+                    MOV A, B     ; Transfer the contents of B register to A register
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔄</span>Register Indirect Addressing</h3>
+                <p>In this style of instruction, the address of the data is available in a register named after the instruction. In this case, the address will be in the register pair while the data will be in memory.</p>
+                <div class="code-block">
+                    MOV A, M     ; Move the memory data addressed by the H L pair to register A<br>
+                    LDAX B       ; Load accumulator with data from memory address in B-C pair<br>
+                    STAX D       ; Store accumulator data to memory address in D-E pair
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔍</span>Implied Addressing</h3>
+                <p>When using implied addressing mode, the data to be operated is specified right in the instruction itself.</p>
+                <div class="code-block">
+                    CMA          ; Complement the accumulator's content<br>
+                    RAL          ; Rotate accumulator left through carry<br>
+                    RAR          ; Rotate accumulator right through carry
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Scroll to section function
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update active navigation dot based on scroll position
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            if (current) {
+                document.querySelector(`.nav-dot[onclick="scrollToSection('${current}')"]`).classList.add('active');
+            }
+        });
+
+        // Fade in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

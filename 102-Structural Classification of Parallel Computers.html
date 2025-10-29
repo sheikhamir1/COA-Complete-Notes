@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Structural Classification of Parallel Computers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/parallel-computers/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .flynn { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .tightly { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .interconnection { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .cache { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .modes { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .uma { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .numa { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .coma { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+        .loosely { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 152, 80, 0.7)); }
+        .norma { background: linear-gradient(135deg, rgba(114, 30, 60, 0.7), rgba(152, 42, 82, 0.7)); }
+        .message { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .examples { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .conclusion { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 152, 80, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* System Diagram Styles */
+        .system-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+        .diagram-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin: 15px 0;
+        }
+        .diagram-box {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 0 10px;
+            text-align: center;
+            min-width: 120px;
+        }
+        .diagram-connector {
+            width: 50px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.5);
+            position: relative;
+        }
+        .diagram-connector::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 8px solid rgba(255, 255, 255, 0.5);
+        }
+        .diagram-vertical-connector {
+            width: 2px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.5);
+            margin: 0 auto;
+            position: relative;
+        }
+        .diagram-vertical-connector::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: -4px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 8px solid rgba(255, 255, 255, 0.5);
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <div class="nav">
+        <div class="nav-dot active" data-section="0"></div>
+        <div class="nav-dot" data-section="1"></div>
+        <div class="nav-dot" data-section="2"></div>
+        <div class="nav-dot" data-section="3"></div>
+        <div class="nav-dot" data-section="4"></div>
+        <div class="nav-dot" data-section="5"></div>
+        <div class="nav-dot" data-section="6"></div>
+        <div class="nav-dot" data-section="7"></div>
+        <div class="nav-dot" data-section="8"></div>
+        <div class="nav-dot" data-section="9"></div>
+        <div class="nav-dot" data-section="10"></div>
+        <div class="nav-dot" data-section="11"></div>
+        <div class="nav-dot" data-section="12"></div>
+        <div class="nav-dot" data-section="13"></div>
+        <div class="nav-dot" data-section="14"></div>
+        <div class="nav-dot" data-section="15"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section class="header" id="section-0">
+        <div class="container">
+            <h1>Structural Classification of Parallel Computers</h1>
+            <div class="metrics-character">🔗💻🔀</div>
+            <p>Understanding Tightly Coupled and Loosely Coupled Systems</p>
+            <p>A detailed exploration of parallel computer architectures based on their structural design</p>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section class="section intro" id="section-1">
+        <div class="container">
+            <h2 class="section-title">Introduction to Structural Classification 📚</h2>
+            <div class="card fade-in">
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">Flynn's taxonomy focuses on the behavioral aspects of parallel computers and does not consider their structural design. However, parallel computers can also be classified based on their architecture.</p>
+            </div>
+            
+            <h3 class="subsection-title fade-in">🔍 Key Concepts</h3>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🧩</div>
+                    <div class="feature-content">
+                        <h3>Parallel Computers</h3>
+                        <p>Systems with multiple processors working together</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔗</div>
+                    <div class="feature-content">
+                        <h3>Interconnection Network</h3>
+                        <p>Links processors and memory modules</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">📊</div>
+                    <div class="feature-content">
+                        <h3>Structural Classification</h3>
+                        <p>Based on how processors and memory are organized</p>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 class="subsection-title fade-in">🏗️ Two Main Architectures</h3>
+            <div class="metrics-grid fade-in">
+                <div class="metric-card">
+                    <div class="metric-icon">🔗</div>
+                    <div class="metric-title">Tightly Coupled</div>
+                    <p>Shared memory systems</p>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">📦</div>
+                    <div class="metric-title">Loosely Coupled</div>
+                    <p>Distributed memory systems</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Flynn's Taxonomy vs. Structural Classification -->
+    <section class="section flynn" id="section-2">
+        <div class="container">
+            <h2 class="section-title">Flynn's Taxonomy vs. Structural Classification 📊</h2>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🔍 Flynn's Taxonomy</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">Flynn's classification focuses on the behavioral aspects of parallel computers:</p>
+                
+                <div class="metrics-grid fade-in">
+                    <div class="metric-card">
+                        <div class="metric-icon">📝</div>
+                        <div class="metric-title">SISD</div>
+                        <p>Single Instruction, Single Data</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📝➕📝</div>
+                        <div class="metric-title">SIMD</div>
+                        <p>Single Instruction, Multiple Data</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📝➕📊</div>
+                        <div class="metric-title">MISD</div>
+                        <p>Multiple Instruction, Single Data</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📝➕📊</div>
+                        <div class="metric-title">MIMD</div>
+                        <p>Multiple Instruction, Multiple Data</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🏗️ Structural Classification</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">Structural classification, on the other hand, focuses on the physical organization of the system:</p>
+                
+                <div class="metrics-grid fade-in">
+                    <div class="metric-card">
+                        <div class="metric-icon">🔗</div>
+                        <div class="metric-title">Tightly Coupled</div>
+                        <p>Processors share global memory</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📦</div>
+                        <div class="metric-title">Loosely Coupled</div>
+                        <p>Each processor has local memory</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🔄 MIMD Systems</h3>
+                <p style="font-size: 1.3rem;">A parallel computer (MIMD) consists of multiple processors and shared memory modules or local memories connected via an interconnection network.</p>
+                
+                <div class="system-diagram fade-in">
+                    <div class="diagram-row">
+                        <div class="diagram-box">P1</div>
+                        <div class="diagram-connector"></div>
+                        <div class="diagram-box">Interconnection Network</div>
+                        <div class="diagram-connector"></div>
+                        <div class="diagram-box">P2</div>
+                    </div>
+                    <div class="diagram-vertical-connector"></div>
+                    <div class="diagram-row">
+                        <div class="diagram-box">Memory</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tightly Coupled Systems -->
+    <section class="section tightly" id="section-3">
+        <div class="container">
+            <h2 class="section-title">Tightly Coupled Systems / Shared Memory Systems 🔗</h2>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🔍 Definition</h3>
+                <p style="font-size: 1.3rem;">In tightly coupled systems, multiple processors communicate through a shared global memory. This organization is called a shared memory computer or tightly coupled system.</p>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">✅ Characteristics</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Shared Memory</h3>
+                            <p>Every processor communicates through a shared global memory</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>High Throughput</h3>
+                            <p>Preferable for high-speed real-time processing</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔗</div>
+                        <div class="feature-content">
+                            <h3>Tight Coupling</h3>
+                            <p>Processors are closely connected through shared memory</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🏗️ Organization</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">In tightly coupled system organization, multiple processors share a global main memory, which may have many modules. The processors also have access to I/O devices.</p>
+                
+                <div class="system-diagram fade-in">
+                    <div class="diagram-row">
+                        <div class="diagram-box">P1</div>
+                        <div class="diagram-connector"></div>
+                        <div class="diagram-box">P2</div>
+                    </div>
+                    <div class="diagram-vertical-connector"></div>
+                    <div class="diagram-row">
+                        <div class="diagram-box">Interconnection Network</div>
+                    </div>
+                    <div class="diagram-vertical-connector"></div>
+                    <div class="diagram-row">
+                        <div class="diagram-box">Memory Module 1</div>
+                        <div class="diagram-connector"></div>
+                        <div class="diagram-box">Memory Module 2</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🔌 Interconnection</h3>
+                <p style="font-size: 1.3rem;">The inter-communication between processors, memory, and other devices are implemented through various interconnection networks.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interconnection Networks in Tightly Coupled Systems -->
+    <section class="section interconnection" id="section-4">
+        <div class="container">
+            <h2 class="section-title">Interconnection Networks in Tightly Coupled Systems 🌐</h2>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🔍 Types of Interconnection Networks</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">🧠</div>
+                        <div class="metric-title">PMIN</div>
+                        <p>Processor-Memory Interconnection Network</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📡</div>
+                        <div class="metric-title">IOPIN</div>
+                        <p>Input-Output-Processor Interconnection Network</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">⚠️</div>
+                        <div class="metric-title">ISIN</div>
+                        <p>Interrupt Signal Interconnection Network</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🧠 Processor-Memory Interconnection Network (PMIN)</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">This switch links up various processors with different memory units.</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔗</div>
+                        <div class="feature-content">
+                            <h3>Direct Connection</h3>
+                            <p>Connecting each processor directly to each memory module</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔀</div>
+                        <div class="feature-content">
+                            <h3>Crossbar Switch</h3>
+                            <p>Can become very complex with many processors and memories</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🪜</div>
+                        <div class="feature-content">
+                            <h3>Multi-step Network</h3>
+                            <p>Used instead of complex crossbar switches</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⚠️</div>
+                        <div class="feature-content">
+                            <h3>Conflict Resolution</h3>
+                            <p>Handles clashes when processors access same memory modules</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">📡 Input-Output-Processor Interconnection Network (IOPIN)</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">This interconnection network is used for communication between processors and input/output (I/O) channels.</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">📝</div>
+                        <div class="feature-content">
+                            <h3>Permission Control</h3>
+                            <p>Processors need permission from IOPIN to interact with I/O devices</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔌</div>
+                        <div class="feature-content">
+                            <h3>I/O Channel Access</h3>
+                            <p>Manages which processor can access which I/O channel</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">⚠️ Interrupt Signal Interconnection Network (ISIN)</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">When one processor desires to interrupt another processor, the interruption first travels to the ISIN.</p>
+                
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Interruption Relay</h3>
+                            <p>ISIN passes the interruption to the destination processor</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⏱️</div>
+                        <div class="feature-content">
+                            <h3>Synchronization</h3>
+                            <p>Allows ISIN to synchronize processors by facilitating interruptions</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">❗</div>
+                        <div class="feature-content">
+                            <h3>Failure Notification</h3>
+                            <p>If a processor fails, ISIN broadcasts a message to other processors</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">📊 ISIN Functions</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Intermediary</h3>
+                            <p>Acts as intermediary for interruptions between processors</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🎯</div>
+                        <div class="feature-content">
+                            <h3>Coordination</h3>
+                            <p>Coordinates and relays interruptions</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📢</div>
+                        <div class="feature-content">
+                            <h3>Notification</h3>
+                            <p>Notifies all processors of any processor malfunction</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cache Memory in Tightly Coupled Systems -->
+    <section class="section cache" id="section-5">
+        <div class="container">
+            <h2 class="section-title">Cache Memory in Tightly Coupled Systems 🗄️</h2>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">⏱️ Reducing Delay</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">Since every reference to the memory in tightly coupled systems is via interconnection network, there is a delay in executing the instructions. To reduce this delay, every processor may use cache memory for the frequent references made by the processor.</p>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🏗️ Organization with Cache</h3>
+                <div class="system-diagram fade-in">
+                    <div class="diagram-row">
+                        <div class="diagram-box">P1</div>
+                        <div class="diagram-connector"></div>
+                        <div class="diagram-box">Cache 1</div>
+                        <div class="diagram-connector"></div>
+                        <div class="diagram-box">P2</div>
+                        <div class="diagram-connector"></div>
+                        <div class="diagram-box">Cache 2</div>
+                    </div>
+                    <div class="diagram-vertical-connector"></div>
+                    <div class="diagram-row">
+                        <div class="diagram-box">Interconnection Network</div>
+                    </div>
+                    <div class="diagram-vertical-connector"></div>
+                    <div class="diagram-row">
+                        <div class="diagram-box">Shared Memory</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">💡 Benefits of Cache</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Faster Access</h3>
+                            <p>Cache memory is faster than main memory</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Reduced Network Traffic</h3>
+                            <p>Frequent accesses are handled locally</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📈</div>
+                        <div class="feature-content">
+                            <h3>Improved Performance</h3>
+                            <p>Overall system performance is enhanced</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modes of Tightly Coupled Systems -->
+    <section class="section modes" id="section-6">
+        <div class="container">
+            <h2 class="section-title">Modes of Tightly Coupled Systems 🔀</h2>
+            
+            <div class="card fade-in">
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">The shared memory multiprocessor systems can further be divided into three modes which are based on the manner in which shared memory is accessed.</p>
+                
+                <div class="metrics-grid fade-in">
+                    <div class="metric-card">
+                        <div class="metric-icon">🔄</div>
+                        <div class="metric-title">UMA</div>
+                        <p>Uniform Memory Access</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🔀</div>
+                        <div class="metric-title">NUMA</div>
+                        <p>Non-Uniform Memory Access</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🗄️</div>
+                        <div class="metric-title">COMA</div>
+                        <p>Cache-Only Memory Access</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">📊 Comparison of Modes</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mode</th>
+                            <th>Memory Access</th>
+                            <th>Key Characteristic</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>UMA</td>
+                            <td>Uniform for all processors</td>
+                            <td>All processors have equal access time</td>
+                        </tr>
+                        <tr>
+                            <td>NUMA</td>
+                            <td>Non-uniform</td>
+                            <td>Local memory access is faster than remote</td>
+                        </tr>
+                        <tr>
+                            <td>COMA</td>
+                            <td>Non-uniform</td>
+                            <td>Uses cache memories instead of local memories</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Uniform Memory Access Model (UMA) -->
+    <section class="section uma" id="section-7">
+        <div class="container">
+            <h2 class="section-title">Uniform Memory Access Model (UMA) 🔄</h2>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🔍 Definition</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">In this model, main memory is uniformly shared by all processors in multiprocessor systems and each processor has equal access time to shared memory.</p>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🏗️ Structure</h3>
+                <div class="system-diagram fade-in">
+                    <div class="diagram-row">
+                        <div class="diagram-box">P1</div>
+                        <div class="diagram-connector"></div>
+                        <div class="diagram-box">P2</div>
+                        <div class="diagram-connector"></div>
+                        <div class="diagram-box">P3</div>
+                    </div>
+                    <div class="diagram-vertical-connector"></div>
+                    <div class="diagram-row">
+                        <div class="diagram-box">Shared Bus</div>
+                    </div>
+                    <div class="diagram-vertical-connector"></div>
+                    <div class="diagram-row">
+                        <div class="diagram-box">Shared Memory</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">✅ Characteristics</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">⏱️</div>
+                        <div class="feature-content">
+                            <h3>Equal Access Time</h3>
+                            <p>All processors have same access time to memory</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">👥</div>
+                        <div class="feature-content">
+                            <h3>Multi-user Environment</h3>
+                            <p>Used for time-sharing applications</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔄</div>
+                        <div class="feature-content">
+                            <h3>Uniform Sharing</h3>
+                            <p>Memory is uniformly shared by all processors</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">💡 Example</h3>
+                <p style="font-size: 1.3rem;">Symmetric Multiprocessors (SMPs) are common examples of UMA systems where all processors have equal access to all memory locations.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Non-Uniform Memory Access Model (NUMA) -->
+    <section class="section numa" id="section-8">
+        <div class="container">
+            <h2 class="section-title">Non-Uniform Memory Access Model (NUMA) 🔀</h2>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🔍 Definition</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">In shared memory multiprocessor systems, local memories can be connected with every processor. The collections of all local memories form the global memory being shared. In this way, global memory is distributed to all the processors.</p>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">⏱️ Access Time Variation</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">⚡</div>
+                        <div class="feature-content">
+                            <h3>Local Memory Access</h3>
+                            <p>Uniform and fast for its corresponding processor</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔗</div>
+                        <div class="feature-content">
+                            <h3>Remote Memory Access</h3>
+                            <p>Slower and non-uniform, depends on location</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🏗️ Structure</h3>
+                <div class="system-diagram fade-in">
+                    <div class="diagram-row">
+                        <div class="diagram-box">P1</div>
+                        <div class="diagram-connector"></div>
+                        <div class="diagram-box">Local Memory 1</div>
+                    </div>
+                    <div class="diagram-vertical-connector"></div>
+                    <div class="diagram-row">
+                        <div class="diagram-box">P2</div>
+                        <div class="diagram-connector"></div>
+                        <div class="diagram-box">Local Memory 2</div>
+                    </div>
+                    <div class="diagram-vertical-connector"></div>
+                    <div class="diagram-row">
+                        <div class="diagram-box">Interconnection Network</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">💡 Key Point</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">In NUMA, all memory words are not accessed uniformly. The access time depends on the location of the memory relative to the processor.</p>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🖥️ Real-world Example</h3>
+                <p style="font-size: 1.3rem;">Modern server systems with multiple CPU sockets, where each CPU has its own local memory but can access the memory of other CPUs through an interconnection network.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cache-Only Memory Access Model (COMA) -->
+    <section class="section coma" id="section-9">
+        <div class="container">
+            <h2 class="section-title">Cache-Only Memory Access Model (COMA) 🗄️</h2>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🔍 Definition</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">In NUMA model, if we use cache memories instead of local memories, then it becomes COMA model. The collection of cache memories forms a global memory space.</p>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🏗️ Structure</h3>
+                <div class="system-diagram fade-in">
+                    <div class="diagram-row">
+                        <div class="diagram-box">P1</div>
+                        <div class="diagram-connector"></div>
+                        <div class="diagram-box">Cache 1</div>
+                    </div>
+                    <div class="diagram-vertical-connector"></div>
+                    <div class="diagram-row">
+                        <div class="diagram-box">P2</div>
+                        <div class="diagram-connector"></div>
+                        <div class="diagram-box">Cache 2</div>
+                    </div>
+                    <div class="diagram-vertical-connector"></div>
+                    <div class="diagram-row">
+                        <div class="diagram-box">Interconnection Network</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">⏱️ Access Characteristics</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔍</div>
+                        <div class="feature-content">
+                            <h3>Cache as Memory</h3>
+                            <p>Cache memories act as the main memory</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔀</div>
+                        <div class="feature-content">
+                            <h3>Non-uniform Access</h3>
+                            <p>Remote cache access is also non-uniform</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🌐</div>
+                        <div class="feature-content">
+                            <h3>Global Memory Space</h3>
+                            <p>Collection of all caches forms global memory</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">💡 Advantage</h3>
+                <p style="font-size: 1.3rem;">COMA can provide better performance for applications with high data locality, as data can be moved to where it is needed.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loosely Coupled Systems -->
+    <section class="section loosely" id="section-10">
+        <div class="container">
+            <h2 class="section-title">Loosely Coupled Systems / Distributed Memory Systems 📦</h2>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🔍 Definition</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">In loosely coupled systems, processors do not share global memory as shared memory leads to memory conflict issues, which slow down instruction execution.</p>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🏗️ Organization</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">Each processor has a large local memory that is not shared with other processors. These systems have multiple processors with their own local memory and I/O devices, forming individual computer systems.</p>
+                
+                <div class="system-diagram fade-in">
+                    <div class="diagram-row">
+                        <div class="diagram-box">P1</div>
+                        <div class="diagram-connector"></div>
+                        <div class="diagram-box">Local Memory 1</div>
+                    </div>
+                    <div class="diagram-vertical-connector"></div>
+                    <div class="diagram-row">
+                        <div class="diagram-box">P2</div>
+                        <div class="diagram-connector"></div>
+                        <div class="diagram-box">Local Memory 2</div>
+                    </div>
+                    <div class="diagram-vertical-connector"></div>
+                    <div class="diagram-row">
+                        <div class="diagram-box">Message Passing Network</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">📡 Communication</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">They are connected via a message passing interconnection network through which processes communicate by exchanging messages.</p>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🏷️ Alternative Names</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🖥️</div>
+                        <div class="feature-content">
+                            <h3>Distributed Multicomputer Systems</h3>
+                            <p>Each node has separate memory</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔗</div>
+                        <div class="feature-content">
+                            <h3>Loosely Coupled Systems</h3>
+                            <p>Little interdependence between nodes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- No-Remote Memory Access (NORMA) Systems -->
+    <section class="section norma" id="section-11">
+        <div class="container">
+            <h2 class="section-title">No-Remote Memory Access (NORMA) Systems 🚫</h2>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🔍 Definition</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">Since local memories can only be accessed by their attached processor, no processor is able to access remote memory. For this reason, these systems are also referred to as no-remote memory access (NORMA) systems.</p>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🚫 Key Characteristic</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔒</div>
+                        <div class="feature-content">
+                            <h3>Local Access Only</h3>
+                            <p>Processors can only access their own local memory</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🚫</div>
+                        <div class="feature-content">
+                            <h3>No Remote Access</h3>
+                            <p>Cannot directly access memory of other processors</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">📡 Communication Method</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">Communication between processors is achieved through message passing rather than shared memory access.</p>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🏗️ Structure</h3>
+                <div class="system-diagram fade-in">
+                    <div class="diagram-row">
+                        <div class="diagram-box">P1</div>
+                        <div class="diagram-connector"></div>
+                        <div class="diagram-box">Local Memory 1</div>
+                    </div>
+                    <div class="diagram-vertical-connector"></div>
+                    <div class="diagram-row">
+                        <div class="diagram-box">P2</div>
+                        <div class="diagram-connector"></div>
+                        <div class="diagram-box">Local Memory 2</div>
+                    </div>
+                    <div class="diagram-vertical-connector"></div>
+                    <div class="diagram-row">
+                        <div class="diagram-box">Message Passing Network</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Message Passing Interconnection Network -->
+    <section class="section message" id="section-12">
+        <div class="container">
+            <h2 class="section-title">Message Passing Interconnection Network 📨</h2>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🔗 Connection</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">The message passing interconnection network connects every node and communication between nodes with messages is dependent on the type of interconnection network.</p>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🔍 Types of Interconnection Networks</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🚌</div>
+                        <div class="feature-content">
+                            <h3>Shared Bus</h3>
+                            <p>For non-hierarchical systems</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔀</div>
+                        <div class="feature-content">
+                            <h3>Crossbar Switch</h3>
+                            <p>Direct connection between all nodes</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🪜</div>
+                        <div class="feature-content">
+                            <h3>Multistage Network</h3>
+                            <p>Multiple stages of switching elements</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔗</div>
+                        <div class="feature-content">
+                            <h3>Mesh/Torus</h3>
+                            <p>Grid-like connection patterns</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">📨 Message Passing Process</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">1</div>
+                        <div class="feature-content">
+                            <h3>Processor prepares message</h3>
+                            <p>✉️</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">2</div>
+                        <div class="feature-content">
+                            <h3>Message is sent through interconnection network</h3>
+                            <p>📡</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">3</div>
+                        <div class="feature-content">
+                            <h3>Message is received by destination processor</h3>
+                            <p>📥</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">4</div>
+                        <div class="feature-content">
+                            <h3>Destination processor processes the message</h3>
+                            <p>⚙️</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">⚖️ Advantages and Disadvantages</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">✅</div>
+                        <div class="feature-content">
+                            <h3>Scalability</h3>
+                            <p>Easier to scale to large number of processors</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">✅</div>
+                        <div class="feature-content">
+                            <h3>No Memory Conflicts</h3>
+                            <p>Each processor has its own memory</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">❌</div>
+                        <div class="feature-content">
+                            <h3>Communication Overhead</h3>
+                            <p>Message passing adds latency</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">❌</div>
+                        <div class="feature-content">
+                            <h3>Complex Programming</h3>
+                            <p>Requires explicit message passing</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Real-world Examples -->
+    <section class="section examples" id="section-13">
+        <div class="container">
+            <h2 class="section-title">Real-world Examples 💻</h2>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🔗 Tightly Coupled Systems Examples</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🖥️</div>
+                        <div class="feature-content">
+                            <h3>Symmetric Multiprocessors (SMPs)</h3>
+                            <p>Multiple processors share a common memory and I/O system (e.g., multi-core processors in desktop computers)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🖥️</div>
+                        <div class="feature-content">
+                            <h3>Uniform Memory Access (UMA) Systems</h3>
+                            <p>All processors have equal access time to memory (e.g., early Sun Enterprise servers)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🖥️</div>
+                        <div class="feature-content">
+                            <h3>Non-Uniform Memory Access (NUMA) Systems</h3>
+                            <p>Modern server systems with multiple CPU sockets (e.g., AMD EPYC, Intel Xeon servers)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">📦 Loosely Coupled Systems Examples</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🌐</div>
+                        <div class="feature-content">
+                            <h3>Computer Clusters</h3>
+                            <p>Collection of computers connected via a network (e.g., Beowulf clusters)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">☁️</div>
+                        <div class="feature-content">
+                            <h3>Grid Computing</h3>
+                            <p>Distributed computing across multiple administrative domains (e.g., CERN's Large Hadron Collider computing grid)</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🌐</div>
+                        <div class="feature-content">
+                            <h3>Distributed Systems</h3>
+                            <p>Systems where components located on different networked computers communicate by passing messages (e.g., Google's search infrastructure)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🔀 Comparison in Practice</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>System Type</th>
+                            <th>Best Use Case</th>
+                            <th>Real-world Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Tightly Coupled (UMA)</td>
+                            <td>General-purpose computing, shared memory applications</td>
+                            <td>Desktop/workstation with multi-core CPU</td>
+                        </tr>
+                        <tr>
+                            <td>Tightly Coupled (NUMA)</td>
+                            <td>High-performance computing, large database servers</td>
+                            <td>Enterprise server with multiple CPU sockets</td>
+                        </tr>
+                        <tr>
+                            <td>Loosely Coupled</td>
+                            <td>Highly scalable applications, fault-tolerant systems</td>
+                            <td>Supercomputer clusters, cloud computing infrastructure</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Conclusion -->
+    <section class="section conclusion" id="section-14">
+        <div class="container">
+            <h2 class="section-title">Conclusion 🏁</h2>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🔍 Key Takeaways</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">🔗</div>
+                        <div class="feature-content">
+                            <h3>Tightly Coupled Systems</h3>
+                            <p>Processors share global memory, faster communication but potential conflicts</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📦</div>
+                        <div class="feature-content">
+                            <h3>Loosely Coupled Systems</h3>
+                            <p>Each processor has local memory, no conflicts but communication overhead</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">🔌</div>
+                        <div class="feature-content">
+                            <h3>Interconnection Networks</h3>
+                            <p>Crucial for performance in both architectures</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">📊 Structural Classification vs. Flynn's Taxonomy</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">While Flynn's taxonomy classifies parallel computers based on instruction and data streams, structural classification focuses on the physical organization of processors and memory. Both are important for understanding parallel computer architectures.</p>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">🚀 Future Trends</h3>
+                <p style="font-size: 1.3rem; margin-bottom: 20px;">Modern systems often combine elements of both tightly and loosely coupled architectures, creating hybrid systems that leverage the advantages of each approach. For example, a cluster of NUMA systems forms a loosely coupled system with each node being a tightly coupled system.</p>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 class="subsection-title">💡 Final Thought</h3>
+                <p style="font-size: 1.3rem;">The choice between tightly coupled and loosely coupled systems depends on the specific requirements of the application, including performance needs, scalability requirements, and programming complexity. Understanding the structural classification helps in designing and selecting the appropriate parallel computing architecture for a given problem.</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const navDots = document.querySelectorAll('.nav-dot');
+            const sections = document.querySelectorAll('.section, .header');
+            
+            // Function to update active nav dot based on scroll position
+            function updateActiveNav() {
+                let current = 0;
+                
+                sections.forEach((section, index) => {
+                    const rect = section.getBoundingClientRect();
+                    if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+                        current = index;
+                    }
+                });
+                
+                navDots.forEach((dot, index) => {
+                    if (index === current) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Function to scroll to section when nav dot is clicked
+            function scrollToSection(index) {
+                sections[index].scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // Add click event to nav dots
+            navDots.forEach((dot, index) => {
+                dot.addEventListener('click', () => scrollToSection(index));
+            });
+            
+            // Update active nav on scroll
+            window.addEventListener('scroll', updateActiveNav);
+            
+            // Initial call to set active nav
+            updateActiveNav();
+            
+            // Fade in animation on scroll
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            function checkFade() {
+                fadeElements.forEach(element => {
+                    const rect = element.getBoundingClientRect();
+                    const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+                    
+                    if (isVisible) {
+                        element.classList.add('visible');
+                    }
+                });
+            }
+            
+            // Initial check and add scroll event listener
+            checkFade();
+            window.addEventListener('scroll', checkFade);
+        });
+    </script>
+</body>
+</html>

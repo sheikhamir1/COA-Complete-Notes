@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I/O Interface - Computer Systems</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/io-interface/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .interface-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .definition { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .types { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .components { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .transfer { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .importance { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Interface Type Card */
+        .interface-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            transition: transform 0.3s ease;
+        }
+        .interface-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .interface-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .interface-title .emoji {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .comparison-table th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        .comparison-table tr:hover td {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('intro')"></div>
+        <div class="nav-dot" onclick="scrollToSection('definition')"></div>
+        <div class="nav-dot" onclick="scrollToSection('types')"></div>
+        <div class="nav-dot" onclick="scrollToSection('components')"></div>
+        <div class="nav-dot" onclick="scrollToSection('transfer')"></div>
+        <div class="nav-dot" onclick="scrollToSection('importance')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section id="header" class="header">
+        <div class="container">
+            <h1>I/O Interface</h1>
+            <p>Understanding communication between CPU and peripheral devices</p>
+            <div class="interface-character">🔌</div>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section id="intro" class="section intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to I/O Interface</h2>
+            <div class="card fade-in">
+                <p>The I/O (Input/Output) interface is a critical component of a computer system, facilitating communication between the CPU and peripheral devices. It ensures that data is transferred efficiently and accurately between the internal system components and external devices, such as keyboards, monitors, printers, and storage drives.</p>
+            </div>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🔄</div>
+                    <div class="feature-content">
+                        <h3>Data Transfer</h3>
+                        <p>Facilitates efficient movement of data</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔌</div>
+                    <div class="feature-content">
+                        <h3>Connection Bridge</h3>
+                        <p>Links CPU with peripheral devices</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">⚙️</div>
+                    <div class="feature-content">
+                        <h3>System Integration</h3>
+                        <p>Ensures compatibility between components</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Definition and Role Section -->
+    <section id="definition" class="section definition">
+        <div class="container">
+            <h2 class="section-title fade-in">Definition and Role of I/O Interface</h2>
+            <div class="card fade-in">
+                <p>The I/O interface acts as a bridge between the CPU and peripheral devices, managing data exchange and ensuring compatibility between different hardware components. It translates data and control signals from the CPU into a form that peripheral devices can understand and vice versa.</p>
+            </div>
+            <div class="card fade-in">
+                <p>This interface also handles the timing and synchronization of data transfers, enabling smooth operation of the entire system. Without an effective I/O interface, communication between the CPU and peripheral devices would be inefficient and error-prone.</p>
+            </div>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🔄</div>
+                    <div class="feature-content">
+                        <h3>Data Translation</h3>
+                        <p>Converts signals between CPU and devices</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">⏱️</div>
+                    <div class="feature-content">
+                        <h3>Timing Control</h3>
+                        <p>Manages synchronization of transfers</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔗</div>
+                    <div class="feature-content">
+                        <h3>Compatibility</h3>
+                        <p>Ensures devices work with the system</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Types of I/O Interfaces Section -->
+    <section id="types" class="section types">
+        <div class="container">
+            <h2 class="section-title fade-in">Types of I/O Interfaces</h2>
+            
+            <div class="interface-card fade-in">
+                <div class="interface-title"><span class="emoji">🔌</span>Parallel Interface</div>
+                <p><strong>Definition:</strong> A type of interface that transfers multiple bits of data simultaneously across multiple channels or wires.</p>
+                <p><strong>Examples:</strong> Parallel ports, used primarily for printers and older storage devices.</p>
+                <p><strong>Characteristics:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Speed:</strong> High-speed data transfer as multiple bits are transferred at once.</li>
+                    <li><strong>Cable Length:</strong> Limited to shorter lengths due to signal degradation over distance.</li>
+                    <li><strong>Noise:</strong> Susceptible to noise and crosstalk between wires.</li>
+                </ul>
+                <p><strong>Applications:</strong> Older computers for connecting printers and other high-speed peripherals.</p>
+            </div>
+            
+            <div class="interface-card fade-in">
+                <div class="interface-title"><span class="emoji">📡</span>Serial Interface</div>
+                <p><strong>Definition:</strong> Transfers data one bit at a time over a single channel or wire.</p>
+                <p><strong>Examples:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>USB (Universal Serial Bus):</strong> Widely used for connecting peripherals like keyboards, mice, and storage devices.</li>
+                    <li><strong>RS-232:</strong> Older standard used for serial communication in modems and other devices.</li>
+                    <li><strong>SATA (Serial ATA):</strong> Used for connecting hard drives and SSDs.</li>
+                </ul>
+                <p><strong>Characteristics:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Cable Length:</strong> Can use longer cables without significant signal degradation.</li>
+                    <li><strong>Interference:</strong> Less susceptible to interference and crosstalk.</li>
+                </ul>
+                <p><strong>Applications:</strong> Modern computers for most peripheral connections.</p>
+            </div>
+            
+            <div class="interface-card fade-in">
+                <div class="interface-title"><span class="emoji">🔌</span>USB (Universal Serial Bus)</div>
+                <p><strong>Definition:</strong> A serial interface standard designed to connect peripheral devices to a computer.</p>
+                <p><strong>Features:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Plug-and-Play:</strong> Automatically recognized by the system when connected.</li>
+                    <li><strong>Hot-Swappable:</strong> Devices can be connected and disconnected without rebooting.</li>
+                    <li><strong>Hubs:</strong> Supports multiple devices through hubs.</li>
+                </ul>
+                <p><strong>Versions:</strong> USB 1.0, 2.0, 3.0, 3.1, and USB-C, each offering higher data transfer rates and better power delivery.</p>
+                <p><strong>Applications:</strong> Connecting a wide range of devices including keyboards, mice, external storage, printers, etc.</p>
+            </div>
+            
+            <div class="interface-card fade-in">
+                <div class="interface-title"><span class="emoji">💻</span>SCSI (Small Computer System Interface)</div>
+                <p><strong>Definition:</strong> A set of standards for connecting and transferring data between computers and peripheral devices.</p>
+                <p><strong>Applications:</strong> Primarily used in servers, high-performance workstations, and storage systems.</p>
+                <p><strong>Characteristics:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Multiple Devices:</strong> Supports multiple devices on a single bus.</li>
+                    <li><strong>Speed:</strong> High-speed data transfer rates.</li>
+                    <li><strong>Complexity:</strong> More complex configuration and higher cost.</li>
+                </ul>
+                <p><strong>Applications:</strong> High data throughput and reliability environments like servers and professional workstations.</p>
+            </div>
+            
+            <div class="interface-card fade-in">
+                <div class="interface-title"><span class="emoji">📶</span>Bluetooth and Wireless Interfaces</div>
+                <p><strong>Definition:</strong> Wireless communication protocols for short-range data transfer.</p>
+                <p><strong>Examples:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Bluetooth:</strong> For peripherals like keyboards, mice, and headphones.</li>
+                    <li><strong>Wi-Fi:</strong> For connecting devices to local networks and the internet.</li>
+                </ul>
+                <p><strong>Characteristics:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Mobility:</strong> Eliminates the need for physical cables.</li>
+                    <li><strong>Range:</strong> Limited range for Bluetooth, wider for Wi-Fi.</li>
+                    <li><strong>Interference:</strong> Potential for interference from other wireless devices.</li>
+                </ul>
+                <p><strong>Applications:</strong> Mobile devices, laptops, and peripherals requiring wireless connectivity.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- I/O Interface Components Section -->
+    <section id="components" class="section components">
+        <div class="container">
+            <h2 class="section-title fade-in">I/O Interface Components</h2>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔌</span>I/O Ports</h3>
+                <div class="card">
+                    <p><strong>Definition:</strong> Physical connectors on the computer where peripheral devices are attached.</p>
+                    <p><strong>Examples:</strong> USB ports, Ethernet ports, HDMI ports, audio jacks.</p>
+                    <p><strong>Function:</strong> Provide a point of connection and communication between the computer and external devices.</p>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">⚙️</span>I/O Controllers</h3>
+                <div class="card">
+                    <p><strong>Definition:</strong> Hardware components that manage the communication between the CPU and peripheral devices.</p>
+                    <p><strong>Examples:</strong> Disk controllers, network interface cards (NICs), graphics cards.</p>
+                    <p><strong>Function:</strong> Handle data transfer, error detection and correction, and ensure proper operation of connected devices.</p>
+                </div>
+            </div>
+            
+            <div class="subsection fade-in">
+                <h3 class="subsection-title"><span class="emoji">💻</span>Device Drivers</h3>
+                <div class="card">
+                    <p><strong>Definition:</strong> Software programs that enable the operating system to communicate with peripheral devices.</p>
+                    <p><strong>Function:</strong> Translate high-level commands from the OS into low-level commands understood by the device, manage data transfer, and provide an interface for device configuration and control.</p>
+                </div>
+            </div>
+            
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🔌</div>
+                    <div class="feature-content">
+                        <h3>Physical Connection</h3>
+                        <p>Ports provide the physical interface for devices</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">⚙️</div>
+                    <div class="feature-content">
+                        <h3>Hardware Management</h3>
+                        <p>Controllers handle data transfer operations</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">💻</div>
+                    <div class="feature-content">
+                        <h3>Software Interface</h3>
+                        <p>Drivers enable OS-device communication</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Transfer Techniques Section -->
+    <section id="transfer" class="section transfer">
+        <div class="container">
+            <h2 class="section-title fade-in">Data Transfer Techniques</h2>
+            
+            <div class="interface-card fade-in">
+                <div class="interface-title"><span class="emoji">🔄</span>Programmed I/O</div>
+                <p><strong>Definition:</strong> The CPU is responsible for all data transfer between the peripheral devices and memory.</p>
+                <p><strong>Advantages:</strong> Simple and straightforward implementation.</p>
+                <p><strong>Disadvantages:</strong> CPU is heavily involved, leading to inefficiency and slower performance.</p>
+            </div>
+            
+            <div class="interface-card fade-in">
+                <div class="interface-title"><span class="emoji">⚡</span>Interrupt-Driven I/O</div>
+                <p><strong>Definition:</strong> Peripheral devices interrupt the CPU to signal that they are ready for data transfer, allowing the CPU to perform other tasks in the meantime.</p>
+                <p><strong>Advantages:</strong> More efficient use of CPU resources.</p>
+                <p><strong>Disadvantages:</strong> Increased complexity in handling interrupts and context switching.</p>
+            </div>
+            
+            <div class="interface-card fade-in">
+                <div class="interface-title"><span class="emoji">🚀</span>Direct Memory Access (DMA)</div>
+                <p><strong>Definition:</strong> A method where data is transferred directly between peripheral devices and memory without CPU involvement.</p>
+                <p><strong>Advantages:</strong> Frees up CPU resources, faster data transfer.</p>
+                <p><strong>Components:</strong> DMA controller, which manages the data transfer process.</p>
+            </div>
+            
+            <div class="comparison-table fade-in">
+                <table>
+                    <tr>
+                        <th>Technique</th>
+                        <th>CPU Involvement</th>
+                        <th>Performance</th>
+                        <th>Complexity</th>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🔄</span>Programmed I/O</td>
+                        <td>High</td>
+                        <td>Low</td>
+                        <td>Low</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">⚡</span>Interrupt-Driven I/O</td>
+                        <td>Medium</td>
+                        <td>Medium</td>
+                        <td>Medium</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🚀</span>DMA</td>
+                        <td>Low</td>
+                        <td>High</td>
+                        <td>High</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Importance of I/O Interface Section -->
+    <section id="importance" class="section importance">
+        <div class="container">
+            <h2 class="section-title fade-in">Importance of I/O Interface</h2>
+            
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">⚡</div>
+                    <div class="feature-content">
+                        <h3>Efficient Data Transfer</h3>
+                        <p>Ensures fast and reliable communication between the CPU and peripheral devices. Minimizes delays and maximizes system performance.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔧</div>
+                    <div class="feature-content">
+                        <h3>Device Compatibility</h3>
+                        <p>Standardized interfaces ensure compatibility between different hardware components. Allows for easy integration and expansion of computer systems.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🛡️</div>
+                    <div class="feature-content">
+                        <h3>System Stability</h3>
+                        <p>Properly designed I/O interfaces and controllers ensure stable and error-free operation of connected devices. Helps prevent data corruption and system crashes.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card fade-in">
+                <h3 style="text-align: center; margin-bottom: 15px;">I/O Interface Benefits Overview</h3>
+                <table>
+                    <tr>
+                        <th>Benefit</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">⚡</span>Performance</td>
+                        <td>Optimizes data transfer speeds and reduces CPU overhead</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🔧</span>Flexibility</td>
+                        <td>Supports a wide range of devices and connection types</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">🛡️</span>Reliability</td>
+                        <td>Ensures error-free communication between components</td>
+                    </tr>
+                    <tr>
+                        <td><span class="register-icon">📈</span>Scalability</td>
+                        <p>Allows for easy expansion of system capabilities</p>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navigation functionality
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update active navigation dot based on scroll position
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - sectionHeight / 3)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            if (current) {
+                document.querySelector(`.nav-dot[onclick="scrollToSection('${current}')"]`).classList.add('active');
+            }
+        });
+
+        // Fade-in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

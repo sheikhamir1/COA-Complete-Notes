@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handshaking: Communication Protocols</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/handshaking-protocol/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .types { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .protocols { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .mechanisms { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        .process { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(152, 80, 42, 0.7)); }
+        .applications { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .advantages { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .disadvantages { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 82, 152, 0.7)); }
+        .conclusion { background: linear-gradient(135deg, rgba(114, 60, 30, 0.7), rgba(114, 30, 114, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Memory Hierarchy Styles */
+        .hierarchy-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .hierarchy-level {
+            width: 80%;
+            padding: 20px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hierarchy-level::after {
+            content: "↓";
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+        }
+        .hierarchy-level:last-child::after {
+            display: none;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('intro')"></div>
+        <div class="nav-dot" onclick="scrollToSection('types')"></div>
+        <div class="nav-dot" onclick="scrollToSection('protocols')"></div>
+        <div class="nav-dot" onclick="scrollToSection('mechanisms')"></div>
+        <div class="nav-dot" onclick="scrollToSection('process')"></div>
+        <div class="nav-dot" onclick="scrollToSection('applications')"></div>
+        <div class="nav-dot" onclick="scrollToSection('advantages')"></div>
+        <div class="nav-dot" onclick="scrollToSection('disadvantages')"></div>
+        <div class="nav-dot" onclick="scrollToSection('conclusion')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section id="header" class="header">
+        <div class="container">
+            <h1>Handshaking</h1>
+            <p>Communication Protocols for Synchronized Data Transfer</p>
+            <div class="metrics-character">🤝</div>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section id="intro" class="section intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to Handshaking</h2>
+            <div class="card fade-in">
+                <p>Handshaking is a communication protocol used to synchronize the data transfer between two devices or systems. It involves a series of signal exchanges to establish, control, and terminate a communication session.</p>
+                <br>
+                <p>Handshaking ensures that both sender and receiver are ready for data transmission and can handle the data correctly, thereby preventing data loss or corruption.</p>
+            </div>
+            <div class="metrics-grid fade-in">
+                <div class="metric-card">
+                    <div class="metric-icon">🔄</div>
+                    <div class="metric-title">Synchronization</div>
+                    <p>Coordinates timing between devices</p>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">✅</div>
+                    <div class="metric-title">Verification</div>
+                    <p>Ensures both parties are ready</p>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">🛡️</div>
+                    <div class="metric-title">Protection</div>
+                    <p>Prevents data loss and corruption</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Types of Handshaking Section -->
+    <section id="types" class="section types">
+        <div class="container">
+            <h2 class="section-title fade-in">Types of Handshaking</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">👤</div>
+                    <div class="feature-content">
+                        <h3>Manual Handshaking</h3>
+                        <p>Involves manual intervention to coordinate the start and stop of data transmission. Typically used in simpler or less automated systems.</p>
+                        <br>
+                        <p><strong>Example:</strong> Manual switch or lever activation to start data transfer in older systems.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🤖</div>
+                    <div class="feature-content">
+                        <h3>Automatic Handshaking</h3>
+                        <p>Utilizes automated signals and protocols to manage the synchronization and transfer of data without human intervention.</p>
+                        <br>
+                        <p><strong>Example:</strong> Automatic handshaking protocols used in modern communication systems like UART and Ethernet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Handshaking Protocols Section -->
+    <section id="protocols" class="section protocols">
+        <div class="container">
+            <h2 class="section-title fade-in">Handshaking Protocols</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">📋</div>
+                    <div class="feature-content">
+                        <h3>Handshake Protocol</h3>
+                        <p>A specific sequence of signals exchanged between devices to establish a communication link and ensure that both parties are ready for data transfer.</p>
+                        <br>
+                        <p><strong>Process:</strong> Often includes phases like request, acknowledgment, and data transfer.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🔁</div>
+                    <div class="feature-content">
+                        <h3>Three-Way Handshake</h3>
+                        <p>A common handshaking protocol used in TCP/IP networks to establish a connection between two devices.</p>
+                        <br>
+                        <p><strong>Process:</strong> Involves three steps—SYN (synchronize) request, SYN-ACK (synchronize-acknowledge) response, and ACK (acknowledge) to finalize the connection.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔄</span>Three-Way Handshake Process</h3>
+                <div class="hierarchy-container">
+                    <div class="hierarchy-level">
+                        <span>Client</span>
+                        <span>SYN →</span>
+                        <span>Server</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>Client</span>
+                        <span>← SYN-ACK</span>
+                        <span>Server</span>
+                    </div>
+                    <div class="hierarchy-level">
+                        <span>Client</span>
+                        <span>ACK →</span>
+                        <span>Server</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Handshaking Mechanisms Section -->
+    <section id="mechanisms" class="section mechanisms">
+        <div class="container">
+            <h2 class="section-title fade-in">Handshaking Mechanisms</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">▶️⏸️</div>
+                    <div class="feature-content">
+                        <h3>Start-Stop Handshaking</h3>
+                        <p>Involves a start signal to initiate data transfer and a stop signal to end the transfer. Often used in serial communication.</p>
+                        <br>
+                        <p><strong>Example:</strong> RS-232 serial communication uses start and stop bits to frame data.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🌊</div>
+                    <div class="feature-content">
+                        <h3>Flow Control Handshaking</h3>
+                        <p>Ensures that the sender does not overwhelm the receiver with data. It involves signals to control the rate of data transfer and prevent buffer overflow.</p>
+                        <br>
+                        <p><strong>Example:</strong> XON/XOFF (software flow control) and RTS/CTS (Request to Send/Clear to Send) are flow control mechanisms.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Handshaking Process Section -->
+    <section id="process" class="section process">
+        <div class="container">
+            <h2 class="section-title fade-in">Handshaking Process</h2>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📤</span>Request for Data Transfer</h3>
+                <p>The sender requests permission to transmit data. This request is often signaled by a specific line or signal in the communication protocol.</p>
+                <br>
+                <p><strong>Example:</strong> A request signal in a UART communication system.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">✅</span>Acknowledgment</h3>
+                <p>The receiver acknowledges the request, signaling that it is ready to accept data. This acknowledgment confirms that both devices are synchronized.</p>
+                <br>
+                <p><strong>Example:</strong> An ACK (acknowledgment) signal in TCP/IP.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📊</span>Data Transfer</h3>
+                <p>The actual data is transmitted between the sender and receiver following successful handshaking. Data transfer occurs only after acknowledgment of readiness.</p>
+                <br>
+                <p><strong>Example:</strong> Data packets in a network protocol are transferred after the three-way handshake.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔚</span>Termination</h3>
+                <p>After data transfer, a termination signal or sequence is used to end the communication session. This ensures that resources are released and no further data is transmitted.</p>
+                <br>
+                <p><strong>Example:</strong> FIN (finish) signal in TCP/IP protocol.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Applications Section -->
+    <section id="applications" class="section applications">
+        <div class="container">
+            <h2 class="section-title fade-in">Applications</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">🔌</div>
+                    <div class="feature-content">
+                        <h3>Serial Communication</h3>
+                        <p>Handshaking is used in serial communication to ensure proper synchronization and error-free data transfer.</p>
+                        <br>
+                        <p><strong>Example:</strong> UART handshaking for serial ports in computers.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🌐</div>
+                    <div class="feature-content">
+                        <h3>Networking</h3>
+                        <p>Handshaking protocols are fundamental in establishing and maintaining network connections.</p>
+                        <br>
+                        <p><strong>Example:</strong> TCP three-way handshake for establishing a reliable connection between network devices.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🖨️</div>
+                    <div class="feature-content">
+                        <h3>Peripheral Devices</h3>
+                        <p>Used to manage communication between a computer and peripheral devices such as printers, disk drives, and modems.</p>
+                        <br>
+                        <p><strong>Example:</strong> Handshaking in printer communication protocols.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Advantages Section -->
+    <section id="advantages" class="section advantages">
+        <div class="container">
+            <h2 class="section-title fade-in">Advantages</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">✅</div>
+                    <div class="feature-content">
+                        <h3>Reliable Data Transfer</h3>
+                        <p>Ensures that data is transmitted accurately by confirming readiness and synchronization between devices.</p>
+                        <br>
+                        <p><strong>Benefit:</strong> Reduces errors and data loss.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🌊</div>
+                    <div class="feature-content">
+                        <h3>Flow Control</h3>
+                        <p>Manages the rate of data transfer, preventing buffer overflow and ensuring smooth communication.</p>
+                        <br>
+                        <p><strong>Benefit:</strong> Prevents data loss due to overwhelming the receiver.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Disadvantages Section -->
+    <section id="disadvantages" class="section disadvantages">
+        <div class="container">
+            <h2 class="section-title fade-in">Disadvantages</h2>
+            <div class="feature-list fade-in">
+                <div class="feature-item">
+                    <div class="emoji">⚖️</div>
+                    <div class="feature-content">
+                        <h3>Increased Overhead</h3>
+                        <p>The handshaking process introduces additional overhead due to the exchange of control signals.</p>
+                        <br>
+                        <p><strong>Impact:</strong> May reduce the efficiency of data transfer.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="emoji">🧩</div>
+                    <div class="feature-content">
+                        <h3>Complexity</h3>
+                        <p>Implementing and managing handshaking protocols adds complexity to communication systems.</p>
+                        <br>
+                        <p><strong>Impact:</strong> Requires careful design and implementation to ensure reliable operation.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Conclusion Section -->
+    <section id="conclusion" class="section conclusion">
+        <div class="container">
+            <h2 class="section-title fade-in">Conclusion</h2>
+            <div class="card fade-in">
+                <p>In this unit, we delved into essential concepts of serial communication, I/O controllers, and data transfer mechanisms critical for computer system operations. Serial communication, a method of transmitting data one bit at a time, plays a pivotal role in connecting and managing peripheral devices with efficiency and simplicity.</p>
+                <br>
+                <p>Understanding I/O controllers' functions highlights their crucial role in managing data exchange between the CPU and external devices, ensuring smooth and orderly operations within a computer system.</p>
+            </div>
+            <div class="card fade-in">
+                <p>Asynchronous data transfer, which operates without a synchronized clock signal, provides flexibility in communication but requires effective management to ensure data integrity. Techniques such as strobe control and handshaking protocols are essential in coordinating data transfers, enhancing synchronization, and minimizing errors.</p>
+                <br>
+                <p>These mechanisms ensure that data is transmitted and received accurately, reflecting their importance in maintaining reliable communication between different system components.</p>
+            </div>
+            <div class="card fade-in">
+                <p>Overall, mastering these concepts equips one with the knowledge needed to effectively manage and troubleshoot data communication and device interfacing in modern computer systems. Understanding these fundamental principles is crucial for designing efficient and reliable computer systems and interfaces.</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Scroll to section function
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update active navigation dot based on scroll position
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            if (current) {
+                document.querySelector(`.nav-dot[onclick="scrollToSection('${current}')"]`).classList.add('active');
+            }
+        });
+
+        // Fade in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

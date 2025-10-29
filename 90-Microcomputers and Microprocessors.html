@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microcomputers and Microprocessors</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        /* Header Section */
+        .header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/seed/microcomputer-chip/1920/1080.jpg') center/cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6); }
+        }
+        .header p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+        .metrics-character {
+            font-size: 8rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: scroll 1.5s infinite;
+        }
+        @keyframes scroll {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+        }
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 80px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+            border-radius: 2px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        /* Section Specific Backgrounds */
+        .intro { background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.7)); }
+        .microprocessor { background: linear-gradient(135deg, rgba(30, 114, 60, 0.7), rgba(42, 152, 80, 0.7)); }
+        .evolution { background: linear-gradient(135deg, rgba(114, 30, 114, 0.7), rgba(152, 42, 152, 0.7)); }
+        .details { background: linear-gradient(135deg, rgba(30, 114, 114, 0.7), rgba(42, 152, 152, 0.7)); }
+        /* List Styles */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .feature-item .emoji {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        .feature-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .register-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        /* Subsection Styles */
+        .subsection {
+            margin-top: 40px;
+        }
+        .subsection-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .subsection-title .emoji {
+            margin-right: 10px;
+        }
+        /* Metrics Grid Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .metric-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .metric-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        /* Timeline Styles */
+        .timeline {
+            position: relative;
+            margin: 30px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, #ff9a9e, #fad0c4);
+            transform: translateX(-50%);
+        }
+        .timeline-item {
+            position: relative;
+            width: 50%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .timeline-item:nth-child(odd) {
+            left: 0;
+            text-align: right;
+        }
+        .timeline-item:nth-child(even) {
+            left: 50%;
+        }
+        .timeline-content {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            position: relative;
+        }
+        .timeline-item:nth-child(odd) .timeline-content::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: -10px;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            border-radius: 50%;
+        }
+        .timeline-item:nth-child(even) .timeline-content::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: -10px;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            border-radius: 50%;
+        }
+        .timeline-year {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ff9a9e;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .nav {
+                display: none;
+            }
+            .timeline::before {
+                left: 20px;
+            }
+            .timeline-item {
+                width: 100%;
+                left: 0 !important;
+                text-align: left !important;
+                padding-left: 50px;
+            }
+            .timeline-item:nth-child(odd) .timeline-content::after,
+            .timeline-item:nth-child(even) .timeline-content::after {
+                left: 10px !important;
+                right: auto !important;
+            }
+        }
+        /* Animations on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav">
+        <div class="nav-dot active" onclick="scrollToSection('header')"></div>
+        <div class="nav-dot" onclick="scrollToSection('intro')"></div>
+        <div class="nav-dot" onclick="scrollToSection('microprocessor')"></div>
+        <div class="nav-dot" onclick="scrollToSection('evolution')"></div>
+        <div class="nav-dot" onclick="scrollToSection('details')"></div>
+    </div>
+
+    <!-- Header Section -->
+    <section id="header" class="header">
+        <div class="container">
+            <h1>Microcomputers and Microprocessors</h1>
+            <p>The Evolution of Computing Power</p>
+            <div class="metrics-character">💻</div>
+            <div class="scroll-indicator">⬇️</div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section id="intro" class="section intro">
+        <div class="container">
+            <h2 class="section-title fade-in">Introduction to Microcomputers</h2>
+            <div class="card fade-in">
+                <p>A microcomputer is a personal computer or a computer that runs on a microprocessor. Microcomputers, whether they be in the form of PCs, workstations, or laptop computers, are intended for individual use.</p>
+                <br>
+                <p>A microcomputer is composed of a microprocessor, which is a CPU on a microchip, a bus system, an I/O port array, and a memory system, which is usually housed in a motherboard.</p>
+            </div>
+            <div class="metrics-grid fade-in">
+                <div class="metric-card">
+                    <div class="metric-icon">🖥️</div>
+                    <div class="metric-title">Personal Use</div>
+                    <p>Designed for individual users</p>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">🧩</div>
+                    <div class="metric-title">Integrated System</div>
+                    <p>Components on a motherboard</p>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">🔌</div>
+                    <div class="metric-title">I/O Capabilities</div>
+                    <p>Port arrays for peripherals</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Microprocessor Section -->
+    <section id="microprocessor" class="section microprocessor">
+        <div class="container">
+            <h2 class="section-title fade-in">What is a Microprocessor?</h2>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔤</span>Origin of the Term</h3>
+                <p>The word comes from the combination <strong>micro</strong> and <strong>processor</strong>.</p>
+                <ul style="margin-top: 15px; margin-left: 20px;">
+                    <li><strong>Processor</strong> means a device that processes numbers, specifically binary numbers, 0's and 1's.</li>
+                    <li><strong>Micro</strong> is a new addition that became significant in the 1970s.</li>
+                </ul>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">⏳</span>Historical Development</h3>
+                <ul style="margin-left: 20px;">
+                    <li>In the late 1960's, processors were built using discrete elements.</li>
+                    <li>These devices performed the required operation, but were too large and too slow.</li>
+                    <li>In the early 1970's the microchip was invented. All of the components that made up the processor were now placed on a single piece of silicon.</li>
+                    <li>The size became several thousand times smaller and the speed became several hundred times faster.</li>
+                    <li>The "Micro" Processor was born.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Evolution Section -->
+    <section id="evolution" class="section evolution">
+        <div class="container">
+            <h2 class="section-title fade-in">Evolution of Microprocessors</h2>
+            <div class="card fade-in">
+                <p>Intel released the 4004 and 8008 microprocessors, its first 4-bit and 8-bit microprocessors, respectively, in 1971 and 1972. These microprocessors' performance and design restrictions prevented them from being successful as general-purpose microprocessors.</p>
+                <br>
+                <p>Launched in 1974, the first general-purpose 8-bit microprocessor, the 8080, was later modified and given further functionality in 1977, making it a functionally complete microprocessor. This was known as the 8085 microprocessor.</p>
+                <br>
+                <p>The primary drawbacks of 8-bit microprocessors were their poor speed, restricted amount of general purpose registers, low memory addressing capacity, and weaker instruction set.</p>
+                <br>
+                <p>The first member of the 16-bit microprocessor family to be released in 1978 was Intel's 8086.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">📊</span>Intel Microprocessor Evolution</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>MICROPROCESSOR</th>
+                            <th>4004</th>
+                            <th>8008</th>
+                            <th>8080</th>
+                            <th>8085</th>
+                            <th>8086</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Year</td>
+                            <td>1971</td>
+                            <td>1972</td>
+                            <td>1974</td>
+                            <td>1977</td>
+                            <td>1978</td>
+                        </tr>
+                        <tr>
+                            <td>No. of Bits</td>
+                            <td>4</td>
+                            <td>8</td>
+                            <td>8</td>
+                            <td>8</td>
+                            <td>16</td>
+                        </tr>
+                        <tr>
+                            <td>Technology</td>
+                            <td>PMOS</td>
+                            <td>PMOS</td>
+                            <td>NMOS</td>
+                            <td>NMOS</td>
+                            <td>HMOS</td>
+                        </tr>
+                        <tr>
+                            <td>MEMORY</td>
+                            <td>4 KB</td>
+                            <td>16 KB</td>
+                            <td>64 KB</td>
+                            <td>64 KB</td>
+                            <td>1 MB</td>
+                        </tr>
+                        <tr>
+                            <td>INSTRUCTION SET</td>
+                            <td>45</td>
+                            <td>48</td>
+                            <td>246</td>
+                            <td>246</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>SPEED</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>50 KIPS</td>
+                        </tr>
+                        <tr>
+                            <td>NO. OF TRANSISTORS</td>
+                            <td>2300</td>
+                            <td>3500</td>
+                            <td>4500</td>
+                            <td>6500</td>
+                            <td>29000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="timeline fade-in">
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-year">1971</div>
+                        <h3>Intel 4004</h3>
+                        <p>First 4-bit microprocessor</p>
+                        <p>2300 transistors</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-year">1972</div>
+                        <h3>Intel 8008</h3>
+                        <p>First 8-bit microprocessor</p>
+                        <p>3500 transistors</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-year">1974</div>
+                        <h3>Intel 8080</h3>
+                        <p>First general-purpose 8-bit microprocessor</p>
+                        <p>4500 transistors</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-year">1977</div>
+                        <h3>Intel 8085</h3>
+                        <p>Enhanced version of 8080</p>
+                        <p>6500 transistors</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-year">1978</div>
+                        <h3>Intel 8086</h3>
+                        <p>First 16-bit microprocessor</p>
+                        <p>29000 transistors</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Details Section -->
+    <section id="details" class="section details">
+        <div class="container">
+            <h2 class="section-title fade-in">Microprocessor Introduction</h2>
+            <div class="card fade-in">
+                <p>A microprocessor, frequently shortened to μP, is a single semiconductor integrated circuit (IC) that contains miniature transistors.</p>
+                <br>
+                <p>A computer system or portable device's central processing unit (CPU) is usually one or more microprocessors.</p>
+                <br>
+                <p>The development of the microcomputer was made possible by microprocessors.</p>
+                <br>
+                <p>A microprocessor is the central component of most workstations and desktop computers. Almost all digital devices, including clock radios and car fuel injection systems, use microprocessors that manage their logic.</p>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">🔍</span>Key Differentiators</h3>
+                <p>Microprocessors differ in three fundamental ways:</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="emoji">📝</div>
+                        <div class="feature-content">
+                            <h3>Instruction Set</h3>
+                            <p>The collection of commands it is capable of carrying out.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">📏</div>
+                        <div class="feature-content">
+                            <h3>Bandwidth</h3>
+                            <p>The amount of bits processed in a single instruction.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="emoji">⏱️</div>
+                        <div class="feature-content">
+                            <h3>Clock Speed</h3>
+                            <p>Expressed in megahertz (MHz), dictates the number of instructions the CPU can process in a second.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-in">
+                <h3 class="subsection-title"><span class="emoji">⚡</span>Performance Factors</h3>
+                <p>The CPU's power increases with the value in both scenarios. A 32-bit CPU operating at 50MHz, for instance, has greater power than a 16-bit microprocessor operating at 25MHz.</p>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">🔄</div>
+                        <div class="metric-title">Higher Bandwidth</div>
+                        <p>More data processed per cycle</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">⚡</div>
+                        <div class="metric-title">Higher Clock Speed</div>
+                        <p>More cycles per second</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🚀</div>
+                        <div class="metric-title">Combined Power</div>
+                        <p>Exponential performance increase</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Scroll to section function
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Update active navigation dot based on scroll position
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navDots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            if (current) {
+                document.querySelector(`.nav-dot[onclick="scrollToSection('${current}')"]`).classList.add('active');
+            }
+        });
+
+        // Fade in animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
